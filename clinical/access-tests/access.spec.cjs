@@ -9,7 +9,7 @@ const secret = "SYNTHETICNOTASECRET";
 
 async function mockAuth(
   page,
-  { enrolled = true, badPassword = false, badCode = false } = {},
+  { enrolled = true, badPassword = false, badCode = false, access = "ok" } = {},
 ) {
   let verified = enrolled;
   const calls = [];
@@ -39,7 +39,18 @@ async function mockAuth(
     calls.push({ path, method: request.method() });
     let body;
     let status = 200;
-    if (path.endsWith("/token")) {
+    if (path === "/rest/v1/rpc/clinical_access_check") {
+      body = { authorized: true };
+      if (access === "denied") {
+        status = 401;
+        body = { code: "42501", message: "Acceso no autorizado" };
+      }
+      if (access === "false") body = { authorized: false };
+      if (access === "unavailable") {
+        status = 503;
+        body = { message: "Unavailable" };
+      }
+    } else if (path.endsWith("/token")) {
       body = badPassword
         ? { code: "invalid_credentials", msg: "Invalid login credentials" }
         : session("aal1");
@@ -118,7 +129,14 @@ test("existing MFA promotes assurance without fetching patients or storing a ses
       session: { ...sessionStorage },
     })),
   ).toEqual({ local: {}, session: {} });
-  expect(calls.some((call) => call.path.includes("/rest/"))).toBe(false);
+  expect(
+    calls.some((call) => call.path === "/rest/v1/rpc/clinical_access_check"),
+  ).toBe(true);
+  expect(
+    calls
+      .filter((call) => call.path.includes("/rest/"))
+      .every((call) => call.path === "/rest/v1/rpc/clinical_access_check"),
+  ).toBe(true);
   expect(calls.some((call) => call.path.endsWith("/factors"))).toBe(false);
   await page.reload();
   await expect(page.locator("#login")).toBeVisible();
@@ -180,3 +198,21 @@ test("inactivity closes the session when returning from a sleeping iPad tab", as
   await expect(page.locator("#verify")).toBeHidden();
   expect(calls.some((call) => call.path.endsWith("/logout"))).toBe(true);
 });
+
+for (const access of ["denied", "false", "unavailable"]) {
+  test(`MFA success alone cannot show authorization when the server is ${access}`, async ({
+    page,
+  }) => {
+    await mockAuth(page, { access });
+    await login(page);
+    await page.getByLabel("Código de 6 dígitos").fill("123456");
+    await page
+      .getByRole("button", { name: "Verificar segundo factor" })
+      .click();
+    await expect(page.getByRole("status")).toContainText(
+      "El servidor no ha confirmado el acceso",
+    );
+    await expect(page.locator("#complete")).toBeHidden();
+    await expect(page.locator("#logout")).toBeVisible();
+  });
+}

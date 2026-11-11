@@ -1,6 +1,6 @@
 # Preparación de la versión clínica · fase 1
 
-**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las dos migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
+**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las tres migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
 
 Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comunitat Valenciana, España, preferencia por comenzar gratis. La forma jurídica del centro, el responsable del tratamiento y sus obligaciones concretas quedan por confirmar; un único usuario no determina esas cuestiones.
 
@@ -9,7 +9,7 @@ Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comun
 `migrations/001_private_patients.sql` y `002_private_rpc_boundary.sql` contienen una primera API de pacientes para un proyecto Supabase de pruebas vacío:
 
 - Sin acceso por defecto: la cuenta debe incorporarse a una lista privada por un administrador; no existe alta ni autoasignación de permisos desde la API.
-- Todas las operaciones requieren identidad verificada del proveedor, cuenta habilitada y nivel MFA `aal2`.
+- Todas las operaciones requieren identidad verificada del proveedor, cuenta habilitada y nivel MFA `aal2`. La tercera migración (`20261111181241_clinical_session_guard.sql`) añade comprobación de sesión actual contra `auth.sessions`, máximo de ocho horas, caducidad del proveedor y cuenta confirmada sin bloqueo. No concede acceso de tabla al cliente.
 - Tablas privadas sin permisos de cliente y RLS con denegación restrictiva explícita. Las funciones públicas son SECURITY INVOKER y llaman implementaciones privadas con privilegios controlados, que vuelven a comprobar identidad y propietario en cada consulta. Cada función fija su `search_path` y no utiliza SQL dinámico.
 - Listado paginado de resúmenes, lectura individual, creación, actualización con revisión esperada y archivo sin borrado físico.
 - Versiones de las modificaciones y registro atómico de accesos/operaciones correctas con identificadores, acción, revisión y hora. No se duplican nombres o textos clínicos en el registro de auditoría. Si el registro de auditoría falla, la operación no se confirma.
@@ -32,14 +32,14 @@ npm run test:clinical
 
 Las pruebas ejecutan el SQL en PostgreSQL embebido con PGlite. Se simulan `auth.users`, `auth.uid()` y `auth.jwt()` solo en el entorno de pruebas; las migraciones no contienen esa simulación. No hay contraseñas ni tokens reales.
 
-Se prueban anonimato, cuenta no admitida, ausencia de doble factor, separación entre usuarios, acceso directo denegado, revocación, conflicto de revisiones, conservación de versiones, archivo, paginación y fallo de auditoría. Una concesión accidental de lectura sigue sin permitir filas por RLS. Se han verificado en Supabase alojado los permisos, la ausencia de exposición del esquema privado y el rechazo de peticiones anónimas. **No se prueba aún firma de tokens de usuario en la aplicación, inicio de sesión, MFA real, dispositivo físico, cifrado del proveedor, copias/restauración ni aplicación clínica completa.**
+Se prueban anonimato, cuenta no admitida, ausencia de doble factor, separación entre usuarios, acceso directo denegado, revocación de cuenta y sesión, caducidad y límite de ocho horas, bloqueo, conflicto de revisiones, conservación de versiones, archivo, paginación y fallo de auditoría. Una concesión accidental de lectura sigue sin permitir filas por RLS. Se han verificado en Supabase alojado los permisos, la ausencia de exposición del esquema privado y el rechazo de peticiones anónimas. El propietario ha completado el enrolamiento MFA real. **Quedan pendientes la confirmación del nuevo RPC con su JWT real, revocación de extremo a extremo, recuperación, cifrado del proveedor, copias/restauración y aplicación clínica completa.**
 
 ## Aplicación futura en un proyecto de pruebas
 
 No ejecutar la migración contra un proyecto con datos ni copiar historias reales a este repositorio. Es una migración inicial, deliberadamente no idempotente: ante un error se revierte la transacción y se investiga; no se eliminan tablas para repetirla.
 
 1. Crear un proyecto de pruebas vacío en una región UE y guardar fuera del repositorio sus datos administrativos y credenciales. Verificar la región concreta, las condiciones y el DPA disponibles para la cuenta.
-2. Aplicar ambas migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
+2. Aplicar las tres migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
 3. Desactivar altas públicas, crear/invitar únicamente la cuenta del profesional por el procedimiento del proveedor y configurar MFA. Las invitaciones y el correo requieren configuración y prueba; este trabajo no envía mensajes.
 4. Admitir manualmente el UUID de esa cuenta en `clinical_private.authorized_clinicians` desde la administración. No hay UUID real ni usuario autorizado en la migración. Mantener también MFA y acceso mínimo en la cuenta administradora del proveedor.
 5. Ejecutar pruebas reales con dos cuentas ficticias, anonimato, MFA incompleto, cuenta revocada y peticiones HTTP manipuladas. Verificar privilegios efectivos y configuración de esquemas en el proyecto, no solo el SQL local.

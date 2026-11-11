@@ -36,9 +36,9 @@ flowchart LR
 
 La demo pública puede seguir alojada gratis en GitHub Pages. El origen clínico se evaluará aparte para controlar CSP, `frame-ancestors`, HSTS, `Referrer-Policy`, caché y dependencias. No se abre desde HTML Preview, chats, iframes o un visor de terceros cuando contenga datos reales. No se añadirán analítica o herramientas de grabación de sesión en pantallas clínicas.
 
-La futura interfaz utilizará sesiones breves y control de inactividad. Si se conecta directamente al proveedor, los tokens permanecerán en memoria, sin persistencia del SDK en el navegador; se probarán recarga, revocación y recuperación. Una alternativa con servidor y cookies HttpOnly requiere diseño explícito de CSRF y sesiones. Esta decisión aún no está implementada. MFA no protege por sí sola frente a robo de una sesión o XSS.
+La futura interfaz utilizará sesiones breves y control de inactividad. Si se conecta directamente al proveedor, los tokens permanecerán en memoria, sin persistencia del SDK en el navegador; se probarán recarga, revocación y recuperación. Una alternativa con servidor y cookies HttpOnly requiere diseño explícito de CSRF y sesiones. La pantalla privada de pruebas ya implementa tokens en memoria y MFA; la integración clínica completa y recuperación siguen pendientes. MFA no protege por sí sola frente a robo de una sesión o XSS.
 
-El esquema inicial expone solo cinco RPC de pacientes sin elevación (SECURITY INVOKER), que llaman implementaciones privilegiadas en el esquema privado. Las tablas privadas tienen denegación restrictiva y esas implementaciones comprueban cuenta autorizada, `aal2` y propietario en cada operación. No se confía en ocultar botones ni en identificadores enviados por el cliente. No se permite borrado físico por la API.
+El esquema expone cinco RPC de pacientes y una comprobación de acceso, sin elevación (SECURITY INVOKER), que llaman implementaciones privilegiadas en el esquema privado. Las tablas privadas tienen denegación restrictiva y esas implementaciones comprueban cuenta autorizada, `aal2`, propietario y una sesión del proveedor vigente, del mismo usuario y menor de ocho horas, en cada operación. No se confía en ocultar botones ni en identificadores enviados por el cliente. No se permite borrado físico por la API.
 
 ## Entregas y condición de avance
 

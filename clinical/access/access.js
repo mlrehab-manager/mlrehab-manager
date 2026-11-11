@@ -198,10 +198,20 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       if (assuranceError || data.currentLevel !== "aal2")
         throw new Error("MFA not verified");
       clearSetup();
+      const { data: access, error: accessError } = await client.rpc(
+        "clinical_access_check",
+      );
+      if (!isCurrent()) return;
+      if (accessError || access?.authorized !== true) {
+        message(
+          "El servidor no ha confirmado el acceso. Sal y vuelve a entrar; si continúa, revisaremos la configuración.",
+        );
+        return;
+      }
       $("enrollment").hidden = true;
       $("verify").hidden = true;
       $("complete").hidden = false;
-      message("Autenticación con segundo factor completada.");
+      message("Acceso de pruebas autorizado por el servidor.");
     });
   });
   $("logout").addEventListener("click", () => exit("Cerrando sesión…"));
