@@ -1,6 +1,6 @@
 # Acceso de pruebas independiente
 
-Solo autenticación y configuración TOTP. No hay formularios ni solicitudes a la API de pacientes. Aún sin publicar; no utilizar historias reales.
+Solo autenticación y configuración TOTP. No hay formularios ni solicitudes a la API de pacientes. Publicada para el propietario en https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . No utilizar historias reales. Consulta el [estado de las comprobaciones HTTPS](../verification/PROJECT_STATUS.md).
 
 ## Verificar localmente
 
@@ -21,7 +21,7 @@ Definir estas tres variables en el proceso de compilación:
 
 Ejecutar `npm run build:access`. El único directorio publicable es `clinical/access-dist`, ignorado por Git. No alojar la raíz del repositorio. La compilación genera HTML, CSS, el SDK empaquetado y `_headers`, sin CDN, scripts inline ni mapas de fuentes.
 
-El alojamiento debe aplicar las cabeceras generadas: CSP con `frame-ancestors 'none'`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff` y permisos de dispositivos desactivados. `_headers` es una propuesta para alojamientos compatibles: **hay que comprobar la respuesta HTTPS real**; subir el archivo no prueba que el servidor lo interprete. No usar una vista previa de terceros para introducir credenciales. No instalar service workers ni analítica. Revisar el proveedor del alojamiento y sus condiciones antes de uso clínico.
+El alojamiento debe aplicar las cabeceras generadas: CSP con `frame-ancestors 'none'`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff` y permisos de dispositivos desactivados. `_headers` es una propuesta para alojamientos compatibles: **hay que comprobar la respuesta HTTPS real**; subir el archivo no prueba que el servidor lo interprete. Sites no interpretó este archivo en la publicación estática; la versión alojada utiliza un Worker con respuestas explícitas y cabeceras verificadas por HTTPS. El código y el artefacto de ese alojamiento se conservan en su repositorio privado independiente. No usar una vista previa de terceros para introducir credenciales. No instalar service workers ni analítica. Revisar el proveedor del alojamiento y sus condiciones antes de uso clínico.
 
 La comprobación de origen en JavaScript evita errores de ubicación; no es un control de autorización. El bloqueo de marcos se refuerza con la cabecera HTTP. El permiso clínico depende de la API privada y nunca de una pantalla que diga que el MFA fue correcto.
 

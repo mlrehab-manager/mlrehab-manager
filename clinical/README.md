@@ -49,4 +49,4 @@ Nunca colocar `service_role`, contraseña de PostgreSQL, token administrativo, c
 
 ## Antes de permitir datos reales
 
-El [plan clínico](../docs/CLINICAL_SECURITY_PLAN.md) y el [mapa de riesgos](../docs/CLINICAL_THREAT_MODEL.md) identifican el trabajo pendiente. El siguiente bloque concreto es alojar y revisar la [pantalla de autenticación/MFA](access/README.md) en un origen separado y probar la sesión real. La entrada clínica sigue bloqueada mientras falten la migración del resto de funciones y la recuperación probada.
+El [plan clínico](../docs/CLINICAL_SECURITY_PLAN.md) y el [mapa de riesgos](../docs/CLINICAL_THREAT_MODEL.md) identifican el trabajo pendiente. La [pantalla de autenticación/MFA](access/README.md) ya está alojada en un sitio privado separado, con cabeceras HTTPS verificadas. El siguiente bloque concreto es probar con el propietario la sesión y el MFA reales. La entrada clínica sigue bloqueada mientras falten la migración del resto de funciones y la recuperación probada.

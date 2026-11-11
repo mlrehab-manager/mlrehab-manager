@@ -23,7 +23,11 @@ Verificados mediante consulta administrativa y configuración pública: una cuen
 
 Se ha preparado `clinical/access`, una pantalla independiente de autenticación y alta/verificación TOTP. Usa el SDK empaquetado localmente, versiones fijadas, CSP sin scripts inline ni CDN y sesiones exclusivamente en memoria. Seis pruebas de navegador con respuestas Auth simuladas pasan: contraseña incorrecta, MFA existente, primer enrolamiento, código incorrecto, salida y caducidad por inactividad. No solicitan ni muestran datos clínicos.
 
-La pantalla no está publicada. Requiere un origen HTTPS separado de la demo, cabeceras del alojamiento comprobadas y revisión antes de introducir credenciales. La compilación impide utilizar el origen de la demo. Las pruebas usan solo claves y cuentas sintéticas; no confirman que el MFA de la cuenta real funcione.
+La pantalla está publicada en un sitio Sites privado, separado de la demo: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . La política consultada solo incluye al propietario, sin grupos ni editores. La versión publicada es la segunda, procedente del commit de su repositorio privado `50c197514d7a3708a4a26e3db4489f12e2411815`. No se ha habilitado uso clínico.
+
+La primera publicación estática ignoraba `_headers`. Se sustituyó por un Worker que devuelve explícitamente CSP con `frame-ancestors 'none'`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` y permisos de dispositivos desactivados. Las tres respuestas HTTPS (HTML, JS, CSS) dan HTTP 200, coinciden byte a byte con los archivos compilados y contienen esas cabeceras. Se verificaron localmente las rutas del Worker, HEAD y el rechazo de POST. No contiene datos clínicos ni claves secretas.
+
+La compilación impide utilizar el origen de la demo. La plataforma confirma la publicación; no se ha hecho QA de navegador del nuevo alojamiento porque no está disponible `cua_repl.js` para la vista previa gestionada. Las seis pruebas previas del flujo usan solo claves y cuentas sintéticas; no confirman el MFA de la cuenta real. La próxima prueba la realiza el propietario desde su dispositivo, sin compartir contraseñas, códigos ni QR.
 
 Pendiente configurar/verificar por separado el MFA de la cuenta administradora del proveedor. La integración no permite comprobarlo ni sustituye esa protección. La cuenta del panel de Supabase no es el usuario Auth de la aplicación; sus segundos factores son distintos.
 
