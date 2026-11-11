@@ -2,13 +2,20 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",
     "@playwright/test": "^1.65.0",
+    "esbuild": "0.28.2",
     "prettier": "^3.9.10"
   },
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "format": "prettier --write index.html assets tests playwright.config.js clinical/tests",
-    "format:check": "prettier --check index.html assets tests playwright.config.js clinical/tests",
-    "test:clinical": "node --test clinical/tests/*.test.mjs"
+    "format": "prettier --write index.html assets tests playwright.config.js clinical/tests clinical/access clinical/access-tests",
+    "format:check": "prettier --check index.html assets tests playwright.config.js clinical/tests clinical/access clinical/access-tests",
+    "test:clinical": "node --test clinical/tests/*.test.mjs",
+    "build:access": "node clinical/access/build.mjs",
+    "build:access:test": "MLREHAB_ACCESS_ORIGIN=http://127.0.0.1:4180 MLREHAB_SUPABASE_URL=https://synthetic.supabase.co MLREHAB_SUPABASE_PUBLISHABLE_KEY=sb_publishable_synthetic npm run build:access",
+    "test:access": "npm run build:access:test && playwright test --config clinical/access-tests/playwright.config.cjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.0"
   }
 }
