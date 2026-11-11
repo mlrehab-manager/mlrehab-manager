@@ -740,3 +740,9 @@ main {
 .exercise-option span {
   min-width: 0;
 }
+
+.field label.treatment-subtitle,
+h3.treatment-subtitle {
+  font-size: 15px;
+  font-weight: 650;
+}

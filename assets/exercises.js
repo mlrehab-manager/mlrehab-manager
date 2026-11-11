@@ -149,8 +149,8 @@ function editTreatment() {
   );
   openModal(
     "Editar tratamiento",
-    `<div class="field"><label>1. Tratamiento pasivo</label><textarea id="passiveTreatment">${esc(patient.passiveTreatment || "")}</textarea></div>
-    <h3>2. Ejercicio terapéutico</h3><div class="field"><label>Buscar ejercicio</label><input id="treatmentExerciseSearch" data-transient type="search" oninput="filterTreatmentExercises()"></div>
+    `<div class="field"><label class="treatment-subtitle">1. Tratamiento pasivo</label><textarea id="passiveTreatment">${esc(patient.passiveTreatment || "")}</textarea></div>
+    <h3 class="treatment-subtitle">2. Ejercicio terapéutico</h3><div class="field"><label>Buscar ejercicio</label><input id="treatmentExerciseSearch" data-transient type="search" oninput="filterTreatmentExercises()"></div>
     <fieldset class="exercise-options"><legend>Selecciona nombres del catálogo</legend><div id="treatmentExerciseList">${exerciseCatalog()
       .map((name) => exerciseOption(name, selected.has(exerciseNameKey(name))))
       .join(
