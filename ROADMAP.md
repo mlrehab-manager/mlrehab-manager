@@ -20,6 +20,10 @@ Las cinco pruebas automatizadas de la iteración verifican los recorridos docume
 
 El usuario confirmó el flujo de informes/PDF en iPad y autorizó publicar la versión 0.6.
 
-## Versión 0.7 · en revisión
+## Versión 0.7 · publicada
 
-Detección de datos cambiados o borrados en otra pestaña, bloqueo del guardado desde vistas antiguas y opciones explícitas para descargar una copia y recargar. Mantiene el tema crema y los informes de demostración. La versión pública permanece en 0.6 hasta revisar y autorizar esta iteración.
+Detección de datos cambiados o borrados en otra pestaña, bloqueo del guardado desde vistas antiguas y opciones explícitas para descargar una copia y recargar. Mantiene el tema crema y los informes de demostración. El usuario confirmó el aviso en iPad y autorizó la publicación de la versión 0.7.
+
+## Versión 0.8 · en revisión
+
+Confirmación antes de descartar formularios modificados con X o Escape y solicitud de aviso nativo al recargar con cambios pendientes. No guarda borradores. Pendiente de revisión en iPad; la versión pública permanece en 0.7.
