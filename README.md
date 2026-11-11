@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.6 DEMO
+# MLREHAB Manager · 0.7 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -26,7 +26,7 @@ Visita `http://localhost:4173`. GitHub Pages puede servir directamente la raíz 
 
 Se mantiene la clave `mlrehab-demo-v1`, compatible con las copias anteriores. La importación admite JSON de hasta 5 MB y valida IDs, fechas, sesiones, referencias y solapamientos antes de sustituir los datos. Reconstruye los contadores para evitar IDs duplicados al importar copias antiguas.
 
-Si los datos locales están dañados, no se sobrescriben automáticamente: se muestra una demo temporal y en **Copias de prueba** se puede descargar el original. Después, importa una copia válida o restablece la demo. Un fallo de guardado revierte el cambio en memoria y mantiene abierto el formulario cuando corresponde. Exporta copias periódicamente: el navegador puede borrar sus datos. No hay sincronización entre dispositivos ni resolución de ediciones simultáneas entre pestañas; utiliza una sola pestaña.
+Si los datos locales están dañados, no se sobrescriben automáticamente: se muestra una demo temporal y en **Copias de prueba** se puede descargar el original. Después, importa una copia válida o restablece la demo. Un fallo de guardado revierte el cambio en memoria y mantiene abierto el formulario cuando corresponde. Exporta copias periódicamente: el navegador puede borrar sus datos. No hay sincronización entre dispositivos. La versión 0.7 detecta datos cambiados en otra pestaña antes de guardar (véase abajo); sigue siendo preferible trabajar en una sola pestaña.
 
 ## Verificación
 
@@ -47,7 +47,7 @@ Separamos los archivos, añadimos controles táctiles de 44 px y foco visible, e
 
 Antes de fusionar: probar en Safari de iPad la pulsación prolongada, el desplazamiento semanal, los diálogos con teclado virtual y la descarga e importación de una copia ficticia. No utilizar datos sanitarios reales ni interpretar esta demo como una solución clínica segura.
 
-## Informes de demostración (0.6, pendiente de publicación)
+## Informes de demostración (0.6)
 
 Desde la ficha, pulsa **Preparar informe**. Selecciona los apartados; ninguno está marcado inicialmente. La opción de sesiones incorpora todas las sesiones de forma explícita. Los datos personales de contacto, las referencias de documentos y las citas no se incorporan. El nombre ficticio y el identificador figuran en el encabezado.
 
@@ -58,3 +58,13 @@ En Safari de iPad, abre la impresión y amplía la hoja de previsualización si 
 Los borradores son temporales, no se guardan en copias JSON y se descartan al cerrar con confirmación. Recargar la página también elimina el borrador. La función no añade almacenamiento clínico seguro ni permite el uso de datos reales.
 
 La lógica de informes está separada en `assets/reports.js`. Las pruebas cubren selección explícita, exclusión de apartados, edición sin alterar la historia, escape de HTML, confirmación de descarte, revisión obligatoria, validación de fecha y aislamiento del documento al imprimir. Se genera un PDF de prueba en Chromium; esto no sustituye la prueba de impresión en Safari.
+
+## Detección de pestañas desactualizadas (0.7, en revisión)
+
+Cuando otra pestaña cambia o borra el almacenamiento de esta demo, aparece un aviso. No se recarga automáticamente ni se cierra el formulario que estás editando. Al guardar se vuelve a comparar el contenido del almacenamiento con la versión que se cargó en esta pestaña: si es diferente, el guardado se rechaza, el cambio en memoria se revierte y el formulario permanece abierto cuando corresponde. La misma comprobación protege importaciones y restablecimientos.
+
+Cierra el formulario para usar las opciones del aviso. **Descargar copia de esta pestaña** exporta los datos de la vista anterior; no incorpora los formularios sin guardar ni los borradores de informes. Puedes conservar su texto manualmente antes de cerrar. **Cargar versión guardada** pide confirmación y recarga la página: descarta borradores y carga los datos actuales del navegador. Si estos están dañados se conserva la recuperación existente.
+
+Esta comprobación reduce sobrescrituras de vistas antiguas; no es una transacción ni combina cambios. Dos escrituras que ocurran a la vez entre la lectura y la escritura de localStorage aún pueden competir. No sustituye almacenamiento clínico seguro ni sincronización entre dispositivos.
+
+`assets/storage-sync.js` contiene los avisos y la recarga explícita. Las pruebas usan dos páginas del mismo contexto de navegador y cubren cambios externos, conservación del formulario, descarga de copia, recarga y posterior guardado, eliminación del almacenamiento, comparación sin evento previo y bloqueo de importación/restablecimiento desde una vista antigua.

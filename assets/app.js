@@ -52,7 +52,17 @@ function save() {
       throw Error(
         "Hay datos dañados pendientes de recuperación. Descarga el original desde Copias de prueba y restaura una copia válida.",
       );
-    localStorage.setItem(KEY, JSON.stringify(data));
+    const currentStored = localStorage.getItem(KEY);
+    if (currentStored !== storageBaseline) {
+      showStorageConflict(true);
+      throw Error(
+        "Otra pestaña ha cambiado los datos guardados. Tu cambio no se ha guardado. Cierra el formulario y carga la versión guardada desde el aviso.",
+      );
+    }
+    const serialized = JSON.stringify(data);
+    localStorage.setItem(KEY, serialized);
+    storageBaseline = serialized;
+    showStorageConflict(false);
     persistedData = structuredClone(data);
     storageMessage("Cambios guardados en este navegador.");
     return true;
@@ -138,7 +148,7 @@ function calendar() {
     dates = Array.from({ length: view === "day" ? 1 : 7 }, (_, i) =>
       isoAdd(start, i),
     );
-  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.6</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
+  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.7</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
   for (let h = 8; h < 20; h++) {
     html += `<div class="hour">${String(h).padStart(2, "0")}:00</div>`;
     for (let d of dates) {
