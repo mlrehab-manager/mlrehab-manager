@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.5 DEMO
+# MLREHAB Manager · 0.6 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -46,3 +46,15 @@ El código recibido estaba concentrado en un HTML con el título y la agenda mar
 Separamos los archivos, añadimos controles táctiles de 44 px y foco visible, etiquetas de formularios, diálogo con desplazamiento, calendario con desplazamiento horizontal y paleta neutra. La fecha inicial corresponde al día local, sin conversiones UTC que puedan desplazar el día.
 
 Antes de fusionar: probar en Safari de iPad la pulsación prolongada, el desplazamiento semanal, los diálogos con teclado virtual y la descarga e importación de una copia ficticia. No utilizar datos sanitarios reales ni interpretar esta demo como una solución clínica segura.
+
+## Informes de demostración (0.6, pendiente de publicación)
+
+Desde la ficha, pulsa **Preparar informe**. Selecciona los apartados; ninguno está marcado inicialmente. La opción de sesiones incorpora todas las sesiones de forma explícita. Los datos personales de contacto, las referencias de documentos y las citas no se incorporan. El nombre ficticio y el identificador figuran en el encabezado.
+
+En el editor puedes cambiar título, fecha y texto sin modificar la historia. La vista previa se actualiza al escribir. Marca la casilla de revisión para habilitar **Imprimir / Guardar PDF**; cualquier edición obliga a revisarlo otra vez. Se imprime únicamente el informe con una indicación permanente de demostración, en A4 y sobre blanco para ahorrar tinta.
+
+En Safari de iPad, abre la impresión y amplía la hoja de previsualización si es necesario para compartirla o guardarla como PDF en Archivos. El flujo depende de las opciones del sistema; debe comprobarse en un iPad físico antes de publicar. No se genera ni envía un archivo automáticamente.
+
+Los borradores son temporales, no se guardan en copias JSON y se descartan al cerrar con confirmación. Recargar la página también elimina el borrador. La función no añade almacenamiento clínico seguro ni permite el uso de datos reales.
+
+La lógica de informes está separada en `assets/reports.js`. Las pruebas cubren selección explícita, exclusión de apartados, edición sin alterar la historia, escape de HTML, confirmación de descarte, revisión obligatoria, validación de fecha y aislamiento del documento al imprimir. Se genera un PDF de prueba en Chromium; esto no sustituye la prueba de impresión en Safari.
