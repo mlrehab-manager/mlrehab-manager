@@ -1,5 +1,6 @@
 /* Pure validation shared by browser persistence and regression tests. */
 let recoverySource = null;
+let storageBaseline = null;
 let startupMessage =
   "Demo: solo datos ficticios. Almacenamiento local sin cifrar.";
 function localDate(date = new Date()) {
@@ -99,6 +100,7 @@ function loadData(fallback) {
   let raw = null;
   try {
     raw = localStorage.getItem("mlrehab-demo-v1");
+    storageBaseline = raw;
     return raw === null
       ? structuredClone(fallback)
       : validateData(JSON.parse(raw));

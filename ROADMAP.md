@@ -1,10 +1,10 @@
 # Hoja de ruta de MLREHAB Manager
 
-## Informes para pacientes · versión 0.6 en revisión
+## Informes para pacientes · versión 0.6 publicada
 
 Petición del usuario registrada el 11 de noviembre de 2026: añadir una forma de preparar informes para entregar a los pacientes. Implementarla cuando la base de la aplicación esté estabilizada.
 
-Primera implementación de demostración preparada en `feature/demo-patient-reports`, pendiente de revisión y publicación:
+Primera implementación de demostración publicada tras la prueba favorable del usuario en iPad:
 
 - Preparar un informe desde la ficha del paciente, seleccionando explícitamente los apartados que se desean incluir.
 - Permitir editar y revisar el contenido antes de imprimirlo o guardarlo como PDF mediante el navegador del iPad.
@@ -18,4 +18,8 @@ El 11 de noviembre de 2026, el usuario comunicó que la vista previa funcionaba 
 
 Las cinco pruebas automatizadas de la iteración verifican los recorridos documentados en README.md. La versión se prepara en la rama `improve/ipad-reliability`; su publicación requiere fusionar el PR correspondiente.
 
-Pendiente antes de publicar la versión 0.6: comprobar en Safari de iPad la selección, el teclado virtual, la vista previa y la impresión o guardado en PDF. La versión pública permanece en 0.5 hasta su aprobación.
+El usuario confirmó el flujo de informes/PDF en iPad y autorizó publicar la versión 0.6.
+
+## Versión 0.7 · en revisión
+
+Detección de datos cambiados o borrados en otra pestaña, bloqueo del guardado desde vistas antiguas y opciones explícitas para descargar una copia y recargar. Mantiene el tema crema y los informes de demostración. La versión pública permanece en 0.6 hasta revisar y autorizar esta iteración.
