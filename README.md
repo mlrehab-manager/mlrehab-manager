@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.10 DEMO
+# MLREHAB Manager · 0.11 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -87,7 +87,7 @@ Los archivos se leen y validan localmente, con el límite existente de 5 MB. Nin
 
 `assets/backups.js` separa lectura, vista previa y aplicación. Las pruebas comprueban recuentos, cancelación, descarga del estado anterior, importación explícita de una copia vacía, rechazo de archivos inválidos o grandes, escape del nombre de archivo, errores de escritura y los recorridos de copias y conflictos existentes. Pendiente de revisar la vista previa y la selección de archivos en Safari de iPad antes de publicar.
 
-## Tratamiento y catálogo de ejercicios (0.10, en revisión)
+## Tratamiento y catálogo de ejercicios (0.10)
 
 La ficha incorpora **1. Tratamiento pasivo**, como texto libre, y **2. Ejercicio terapéutico**, como selección de nombres. En **Editar tratamiento**, busca ejercicios y marca los que quieras registrar en la ficha ficticia. Filtrar la lista no pierde selecciones. El texto del tratamiento antiguo se conserva sin clasificar en un apartado desplegable y se puede seguir editando.
 
@@ -103,9 +103,9 @@ Los informes permiten elegir **Tratamiento pasivo**, **Ejercicio terapéutico** 
 
 Pruebas: migración de copias anteriores, rechazo de campos de ejercicios inválidos, selección y búsqueda, adición manual, duplicados, HTML escapado, cancelación de borradores, fallo de almacenamiento, informes y copia de ida y vuelta. Pendiente de revisión en Safari de iPad antes de publicar. Se mantiene el uso exclusivo de pacientes y datos clínicos ficticios.
 
-### Clasificación y ampliación del catálogo (incluida en la 0.10 en revisión)
+### Clasificación y ampliación del catálogo (0.10)
 
-La publicación queda en pausa a petición del usuario mientras se revisa esta ampliación. El catálogo conserva los 67 nombres anteriores y añade 45 con referencias consultadas: **112 nombres**.
+La versión 0.10 publicada conserva los 67 nombres anteriores y añade 45 con referencias consultadas: **112 nombres**. La siguiente ampliación por zonas de 0.11 se describe al final.
 
 La lista y el editor de tratamiento se agrupan en **Isométricos**, **Dinámicos · Combinados**, **Dinámicos · Concéntricos**, **Dinámicos · Excéntricos**, **Pliometría** y **Otros / sin clasificar**. Este último conserva nombres de movilidad/equilibrio o manuales sin una modalidad indicada. El filtro **Todos los dinámicos** reúne sus tres subgrupos. La búsqueda funciona a la vez que el filtro y conserva los ejercicios seleccionados aunque no estén visibles.
 
@@ -114,3 +114,15 @@ Al añadir un ejercicio manual puedes elegir su modalidad, tanto desde el catál
 El catálogo es una clasificación por modalidad, no por diagnóstico ni por fase temporal. Concéntrico y excéntrico expresan el énfasis de la variante; los dinámicos combinados pueden contener ambas fases. No se añade una clasificación automática de pacientes ni se identifica hipertrofia con un tipo de contracción. Los informes siguen incorporando solo los nombres seleccionados.
 
 En **Referencias de la ampliación** se pueden abrir las fuentes. La correspondencia y el criterio editorial están documentados en [docs/EXERCISE_SOURCES.md](docs/EXERCISE_SOURCES.md). No se copian protocolos ni se indican dosis. Las fuentes no avalan el catálogo ni los ajustes personales.
+
+## Filtro por zona corporal y ampliación (0.11, en revisión)
+
+La versión 0.11 conserva los 112 nombres y añade 18: **130 nombres** en total. Las nuevas entradas se han adaptado de AAOS (cadera/columna), Cambridge University Hospitals (pulgar) y Northern Health and Social Care Trust (mano). Se mantienen nombres y modalidades, sin pautas, imágenes ni dosis.
+
+El catálogo y el editor de tratamiento combinan **texto + modalidad + zona corporal**. Las zonas son cuello/cervical, hombro/escápula, codo/antebrazo, muñeca/mano, tronco/columna dorsal y lumbar, cadera, rodilla y tobillo/pie. Son etiquetas de organización editables, no diagnósticos ni asignaciones de fase de recuperación. Un ejercicio puede tener varias zonas y aparecer en cualquiera de ellas.
+
+En **Añadir ejercicio** y **Clasificar** puedes marcar varias zonas; sin marcas queda **Sin zona asignada**, incluso si el ejercicio inicial tenía zonas. Los nombres manuales anteriores sin etiquetas siguen disponibles en ese filtro. En el borrador de tratamiento, abre **Asignar zonas al nuevo ejercicio (opcional)** para indicar sus zonas: únicamente se guardan al guardar el tratamiento. Cambiar filtros no elimina selecciones ocultas ni cuenta como edición clínica pendiente.
+
+Las zonas personales se guardan en `exerciseRegions`, como registros con `name` y una lista `regions`. Se incluyen en las copias JSON y el resumen previo a importar muestra **Zonas personalizadas**. Usa 0.11 o posterior para conservarlas al restaurar; copias de versiones previas siguen siendo válidas, sin ajustes de zonas. Restablecer la demo elimina los ajustes personales y recupera las etiquetas iniciales. Las selecciones guardadas en fichas y los informes mantienen sus nombres.
+
+`assets/exercise-regions.js` separa los filtros, etiquetas y ajustes de zonas; los datos iniciales están en `assets/exercise-catalog.js`. Los títulos de tratamiento siguen teniendo el mismo tamaño y se conserva la paleta crema. Pendiente de revisión en Safari de iPad antes de publicar; solo datos ficticios.

@@ -131,7 +131,9 @@ test("catalog allows only names, rejects duplicates and escapes typed HTML", asy
   await page.reload();
   await page.getByRole("button", { name: "◇ Ejercicios" }).click();
   await page.getByLabel("Buscar por nombre").fill("onerror");
-  await expect(page.locator("#exerciseList .listrow > span")).toHaveText(name);
+  await expect(page.locator("#exerciseList .exercise-name > span")).toHaveText(
+    name,
+  );
   await expect(page.locator("#exerciseList img")).toHaveCount(0);
   expect(await page.evaluate(() => data.exerciseCatalog)).toEqual([name]);
 });

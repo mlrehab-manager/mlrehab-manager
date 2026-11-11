@@ -1,8 +1,8 @@
 # Catálogo de ejercicios: modalidades y referencias
 
-Consulta: 11 de noviembre de 2026. Versión 0.10 DEMO, pendiente de publicación.
+Consulta: 11 de noviembre de 2026. Histórico de 0.10 publicada y ampliación 0.11 DEMO en revisión.
 
-La ampliación incorpora 45 nombres a los 67 anteriores: 112 en total. Los nombres anteriores y los seleccionados en fichas se conservan. Solo se añaden nombres, modalidad y referencias; no se copian imágenes, vídeos, instrucciones, dosis ni protocolos.
+La ampliación de 0.10 incorporó 45 nombres a los 67 anteriores: 112 en total. Los nombres anteriores y los seleccionados en fichas se conservan. Solo se añaden nombres, modalidad y referencias; no se copian imágenes, vídeos, instrucciones, dosis ni protocolos.
 
 ## Criterio de clasificación
 
@@ -34,3 +34,16 @@ Cada entrada nueva de `assets/exercise-catalog.js` tiene un identificador `sourc
 | `uhdb` | [University Hospitals of Derby and Burton: Late Stage Knee Rehabilitation](https://www.uhdb.nhs.uk/knee-rehabilitation-late-stage/) | Rebotes sobre escalón, saltos laterales y salto desde sentadilla seguido de zancada. |
 
 Las fuentes sirven para trazabilidad de los nombres y el criterio, no para importar sus pautas de tratamiento al producto. Las clasificaciones personales se guardan como ajustes locales; no modifican ni atribuyen cambios a las fuentes.
+
+## Ampliación por zona corporal · 0.11
+
+Se conservan los 112 nombres de 0.10 y se añaden 18 (130 en total). Referencias consultadas el 11 de noviembre de 2026. En las entradas nuevas, `source` identifica la fuente y `regions` contiene etiquetas editoriales; los nombres españoles son adaptaciones y no traducciones oficiales. No se copian pautas, dosis ni imágenes.
+
+| Identificador | Referencia | Nombres incorporados |
+| --- | --- | --- |
+| `aaos-hip` | [AAOS: Hip Conditioning Program](https://www.orthoinfo.org/bodypart/hip-thigh/hip-conditioning-program/) | Aducción en decúbito lateral, extensión en decúbito prono, clamshell inverso y estiramiento de banda iliotibial de pie. |
+| `aaos-spine` | [AAOS: Spine Conditioning Program](https://www.orthoinfo.org/bodypart/back/spine-conditioning-program/) | Activación abdominal isométrica, flexión abdominal parcial, plancha lateral modificada, rodilla al pecho y rotación de tronco sentado. |
+| `cuh-thumb` | [CUH: Hand Therapy Active Thumb Exercises](https://www.cuh.nhs.uk/patient-information/hand-therapy-active-thumb-exercises/) | Movilidad interfalángica y metacarpofalángica del pulgar, abducción/aducción palmar y radial y retropulsión. |
+| `northern-hand` | [Northern Health and Social Care Trust: Hand Exercises](https://www.northerntrust.hscni.net/service/physiotherapy-services/rheumatology-physiotherapy/hand-exercises/) | Abducción de dedos, flexión metacarpofalángica, círculos de muñeca y extensión de muñeca con banda. |
+
+Las zonas se asignan como etiquetas de movimiento/carga predominante para buscar ejercicios, no como un mapa exhaustivo de todos los músculos implicados ni indicaciones para patologías. Ejemplos: una sentadilla aparece en cadera, rodilla y tobillo/pie; el puente de glúteos en cadera y tronco; los ejercicios de muñeca con carga también pueden aparecer en codo/antebrazo. Se revisó la asignación estática de los 112 nombres previos y no se infieren etiquetas desde diagnósticos o historias clínicas en tiempo de ejecución. Un nombre ambiguo puede editarse o quedar sin zona. Las fuentes no avalan estas etiquetas editoriales ni los ajustes personales.

@@ -82,9 +82,9 @@ function exerciseCatalog() {
 }
 function exercisesPage() {
   $("app").innerHTML =
-    `<div class="top"><div><h1>Catálogo de ejercicios</h1><p class="muted">Nombres por modalidad · catálogo local ampliable</p></div><button class="primary" onclick="addExerciseForm()">+ Añadir ejercicio</button></div>
-    <div class="card"><div class="grid"><div class="field"><label for="exerciseSearch">Buscar por nombre</label><input id="exerciseSearch" type="search" oninput="filterExerciseCatalog()"></div><div class="field"><label for="exerciseCategoryFilter">Modalidad</label><select id="exerciseCategoryFilter" onchange="filterExerciseCatalog()">${categoryOptions("all", true)}</select></div></div>
-    <p class="formnote">Los dinámicos combinados incluyen ambas fases. Concéntricos y excéntricos indican el énfasis de la variante. La modalidad no fija una fase de recuperación ni una pauta.</p><p id="exerciseCount" class="muted"></p><div id="exerciseList"></div></div>
+    `<div class="top"><div><h1>Catálogo de ejercicios</h1><p class="muted">Nombres por modalidad y zona · catálogo local ampliable</p></div><button class="primary" onclick="addExerciseForm()">+ Añadir ejercicio</button></div>
+    <div class="card"><div class="grid"><div class="field"><label for="exerciseSearch">Buscar por nombre</label><input id="exerciseSearch" type="search" oninput="filterExerciseCatalog()"></div><div class="field"><label for="exerciseCategoryFilter">Modalidad</label><select id="exerciseCategoryFilter" onchange="filterExerciseCatalog()">${categoryOptions("all", true)}</select></div><div class="field"><label for="exerciseRegionFilter">Zona corporal</label><select id="exerciseRegionFilter" onchange="filterExerciseCatalog()">${regionOptions()}</select></div></div>
+    <p class="formnote">Los dinámicos combinados incluyen ambas fases. Concéntricos y excéntricos indican el énfasis de la variante. La modalidad no fija una fase de recuperación ni una pauta. Las zonas son etiquetas editables desde Clasificar.</p><p id="exerciseCount" class="muted"></p><div id="exerciseList"></div></div>
     <details class="card"><summary>Referencias de la ampliación</summary><p class="formnote">Ampliación con nombres adaptados al español de las referencias consultadas. Sin dosis ni prescripción automática.</p><ul>${Object.values(
       EXERCISE_SOURCES,
     )
@@ -102,7 +102,8 @@ function filterExerciseCatalog() {
   const names = all.filter(
     (name) =>
       exerciseNameKey(name).includes(q) &&
-      matchesCategory(exerciseCategory(name), category),
+      matchesCategory(exerciseCategory(name), category) &&
+      matchesRegion(exerciseRegions(name), $("exerciseRegionFilter").value),
   );
   $("exerciseCount").textContent =
     `${names.length} de ${all.length} ejercicios`;
@@ -110,14 +111,14 @@ function filterExerciseCatalog() {
     ? groupedExercises(
         names,
         (name) =>
-          `<div class="listrow"><span>${esc(name)}</span><button data-exercise-name="${esc(name)}" onclick="classifyExercise(this.dataset.exerciseName)">Clasificar</button></div>`,
+          `<div class="listrow"><div class="exercise-name"><span>${esc(name)}</span><small class="muted">${esc(regionSummary(exerciseRegions(name)))}</small></div><button data-exercise-name="${esc(name)}" onclick="classifyExercise(this.dataset.exerciseName)">Clasificar</button></div>`,
       )
     : '<p class="muted">No se encontraron ejercicios.</p>';
 }
 function addExerciseForm() {
   openModal(
     "Añadir ejercicio al catálogo",
-    `<div class="field"><label>Nombre del ejercicio</label><input id="exerciseName" maxlength="150" placeholder="Nombre del ejercicio"></div><div class="field"><label>Modalidad del ejercicio</label><select id="exerciseCategory">${categoryOptions("other")}</select></div><p class="formnote">Se guardan el nombre y la modalidad. Estará disponible para todas las fichas ficticias de este navegador y en las copias JSON.</p><p id="exerciseError" role="alert"></p><button class="primary" onclick="saveCatalogExercise()">Guardar ejercicio</button>`,
+    `<div class="field"><label>Nombre del ejercicio</label><input id="exerciseName" maxlength="150" placeholder="Nombre del ejercicio"></div><div class="field"><label>Modalidad del ejercicio</label><select id="exerciseCategory">${categoryOptions("other")}</select></div>${regionCheckboxes("exerciseRegionChoices")}<p class="formnote">Se guardan el nombre, la modalidad y las zonas. Estará disponible para todas las fichas ficticias de este navegador y en las copias JSON.</p><p id="exerciseError" role="alert"></p><button class="primary" onclick="saveCatalogExercise()">Guardar ejercicio</button>`,
   );
 }
 function classifyExercise(name) {
@@ -127,7 +128,7 @@ function classifyExercise(name) {
     return;
   openModal(
     "Clasificar ejercicio",
-    `<p>${esc(name)}</p><input id="classifiedExerciseName" type="hidden" value="${esc(name)}"><div class="field"><label>Modalidad del ejercicio</label><select id="exerciseCategory">${categoryOptions(exerciseCategory(name))}</select></div><p class="formnote">La clasificación se usa en todo el catálogo de este navegador. Conserva los nombres seleccionados en las fichas.</p><button class="primary" onclick="saveExerciseClassification()">Guardar clasificación</button>`,
+    `<p>${esc(name)}</p><input id="classifiedExerciseName" type="hidden" value="${esc(name)}"><div class="field"><label>Modalidad del ejercicio</label><select id="exerciseCategory">${categoryOptions(exerciseCategory(name))}</select></div>${regionCheckboxes("exerciseRegionChoices", exerciseRegions(name))}<p class="formnote">La clasificación se usa en todo el catálogo de este navegador. Conserva los nombres seleccionados en las fichas.</p><button class="primary" onclick="saveExerciseClassification()">Guardar clasificación</button>`,
   );
 }
 function saveExerciseClassification() {
@@ -138,6 +139,10 @@ function saveExerciseClassification() {
     )
   )
     return;
+  setExerciseRegions(
+    $("classifiedExerciseName").value,
+    readRegionChoices("exerciseRegionChoices"),
+  );
   if (!save()) return;
   closeModal();
   exercisesPage();
@@ -161,6 +166,7 @@ function saveCatalogExercise() {
   }
   (data.exerciseCatalog ??= []).push(name);
   setExerciseClassification(name, $("exerciseCategory").value);
+  setExerciseRegions(name, readRegionChoices("exerciseRegionChoices"));
   if (!save()) return;
   closeModal();
   exercisesPage();
@@ -176,8 +182,9 @@ function exerciseOption(
   selected = false,
   custom = false,
   category = exerciseCategory(name),
+  regions = exerciseRegions(name),
 ) {
-  return `<label class="exercise-option" data-exercise-name="${esc(name)}"><input type="checkbox" name="treatmentExercise" data-category="${category}" value="${esc(name)}" ${selected ? "checked" : ""} ${custom ? 'data-new="true"' : ""}><span>${esc(name)}</span></label>`;
+  return `<label class="exercise-option" data-exercise-name="${esc(name)}"><input type="checkbox" name="treatmentExercise" data-category="${category}" data-regions="${regions.join(",")}" value="${esc(name)}" ${selected ? "checked" : ""} ${custom ? 'data-new="true"' : ""}><span>${esc(name)}</span></label>`;
 }
 function editTreatment() {
   const patient = data.patients.find((p) => p.id === currentPatient);
@@ -188,9 +195,9 @@ function editTreatment() {
   openModal(
     "Editar tratamiento",
     `<div class="field"><label class="treatment-subtitle">1. Tratamiento pasivo</label><textarea id="passiveTreatment">${esc(patient.passiveTreatment || "")}</textarea></div>
-    <h3 class="treatment-subtitle">2. Ejercicio terapéutico</h3><div class="field"><label>Filtrar por modalidad</label><select id="treatmentCategoryFilter" data-transient onchange="filterTreatmentExercises()">${categoryOptions("all", true)}</select></div><div class="field"><label>Buscar ejercicio</label><input id="treatmentExerciseSearch" data-transient type="search" oninput="filterTreatmentExercises()"></div>
+    <h3 class="treatment-subtitle">2. Ejercicio terapéutico</h3><div class="field"><label>Filtrar por modalidad</label><select id="treatmentCategoryFilter" data-transient onchange="filterTreatmentExercises()">${categoryOptions("all", true)}</select></div><div class="field"><label>Filtrar por zona corporal</label><select id="treatmentRegionFilter" data-transient onchange="filterTreatmentExercises()">${regionOptions()}</select></div><div class="field"><label>Buscar ejercicio</label><input id="treatmentExerciseSearch" data-transient type="search" oninput="filterTreatmentExercises()"></div>
     <fieldset class="exercise-options"><legend>Selecciona nombres del catálogo</legend><div id="treatmentExerciseList">${groupedExercises(exerciseCatalog(), (name) => exerciseOption(name, selected.has(exerciseNameKey(name))))}</div><p id="exerciseNoMatches" class="muted hidden">No se encontraron ejercicios.</p></fieldset>
-    <div class="field"><label>Nuevo ejercicio manual</label><input id="treatmentNewExercise" maxlength="150"></div><div class="field"><label>Modalidad del nuevo ejercicio</label><select id="treatmentNewCategory">${categoryOptions("other")}</select></div><button onclick="stageTreatmentExercise()">Añadir al borrador</button><p class="formnote">El nuevo nombre se añadirá al catálogo y a esta ficha al guardar el tratamiento. Cancelar descarta el borrador.</p>
+    <div class="field"><label>Nuevo ejercicio manual</label><input id="treatmentNewExercise" maxlength="150"></div><div class="field"><label>Modalidad del nuevo ejercicio</label><select id="treatmentNewCategory">${categoryOptions("other")}</select></div><details id="treatmentRegionDetails" class="region-optional"><summary>Asignar zonas al nuevo ejercicio (opcional)</summary>${regionCheckboxes("treatmentRegionChoices", [], "Zonas del nuevo ejercicio")}</details><button onclick="stageTreatmentExercise()">Añadir al borrador</button><p class="formnote">El nuevo nombre se añadirá al catálogo y a esta ficha al guardar el tratamiento. Cancelar descarta el borrador.</p>
     <p id="treatmentExerciseError" role="alert"></p><button class="primary" onclick="saveTreatment()">Guardar tratamiento</button>`,
   );
 }
@@ -205,6 +212,13 @@ function filterTreatmentExercises() {
         matchesCategory(
           label.querySelector("input").dataset.category,
           $("treatmentCategoryFilter").value,
+        ) &&
+        matchesRegion(
+          label
+            .querySelector("input")
+            .dataset.regions.split(",")
+            .filter(Boolean),
+          $("treatmentRegionFilter").value,
         );
       label.classList.toggle("hidden", !match);
       if (match) visible++;
@@ -243,10 +257,21 @@ function stageTreatmentExercise() {
   );
   group.insertAdjacentHTML(
     "beforeend",
-    exerciseOption(name, true, true, category),
+    exerciseOption(
+      name,
+      true,
+      true,
+      category,
+      readRegionChoices("treatmentRegionChoices"),
+    ),
   );
   const added = group.lastElementChild;
   $("treatmentCategoryFilter").value = "all";
+  $("treatmentRegionFilter").value = "all";
+  $("treatmentRegionDetails").open = false;
+  $("treatmentRegionChoices")
+    .querySelectorAll("input")
+    .forEach((input) => (input.checked = false));
   $("treatmentNewCategory").value = "other";
   $("treatmentNewExercise").value = "";
   $("treatmentExerciseSearch").value = "";
@@ -272,6 +297,10 @@ function saveTreatment() {
   for (const input of selected.filter((input) => input.dataset.new)) {
     (data.exerciseCatalog ??= []).push(input.value);
     setExerciseClassification(input.value, input.dataset.category);
+    setExerciseRegions(
+      input.value,
+      input.dataset.regions.split(",").filter(Boolean),
+    );
   }
   if (!save()) return;
   closeModal();

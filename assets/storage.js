@@ -64,6 +64,38 @@ function validateExerciseClassifications(value) {
     return { name, category: entry.category };
   });
 }
+const EXERCISE_REGION_IDS = [
+  "cervical",
+  "shoulder",
+  "elbow-forearm",
+  "wrist-hand",
+  "trunk",
+  "hip",
+  "knee",
+  "ankle-foot",
+];
+function validateExerciseRegions(value) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw Error("Zonas de ejercicios no válidas.");
+  const seen = new Set();
+  return value.map((entry) => {
+    if (
+      !entry ||
+      typeof entry.name !== "string" ||
+      !Array.isArray(entry.regions) ||
+      entry.regions.some((region) => !EXERCISE_REGION_IDS.includes(region))
+    )
+      throw Error("Zona de ejercicio no válida.");
+    const name = validateExerciseNames([entry.name])[0];
+    const key = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+    if (seen.has(key)) throw Error("Zonas de ejercicio duplicadas.");
+    seen.add(key);
+    return { name, regions: [...new Set(entry.regions)] };
+  });
+}
 function validateData(source) {
   const fail = () => {
     throw Error(
@@ -155,6 +187,7 @@ function validateData(source) {
   return {
     patients,
     exerciseCatalog: validateExerciseNames(source.exerciseCatalog),
+    exerciseRegions: validateExerciseRegions(source.exerciseRegions),
     exerciseClassifications: validateExerciseClassifications(
       source.exerciseClassifications,
     ),
