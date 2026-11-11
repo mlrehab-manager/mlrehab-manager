@@ -20,7 +20,7 @@ Estado: fase inicial, datos ficticios. Contexto: un profesional, dos tipos de di
 
 ## Evidencia disponible
 
-`npm run test:clinical` ejecuta SQL real en PostgreSQL embebido. Solo las funciones de identidad se simulan; no verifica firma de JWT, cookies, factores ni servicios de Supabase. Las pruebas no son una auditoría independiente ni una autorización para datos reales.
+`npm run test:clinical` ejecuta SQL real en PostgreSQL embebido. Solo las funciones de identidad se simulan; no verifica firma de JWT, cookies, factores ni servicios de Supabase. Las pruebas no son una auditoría independiente ni una autorización para datos reales. En el proyecto alojado se han verificado además los permisos efectivos, el esquema privado no expuesto y cinco peticiones HTTP anónimas rechazadas. No se han creado usuarios ni simulado identidades en esa base.
 
 La migración contiene únicamente pacientes y sus versiones/auditoría. No contiene agenda, sesiones como recurso independiente, catálogo remoto, almacenamiento de documentos ni exportación clínica. La validación JSON es básica y requiere desarrollo adicional. Los nombres de pacientes de las pruebas son ficticios.
 

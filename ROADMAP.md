@@ -44,6 +44,6 @@ Prioridad elegida por el usuario al retomar: ampliar ejercicios y filtrar por zo
 
 ## Base clínica · fase 1 en revisión
 
-Contexto confirmado: Comunitat Valenciana, España; un usuario desde iPad y ordenador; preferencia por empezar gratis con límites claros. Se prepara un diseño para dejar localStorage y una API privada inicial de pacientes con MFA, admisión explícita, versiones y auditoría. Supabase en UE es candidato para pruebas, sin contratar ni configurar servicios externos. El plan gratuito no da por resueltas copias y disponibilidad. La web permanece como demo 0.11; no se retiran los avisos ni se habilitan datos reales.
+Contexto confirmado: Comunitat Valenciana, España; un usuario desde iPad y ordenador; preferencia por empezar gratis con límites claros. Se prepara un diseño para dejar localStorage y una API privada inicial de pacientes con MFA, admisión explícita, versiones y auditoría. Supabase en UE es candidato para pruebas, sin activar pagos. El usuario creó un proyecto gratuito, conectó Supabase y se instalaron/verificaron dos migraciones sin datos. El plan gratuito no da por resueltas copias y disponibilidad. La web permanece como demo 0.11; no se retiran los avisos ni se habilitan datos reales.
 
-Siguiente bloque: proyecto de pruebas, autenticación/MFA real y configuración del proveedor, seguido de integración completa de funciones y pruebas de copias/restauración. El plan y los límites están en clinical/README.md y docs/CLINICAL_SECURITY_PLAN.md.
+Siguiente bloque: cerrar altas públicas, crear la cuenta Auth y conectar autenticación/MFA real y configuración del proveedor, seguido de integración completa de funciones y pruebas de copias/restauración. El plan y los límites están en clinical/README.md y docs/CLINICAL_SECURITY_PLAN.md.

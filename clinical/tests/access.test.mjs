@@ -21,6 +21,12 @@ before(async () => {
       "utf8",
     ),
   );
+  await db.exec(
+    await readFile(
+      new URL("../migrations/002_private_rpc_boundary.sql", import.meta.url),
+      "utf8",
+    ),
+  );
   await db.query(
     "insert into clinical_private.authorized_clinicians(user_id,enabled) values($1,true),($2,true)",
     [A, B],
@@ -111,7 +117,7 @@ test("direct table access, self-enrollment, history and audit tampering are deni
   await db.exec("reset role");
   // Deliberately simulate an accidental grant: default-deny RLS must still protect rows.
   await db.exec(
-    "grant usage on schema clinical_private to authenticated;grant select on clinical_private.patients to authenticated;",
+    "grant select on clinical_private.patients to authenticated;create policy accidental_permissive on clinical_private.patients for select to authenticated using(true);",
   );
   await asUser();
   assert.deepEqual(
@@ -119,7 +125,7 @@ test("direct table access, self-enrollment, history and audit tampering are deni
     [],
   );
   await db.exec(
-    "reset role;revoke select on clinical_private.patients from authenticated;revoke usage on schema clinical_private from authenticated;",
+    "reset role;revoke select on clinical_private.patients from authenticated;drop policy accidental_permissive on clinical_private.patients;",
   );
 });
 test("stale edits are rejected by the database without overwriting a newer revision", async () => {
@@ -238,4 +244,18 @@ test("audit failure rolls back the record and revision snapshot instead of allow
   await db.exec(
     "alter table clinical_private.audit_events drop constraint reject_new_audit",
   );
+});
+
+test("public wrappers are invoker-only and privileged implementations stay in the private schema", async () => {
+  await db.exec("reset role");
+  const result = await db.query(
+    "select n.nspname,p.proname,p.prosecdef from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname like 'clinical_patient_%'",
+  );
+  assert.equal(result.rows.filter((row) => row.nspname === "public").length, 5);
+  assert.equal(
+    result.rows.filter((row) => row.nspname === "clinical_private").length,
+    5,
+  );
+  for (const row of result.rows)
+    assert.equal(row.prosecdef, row.nspname === "clinical_private");
 });

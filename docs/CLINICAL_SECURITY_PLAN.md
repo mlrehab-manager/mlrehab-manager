@@ -6,7 +6,7 @@ Fecha: 11 de noviembre de 2026. Estado: diseño y primera base de pacientes bajo
 
 Un profesional usará iPad y ordenador en la Comunitat Valenciana, España. Se conserva la demo 0.11 y su catálogo; se construye otra aplicación/entorno con almacenamiento privado. No se transforman automáticamente los JSON o datos del navegador en historias clínicas reales. No se cambia el aviso de demo para simular seguridad.
 
-Se propone Supabase como candidato para autenticación y PostgreSQL en la UE. La elección definitiva requiere comprobar condiciones y operativa. El plan gratuito sirve para comenzar el desarrollo sin contratar servicios; no se da por resuelta la continuidad clínica, las copias ni la recuperación. No se ha dado de alta infraestructura ni enviado datos fuera de las pruebas locales.
+Se propone Supabase como candidato para autenticación y PostgreSQL en la UE. La elección definitiva requiere comprobar condiciones y operativa. El plan gratuito sirve para comenzar el desarrollo sin contratar servicios; no se da por resuelta la continuidad clínica, las copias ni la recuperación. El usuario ha creado un proyecto gratuito y ha conectado Supabase. Se han aplicado dos migraciones sin datos clínicos y se han comprobado permisos y rechazo HTTP anónimo. No se ha activado facturación ni se ha conectado la demo a esa base.
 
 ## Hallazgos del código publicado
 
@@ -38,11 +38,11 @@ La demo pública puede seguir alojada gratis en GitHub Pages. El origen clínico
 
 La futura interfaz utilizará sesiones breves y control de inactividad. Si se conecta directamente al proveedor, los tokens permanecerán en memoria, sin persistencia del SDK en el navegador; se probarán recarga, revocación y recuperación. Una alternativa con servidor y cookies HttpOnly requiere diseño explícito de CSRF y sesiones. Esta decisión aún no está implementada. MFA no protege por sí sola frente a robo de una sesión o XSS.
 
-El esquema inicial expone solo cinco RPC de pacientes. Las tablas privadas tienen denegación por defecto y las RPC con privilegios controlados comprueban cuenta autorizada, `aal2` y propietario en cada operación. No se confía en ocultar botones ni en identificadores enviados por el cliente. No se permite borrado físico por la API.
+El esquema inicial expone solo cinco RPC de pacientes sin elevación (SECURITY INVOKER), que llaman implementaciones privilegiadas en el esquema privado. Las tablas privadas tienen denegación restrictiva y esas implementaciones comprueban cuenta autorizada, `aal2` y propietario en cada operación. No se confía en ocultar botones ni en identificadores enviados por el cliente. No se permite borrado físico por la API.
 
 ## Entregas y condición de avance
 
-1. **Base de permisos de pacientes — preparada en esta rama.** Migración SQL y pruebas PostgreSQL locales. No incluye interfaz clínica ni autenticación alojada.
+1. **Base de permisos de pacientes — preparada en esta rama.** Dos migraciones SQL, pruebas PostgreSQL locales e instalación verificada en el proyecto alojado sin datos. No incluye interfaz clínica ni sesiones Auth de usuarios.
 2. **Entorno de pruebas y autenticación — siguiente.** Proyecto vacío en UE, configuración contractual revisada, cuenta única admitida, MFA y recuperación de cuenta. Probar accesos reales y separación con dos cuentas ficticias; nada de datos reales.
 3. **Migración funcional completa.** Conectar pacientes, agenda, historia, sesiones, tratamientos, catálogo y documentos mediante repositorios remotos y controles de concurrencia. Ninguna ruta debe caer silenciosamente en almacenamiento local si el backend falla. Validar campos y permisos para todos los recursos. Revocar capacidades de importación masiva, borrado y exportación indiscriminada de la demo.
 4. **Interfaz y dispositivos.** CSP efectiva, DOM seguro, bloqueo por inactividad, borrado de memoria al salir, sin datos en URL, consola, capturas o caché; ensayar iPad/Safari y ordenador. Si no hay red, rechazar operaciones sin decir que están guardadas. No se activa modo offline clínico en esta fase.
