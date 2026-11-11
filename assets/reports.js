@@ -8,10 +8,14 @@ const reportSections = [
   ["strength", "Dinamometría"],
   ["diagnosis", "Diagnóstico de fisioterapia"],
   ["goals", "Objetivos terapéuticos"],
-  ["treatment", "Plan de tratamiento"],
+  ["treatment", "Tratamiento previo (sin clasificar)"],
+  ["passiveTreatment", "Tratamiento pasivo"],
+  ["therapeuticExercises", "Ejercicio terapéutico"],
   ["sessions", "Evolución de todas las sesiones"],
 ];
 function reportSectionText(patient, key) {
+  if (key === "therapeuticExercises")
+    return (patient.therapeuticExercises || []).join("\n");
   return key === "sessions"
     ? (patient.notes || []).map((n) => `${n.date}\n${n.text}`).join("\n\n")
     : (patient[key] || "").trim();

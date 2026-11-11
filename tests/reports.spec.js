@@ -50,7 +50,9 @@ test("print output contains only reviewed report and excludes application and ot
   page,
 }) => {
   await openReport(page);
-  await page.getByLabel("Plan de tratamiento", { exact: true }).check();
+  await page
+    .getByLabel("Tratamiento previo (sin clasificar)", { exact: true })
+    .check();
   await page.getByRole("button", { name: "Continuar y editar" }).click();
   await page.getByLabel("Título del informe").fill("Resumen ficticio");
   await page.getByLabel("He revisado el informe ficticio.").check();

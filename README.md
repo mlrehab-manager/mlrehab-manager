@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.9 DEMO
+# MLREHAB Manager · 0.10 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -77,7 +77,7 @@ Los informes conservan su confirmación de descarte específica, sin duplicarla.
 
 La lógica está separada en `assets/form-guard.js`. Las pruebas comprueban X y Escape, cancelación y aceptación del descarte, conservación del texto, guardado, edición revertida, inicialización de citas desde la ficha y aviso de recarga en Chromium. Pendiente de comprobar el cierre en Safari de iPad antes de publicar. Se mantienen las copias, informes, calendario, tema crema y uso exclusivo de datos ficticios.
 
-## Vista previa de importación (0.9, en revisión)
+## Vista previa de importación (0.9)
 
 En **Copias de prueba → Importar JSON**, elige una copia ficticia válida. Antes de cambiar nada se muestra su nombre y una tabla con los recuentos de pacientes, citas y sesiones actuales y de la copia. No se muestran nombres de pacientes ni textos clínicos. Desde esta vista puedes descargar una copia de los datos actuales; si hay datos dañados pendientes de recuperación también puedes descargar el original conservado.
 
@@ -86,3 +86,19 @@ Para importar, marca **Entiendo que se sustituirán los datos actuales** y pulsa
 Los archivos se leen y validan localmente, con el límite existente de 5 MB. Ningún archivo se sube. Se conserva la validación de referencias, fechas y sesiones y la protección frente a otra pestaña desactualizada. Si el guardado falla, no se sustituye la vista actual y la importación queda abierta. Las copias siguen sin cifrar y solo pueden contener datos ficticios. Los formularios e informes temporales no se incluyen en las copias.
 
 `assets/backups.js` separa lectura, vista previa y aplicación. Las pruebas comprueban recuentos, cancelación, descarga del estado anterior, importación explícita de una copia vacía, rechazo de archivos inválidos o grandes, escape del nombre de archivo, errores de escritura y los recorridos de copias y conflictos existentes. Pendiente de revisar la vista previa y la selección de archivos en Safari de iPad antes de publicar.
+
+## Tratamiento y catálogo de ejercicios (0.10, en revisión)
+
+La ficha incorpora **1. Tratamiento pasivo**, como texto libre, y **2. Ejercicio terapéutico**, como selección de nombres. En **Editar tratamiento**, busca ejercicios y marca los que quieras registrar en la ficha ficticia. Filtrar la lista no pierde selecciones. El texto del tratamiento antiguo se conserva sin clasificar en un apartado desplegable y se puede seguir editando.
+
+La sección **Ejercicios** contiene 67 nombres iniciales y un buscador que ignora mayúsculas y tildes. Es un catálogo local de nombres, sin imágenes, vídeos, dosis, pautas ni recomendaciones automáticas. No es una base de datos clínica ni una fuente exhaustiva de ejercicios.
+
+Puedes añadir nombres mediante **Ejercicios → Añadir ejercicio**. Solo se solicita un nombre (hasta 150 caracteres), evitando duplicados por mayúsculas, tildes o espacios. También puedes escribir un **Nuevo ejercicio manual** al editar el tratamiento y pulsar **Añadir al borrador**. El nombre queda seleccionado y se incorpora al catálogo cuando guardas el tratamiento; si cancelas no se guarda. Si hay un nombre escrito sin añadir al borrador se pide añadirlo o vaciar el campo antes de guardar.
+
+Los nombres añadidos están disponibles para todas las fichas de este navegador. Se guardan en `exerciseCatalog`; cada paciente conserva `passiveTreatment` y su selección de nombres en `therapeuticExercises`. Los 67 nombres iniciales vienen incluidos en `assets/exercises.js`. Las copias exportan los nombres añadidos y las selecciones de las fichas, y el resumen de importación incluye **Ejercicios añadidos**. Restablecer la demo borra los datos y los nombres añadidos, conservando el catálogo inicial.
+
+Se siguen aceptando copias antiguas: los nuevos campos se inicializan vacíos y el texto `treatment` se conserva. Las copias con los nuevos campos deben restaurarse en 0.10 o posterior, porque las versiones anteriores no reconocen estas listas. Al importar se sustituyen los datos y el catálogo personalizado de esta demo, sin combinarlos.
+
+Los informes permiten elegir **Tratamiento pasivo**, **Ejercicio terapéutico** y el texto de **Tratamiento previo (sin clasificar)** por separado. Nada se incorpora al informe sin seleccionarlo.
+
+Pruebas: migración de copias anteriores, rechazo de campos de ejercicios inválidos, selección y búsqueda, adición manual, duplicados, HTML escapado, cancelación de borradores, fallo de almacenamiento, informes y copia de ida y vuelta. Pendiente de revisión en Safari de iPad antes de publicar. Se mantiene el uso exclusivo de pacientes y datos clínicos ficticios.

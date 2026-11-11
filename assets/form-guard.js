@@ -2,19 +2,21 @@
 let modalBaseline = null;
 function modalFormSnapshot() {
   return JSON.stringify(
-    [...$("modalBody").querySelectorAll("input,textarea,select")].map(
-      (control) => ({
-        id: control.id,
-        value: control.value,
-        checked:
-          control.type === "checkbox" || control.type === "radio"
-            ? control.checked
-            : undefined,
-        selected: control.multiple
-          ? [...control.selectedOptions].map((option) => option.value)
+    [
+      ...$("modalBody").querySelectorAll(
+        "input:not([data-transient]),textarea,select",
+      ),
+    ].map((control) => ({
+      id: control.id,
+      value: control.value,
+      checked:
+        control.type === "checkbox" || control.type === "radio"
+          ? control.checked
           : undefined,
-      }),
-    ),
+      selected: control.multiple
+        ? [...control.selectedOptions].map((option) => option.value)
+        : undefined,
+    })),
   );
 }
 function markModalClean() {
