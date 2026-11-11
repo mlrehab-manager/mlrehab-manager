@@ -12,6 +12,58 @@ function validDate(value) {
   const d = new Date(value + "T12:00:00");
   return !isNaN(d) && localDate(d) === value;
 }
+function validateExerciseNames(value) {
+  if (value === undefined) return [];
+  if (
+    !Array.isArray(value) ||
+    value.some(
+      (name) => typeof name !== "string" || !name.trim() || name.length > 150,
+    )
+  )
+    throw Error("Catálogo o selección de ejercicios no válidos.");
+  const keys = new Set();
+  return value
+    .map((name) => name.trim().replace(/\s+/g, " "))
+    .filter((name) => {
+      const key = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("es");
+      if (keys.has(key)) return false;
+      keys.add(key);
+      return true;
+    });
+}
+const EXERCISE_CATEGORY_IDS = [
+  "isometric",
+  "dynamic",
+  "concentric",
+  "eccentric",
+  "plyometric",
+  "other",
+];
+function validateExerciseClassifications(value) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value))
+    throw Error("Clasificaciones de ejercicios no válidas.");
+  const seen = new Set();
+  return value.map((entry) => {
+    if (
+      !entry ||
+      typeof entry.name !== "string" ||
+      !EXERCISE_CATEGORY_IDS.includes(entry.category)
+    )
+      throw Error("Clasificación de ejercicio no válida.");
+    const name = validateExerciseNames([entry.name])[0];
+    const key = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+    if (seen.has(key)) throw Error("Clasificación de ejercicio duplicada.");
+    seen.add(key);
+    return { name, category: entry.category };
+  });
+}
 function validateData(source) {
   const fail = () => {
     throw Error(
@@ -39,7 +91,12 @@ function validateData(source) {
       fail();
     ids.add(p.id);
     for (const [key, value] of Object.entries(p)) {
-      if (key !== "notes" && key !== "documents" && typeof value !== "string")
+      if (
+        key !== "notes" &&
+        key !== "documents" &&
+        key !== "therapeuticExercises" &&
+        typeof value !== "string"
+      )
         fail();
     }
     if (p.notes !== undefined && !Array.isArray(p.notes)) fail();
@@ -59,7 +116,13 @@ function validateData(source) {
         p.documents.some((d) => typeof d !== "string"))
     )
       fail();
-    return { ...p, notes, documents: p.documents || [] };
+    return {
+      ...p,
+      notes,
+      documents: p.documents || [],
+      passiveTreatment: p.passiveTreatment || "",
+      therapeuticExercises: validateExerciseNames(p.therapeuticExercises),
+    };
   });
   const appts = source.appointments.map((a) => {
     if (
@@ -91,6 +154,10 @@ function validateData(source) {
   }
   return {
     patients,
+    exerciseCatalog: validateExerciseNames(source.exerciseCatalog),
+    exerciseClassifications: validateExerciseClassifications(
+      source.exerciseClassifications,
+    ),
     appointments: appts,
     nextPatient: next(patients, source.nextPatient),
     nextAppt: next(appts, source.nextAppt),

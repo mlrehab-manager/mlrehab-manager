@@ -28,6 +28,12 @@ Detección de datos cambiados o borrados en otra pestaña, bloqueo del guardado 
 
 Confirmación antes de descartar formularios modificados con X o Escape y solicitud de aviso nativo al recargar con cambios pendientes. No guarda borradores. El usuario confirmó la conservación del texto y autorizó publicar la versión 0.8.
 
-## Versión 0.9 · en revisión
+## Versión 0.9 · publicada
 
-Vista previa al importar copias JSON: comparación de recuentos, descarga opcional de los datos actuales y sustitución explícita tras revisión. Pendiente de prueba en Safari de iPad. La versión pública permanece en 0.8 hasta su autorización.
+Vista previa al importar copias JSON: comparación de recuentos, descarga opcional de los datos actuales y sustitución explícita tras revisión. El usuario confirmó la mejora y autorizó publicar la versión 0.9.
+
+## Versión 0.10 · en revisión
+
+Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, con un catálogo de nombres ampliable manualmente. Se prepara un catálogo local ampliado de 112 nombres, selección en fichas, adición manual y conservación de los textos antiguos. Los nuevos datos se incluyen en copias e informes. Pendiente de revisión del usuario en iPad; la web publicada permanece en 0.9.
+
+Ampliación solicitada durante la revisión de 0.10: clasificación en isométricos, dinámicos (combinados, énfasis concéntrico y énfasis excéntrico), pliometría y otros. Se investigan fuentes y se añaden 45 nombres sin eliminar los 67 previos. Las modalidades se pueden filtrar, asignar y modificar manualmente y se conservan en copias. La publicación de 0.10 sigue en pausa hasta revisar esta clasificación.

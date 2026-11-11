@@ -712,3 +712,49 @@ main {
 .backup-filename {
   overflow-wrap: anywhere;
 }
+.exercise-options {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  margin: 12px 0;
+  padding: 12px;
+}
+#treatmentExerciseList {
+  max-height: 280px;
+  overflow-y: auto;
+}
+.exercise-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 4px;
+  overflow-wrap: anywhere;
+}
+.exercise-option input {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  accent-color: #191919;
+}
+.exercise-option span {
+  min-width: 0;
+}
+
+.field label.treatment-subtitle,
+h3.treatment-subtitle {
+  font-size: 15px;
+  font-weight: 650;
+}
+.exercise-group h4 {
+  font-size: 14px;
+  margin: 14px 0 8px;
+  color: #333;
+}
+.exercise-group .listrow span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.exercise-group a {
+  color: inherit;
+}

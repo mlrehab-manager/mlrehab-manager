@@ -1,5 +1,7 @@
 const KEY = "mlrehab-demo-v1";
 const sample = {
+  exerciseCatalog: [],
+  exerciseClassifications: [],
   patients: [
     {
       id: "P001",
@@ -18,6 +20,8 @@ const sample = {
       diagnosis: "Ejemplo de diagnóstico de fisioterapia",
       goals: "Mejorar tolerancia a la carga.",
       treatment: "Ejercicio terapéutico progresivo.",
+      passiveTreatment: "",
+      therapeuticExercises: [],
       notes: [{ date: "2026-11-10", text: "Sesión ficticia de ejemplo." }],
     },
   ],
@@ -86,6 +90,7 @@ function render() {
     ["pacientes", "♙ Pacientes"],
     ["historias", "▤ Historias clínicas"],
     ["copias", "⇩ Copias de prueba"],
+    ["ejercicios", "◇ Ejercicios"],
   ];
   $("nav").innerHTML = items
     .map(
@@ -99,6 +104,7 @@ function render() {
     pacientes: patients,
     historias: histories,
     copias: backups,
+    ejercicios: exercisesPage,
   })[page]();
 }
 function openModal(title, html) {
@@ -152,7 +158,7 @@ function calendar() {
     dates = Array.from({ length: view === "day" ? 1 : 7 }, (_, i) =>
       isoAdd(start, i),
     );
-  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.9</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
+  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.10</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
   for (let h = 8; h < 20; h++) {
     html += `<div class="hour">${String(h).padStart(2, "0")}:00</div>`;
     for (let d of dates) {
@@ -439,6 +445,8 @@ function createPatient() {
     diagnosis: "",
     goals: "",
     treatment: "",
+    passiveTreatment: "",
+    therapeuticExercises: [],
     notes: [],
   };
   data.patients.push(p);
@@ -466,7 +474,7 @@ const fields = [
   ["strength", "Dinamometría"],
   ["diagnosis", "Diagnóstico de fisioterapia"],
   ["goals", "Objetivos terapéuticos"],
-  ["treatment", "Tratamiento (plan inicial)"],
+  ["treatment", "Tratamiento previo (sin clasificar)"],
 ];
 function patientDetail() {
   let p = data.patients.find((p) => p.id === currentPatient);
@@ -475,7 +483,7 @@ function patientDetail() {
     `<div class="card"><div class="sectiontitle"><h3>${title}</h3><button onclick="editFields('${keys.join(",")}')">Editar ✎</button></div>${keys.map((k) => `<div class="sectionbody">${keys.length > 1 ? `<b>${fields.find((f) => f[0] === k)?.[1]}:</b> ` : ""}${esc(p[k]) || '<span class="muted">Sin registrar</span>'}</div>`).join("")}</div>`;
   let sessions = (p.notes || []).map((n, i) => ({ ...n, i })).reverse();
   $("app").innerHTML =
-    `<div class="top"><div><button onclick="nav('pacientes')">‹ Pacientes</button><h1 style="margin-top:12px">${esc(p.name)}</h1><div class="muted">Nº paciente: ${esc(p.id)} · Datos ficticios</div></div><div class="patient-actions"><button onclick="startReport()">Preparar informe</button><button onclick="renamePatient()">Editar nombre</button><button class="primary" onclick="newAppointmentForPatient()">+ Programar cita</button></div></div><div class="detailgrid"><div>${card("Datos personales", ["phone", "birth", "email", "address", "occupation", "activity"])}${card("Antecedentes relevantes", ["background"])}<div class="card"><div class="sectiontitle"><h3>Documentos de prueba</h3><button onclick="addDemoDocument()">+ Añadir referencia</button></div><p class="formnote">Solo nombres de documentos ficticios. No se suben archivos ni informes.</p>${(p.documents || []).map((d, i) => `<div class="filetag"><span>▤ ${esc(d)}</span><button onclick="removeDemoDocument(${i})">Quitar</button></div>`).join("") || '<p class="muted">Sin documentos.</p>'}</div><button onclick="deletePatient()">Eliminar paciente ficticio</button></div><div>${card("Anamnesis", ["history"])}<div class="grid">${card("Exploración física", ["exam"])}${card("ROM", ["rom"])}${card("Dinamometría", ["strength"])}</div><div class="grid">${card("Diagnóstico de fisioterapia", ["diagnosis"])}${card("Objetivos terapéuticos", ["goals"])}</div>${card("Tratamiento (plan inicial)", ["treatment"])}<div class="card"><div class="sectiontitle"><h3>Evolución por sesiones (${sessions.length})</h3><button class="primary" onclick="addSession()">+ Añadir sesión</button></div>${sessions.length ? sessions.map((n) => `<div class="session"><b>${esc(n.date)}</b><p>${esc(n.text)}</p><div class="actions"><button onclick="editSession(${n.i})">Editar sesión</button><button onclick="deleteSession(${n.i})">Eliminar</button></div></div>`).join("") : '<p class="muted">Todavía no hay sesiones.</p>'}</div></div></div>`;
+    `<div class="top"><div><button onclick="nav('pacientes')">‹ Pacientes</button><h1 style="margin-top:12px">${esc(p.name)}</h1><div class="muted">Nº paciente: ${esc(p.id)} · Datos ficticios</div></div><div class="patient-actions"><button onclick="startReport()">Preparar informe</button><button onclick="renamePatient()">Editar nombre</button><button class="primary" onclick="newAppointmentForPatient()">+ Programar cita</button></div></div><div class="detailgrid"><div>${card("Datos personales", ["phone", "birth", "email", "address", "occupation", "activity"])}${card("Antecedentes relevantes", ["background"])}<div class="card"><div class="sectiontitle"><h3>Documentos de prueba</h3><button onclick="addDemoDocument()">+ Añadir referencia</button></div><p class="formnote">Solo nombres de documentos ficticios. No se suben archivos ni informes.</p>${(p.documents || []).map((d, i) => `<div class="filetag"><span>▤ ${esc(d)}</span><button onclick="removeDemoDocument(${i})">Quitar</button></div>`).join("") || '<p class="muted">Sin documentos.</p>'}</div><button onclick="deletePatient()">Eliminar paciente ficticio</button></div><div>${card("Anamnesis", ["history"])}<div class="grid">${card("Exploración física", ["exam"])}${card("ROM", ["rom"])}${card("Dinamometría", ["strength"])}</div><div class="grid">${card("Diagnóstico de fisioterapia", ["diagnosis"])}${card("Objetivos terapéuticos", ["goals"])}</div>${treatmentCard(p)}<div class="card"><div class="sectiontitle"><h3>Evolución por sesiones (${sessions.length})</h3><button class="primary" onclick="addSession()">+ Añadir sesión</button></div>${sessions.length ? sessions.map((n) => `<div class="session"><b>${esc(n.date)}</b><p>${esc(n.text)}</p><div class="actions"><button onclick="editSession(${n.i})">Editar sesión</button><button onclick="deleteSession(${n.i})">Eliminar</button></div></div>`).join("") : '<p class="muted">Todavía no hay sesiones.</p>'}</div></div></div>`;
 }
 function renamePatient() {
   let p = data.patients.find((p) => p.id === currentPatient);
