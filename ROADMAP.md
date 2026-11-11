@@ -24,6 +24,10 @@ El usuario confirmó el flujo de informes/PDF en iPad y autorizó publicar la ve
 
 Detección de datos cambiados o borrados en otra pestaña, bloqueo del guardado desde vistas antiguas y opciones explícitas para descargar una copia y recargar. Mantiene el tema crema y los informes de demostración. El usuario confirmó el aviso en iPad y autorizó la publicación de la versión 0.7.
 
-## Versión 0.8 · en revisión
+## Versión 0.8 · publicada
 
-Confirmación antes de descartar formularios modificados con X o Escape y solicitud de aviso nativo al recargar con cambios pendientes. No guarda borradores. Pendiente de revisión en iPad; la versión pública permanece en 0.7.
+Confirmación antes de descartar formularios modificados con X o Escape y solicitud de aviso nativo al recargar con cambios pendientes. No guarda borradores. El usuario confirmó la conservación del texto y autorizó publicar la versión 0.8.
+
+## Versión 0.9 · en revisión
+
+Vista previa al importar copias JSON: comparación de recuentos, descarga opcional de los datos actuales y sustitución explícita tras revisión. Pendiente de prueba en Safari de iPad. La versión pública permanece en 0.8 hasta su autorización.
