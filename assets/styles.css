@@ -1,8 +1,8 @@
 :root {
-  --background: #e9e0d3;
-  --surface: #f5eee4;
-  --surface-soft: #eee5d9;
-  --border: #cfc3b3;
+  --background: #f1ebe2;
+  --surface: #faf6ef;
+  --surface-soft: #f5eee4;
+  --border: #d9cfc1;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #171a1e;
   background: var(--background);
