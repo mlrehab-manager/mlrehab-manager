@@ -580,3 +580,130 @@ main {
     background: #191919;
   }
 }
+
+/* Temporary report editor and print-only document. */
+.report-dialog {
+  background: var(--surface);
+  max-width: 1100px;
+}
+.report-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.report-options {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px;
+  margin: 16px 0;
+}
+.report-options label,
+.report-check {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 48px;
+}
+.report-options input,
+.report-check input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
+  accent-color: #191919;
+}
+#reportText {
+  min-height: 320px;
+  resize: vertical;
+}
+#reportError {
+  color: #333;
+  font-weight: 600;
+}
+.report-paper {
+  background: var(--surface);
+  color: #191919;
+  padding: 24px;
+  border: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.report-paper .report-heading {
+  display: flex;
+  background: transparent;
+  color: inherit;
+  padding: 0 0 12px;
+  justify-content: flex-start;
+  gap: 12px;
+  align-items: baseline;
+  border-bottom: 1px solid #777;
+}
+.report-heading strong {
+  font-size: 22px;
+}
+.report-heading span {
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.report-paper h1 {
+  font-size: 22px;
+  margin: 18px 0;
+}
+.report-demo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.report-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin: 24px 0;
+}
+.report-paper footer {
+  border-top: 1px solid #777;
+  padding-top: 12px;
+  font-size: 11px;
+}
+#reportPrint {
+  display: none;
+}
+@media (max-width: 850px) {
+  .report-layout {
+    grid-template-columns: 1fr;
+  }
+  .report-paper {
+    padding: 16px;
+  }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm;
+  }
+  body.printing-report {
+    background: white;
+  }
+  body.printing-report > :not(#reportPrint) {
+    display: none !important;
+  }
+  body.printing-report > #reportPrint {
+    display: block !important;
+    border: 0;
+    padding: 0;
+    background: white;
+    color: black;
+    font-size: 11pt;
+  }
+  #reportPrint .report-heading {
+    display: flex;
+  }
+  #reportPrint h1,
+  #reportPrint .report-heading,
+  #reportPrint .report-demo {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+  #reportPrint p {
+    orphans: 3;
+    widows: 3;
+  }
+}
