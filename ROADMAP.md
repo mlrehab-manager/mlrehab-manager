@@ -34,4 +34,6 @@ Vista previa al importar copias JSON: comparación de recuentos, descarga opcion
 
 ## Versión 0.10 · en revisión
 
-Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, con un catálogo de nombres ampliable manualmente. Se prepara un catálogo inicial local de 67 nombres, selección en fichas, adición manual y conservación de los textos antiguos. Los nuevos datos se incluyen en copias e informes. Pendiente de revisión del usuario en iPad; la web publicada permanece en 0.9.
+Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, con un catálogo de nombres ampliable manualmente. Se prepara un catálogo local ampliado de 112 nombres, selección en fichas, adición manual y conservación de los textos antiguos. Los nuevos datos se incluyen en copias e informes. Pendiente de revisión del usuario en iPad; la web publicada permanece en 0.9.
+
+Ampliación solicitada durante la revisión de 0.10: clasificación en isométricos, dinámicos (combinados, énfasis concéntrico y énfasis excéntrico), pliometría y otros. Se investigan fuentes y se añaden 45 nombres sin eliminar los 67 previos. Las modalidades se pueden filtrar, asignar y modificar manualmente y se conservan en copias. La publicación de 0.10 sigue en pausa hasta revisar esta clasificación.

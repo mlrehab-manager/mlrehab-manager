@@ -4,7 +4,7 @@ function modalFormSnapshot() {
   return JSON.stringify(
     [
       ...$("modalBody").querySelectorAll(
-        "input:not([data-transient]),textarea,select",
+        "input:not([data-transient]),textarea,select:not([data-transient])",
       ),
     ].map((control) => ({
       id: control.id,

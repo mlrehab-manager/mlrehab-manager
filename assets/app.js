@@ -1,6 +1,7 @@
 const KEY = "mlrehab-demo-v1";
 const sample = {
   exerciseCatalog: [],
+  exerciseClassifications: [],
   patients: [
     {
       id: "P001",

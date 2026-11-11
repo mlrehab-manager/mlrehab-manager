@@ -34,6 +34,36 @@ function validateExerciseNames(value) {
       return true;
     });
 }
+const EXERCISE_CATEGORY_IDS = [
+  "isometric",
+  "dynamic",
+  "concentric",
+  "eccentric",
+  "plyometric",
+  "other",
+];
+function validateExerciseClassifications(value) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value))
+    throw Error("Clasificaciones de ejercicios no válidas.");
+  const seen = new Set();
+  return value.map((entry) => {
+    if (
+      !entry ||
+      typeof entry.name !== "string" ||
+      !EXERCISE_CATEGORY_IDS.includes(entry.category)
+    )
+      throw Error("Clasificación de ejercicio no válida.");
+    const name = validateExerciseNames([entry.name])[0];
+    const key = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+    if (seen.has(key)) throw Error("Clasificación de ejercicio duplicada.");
+    seen.add(key);
+    return { name, category: entry.category };
+  });
+}
 function validateData(source) {
   const fail = () => {
     throw Error(
@@ -125,6 +155,9 @@ function validateData(source) {
   return {
     patients,
     exerciseCatalog: validateExerciseNames(source.exerciseCatalog),
+    exerciseClassifications: validateExerciseClassifications(
+      source.exerciseClassifications,
+    ),
     appointments: appts,
     nextPatient: next(patients, source.nextPatient),
     nextAppt: next(appts, source.nextAppt),
