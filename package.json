@@ -1,12 +1,14 @@
 {
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "@playwright/test": "^1.65.0",
     "prettier": "^3.9.10"
   },
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "format": "prettier --write index.html assets tests playwright.config.js",
-    "format:check": "prettier --check index.html assets tests playwright.config.js"
+    "format": "prettier --write index.html assets tests playwright.config.js clinical/tests",
+    "format:check": "prettier --check index.html assets tests playwright.config.js clinical/tests",
+    "test:clinical": "node --test clinical/tests/*.test.mjs"
   }
 }

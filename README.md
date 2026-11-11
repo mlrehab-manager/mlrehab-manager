@@ -126,3 +126,7 @@ En **Añadir ejercicio** y **Clasificar** puedes marcar varias zonas; sin marcas
 Las zonas personales se guardan en `exerciseRegions`, como registros con `name` y una lista `regions`. Se incluyen en las copias JSON y el resumen previo a importar muestra **Zonas personalizadas**. Usa 0.11 o posterior para conservarlas al restaurar; copias de versiones previas siguen siendo válidas, sin ajustes de zonas. Restablecer la demo elimina los ajustes personales y recupera las etiquetas iniciales. Las selecciones guardadas en fichas y los informes mantienen sus nombres.
 
 `assets/exercise-regions.js` separa los filtros, etiquetas y ajustes de zonas; los datos iniciales están en `assets/exercise-catalog.js`. Los títulos de tratamiento siguen teniendo el mismo tamaño y se conserva la paleta crema. Pendiente de revisión en Safari de iPad antes de publicar; solo datos ficticios.
+
+## Transición a uso clínico · fase de preparación
+
+Se inicia en una rama separada una base privada de pacientes con permisos, doble factor, revisiones y auditoría, probada localmente. **La aplicación publicada sigue siendo una demo y no puede utilizarse con datos reales.** No hay backend contratado ni interfaz clínica conectada. Consulta [clinical/README.md](clinical/README.md), [el plan clínico](docs/CLINICAL_SECURITY_PLAN.md) y [los riesgos pendientes](docs/CLINICAL_THREAT_MODEL.md). Las pruebas SQL se ejecutan con `npm run test:clinical` y no utilizan cuentas ni datos reales.

@@ -38,6 +38,12 @@ Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, c
 
 Ampliación solicitada durante la revisión de 0.10: clasificación en isométricos, dinámicos (combinados, énfasis concéntrico y énfasis excéntrico), pliometría y otros. Se investigan fuentes y se añaden 45 nombres sin eliminar los 67 previos. Las modalidades se pueden filtrar, asignar y modificar manualmente y se conservan en copias. El usuario aprobó la clasificación y autorizó su publicación en 0.10.
 
-## Versión 0.11 · en revisión
+## Versión 0.11 · publicada
 
-Prioridad elegida por el usuario al retomar: ampliar ejercicios y filtrar por zona corporal. Se añaden 18 nombres con referencias (130 en total), etiquetas de varias zonas por ejercicio, filtros combinados con modalidad y buscador, asignación manual y conservación en copias. Pendiente de revisión en iPad; la versión pública permanece en 0.10.
+Prioridad elegida por el usuario al retomar: ampliar ejercicios y filtrar por zona corporal. Se añaden 18 nombres con referencias (130 en total), etiquetas de varias zonas por ejercicio, filtros combinados con modalidad y buscador, asignación manual y conservación en copias. El usuario revisó y autorizó la versión 0.11, ya publicada.
+
+## Base clínica · fase 1 en revisión
+
+Contexto confirmado: Comunitat Valenciana, España; un usuario desde iPad y ordenador; preferencia por empezar gratis con límites claros. Se prepara un diseño para dejar localStorage y una API privada inicial de pacientes con MFA, admisión explícita, versiones y auditoría. Supabase en UE es candidato para pruebas, sin contratar ni configurar servicios externos. El plan gratuito no da por resueltas copias y disponibilidad. La web permanece como demo 0.11; no se retiran los avisos ni se habilitan datos reales.
+
+Siguiente bloque: proyecto de pruebas, autenticación/MFA real y configuración del proveedor, seguido de integración completa de funciones y pruebas de copias/restauración. El plan y los límites están en clinical/README.md y docs/CLINICAL_SECURITY_PLAN.md.

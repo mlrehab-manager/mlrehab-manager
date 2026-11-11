@@ -2,3 +2,8 @@ node_modules/
 work/
 test-results/
 playwright-report/
+.env
+.env.*
+!.env.example
+*.dump
+*.backup
