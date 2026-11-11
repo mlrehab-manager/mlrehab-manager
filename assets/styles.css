@@ -758,3 +758,48 @@ h3.treatment-subtitle {
 .exercise-group a {
   color: inherit;
 }
+.region-choices {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  margin: 12px 0;
+  padding: 12px;
+}
+.region-choices > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+.region-choices label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.region-choices input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
+  accent-color: #191919;
+}
+.exercise-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.exercise-name small {
+  display: block;
+  margin-top: 4px;
+}
+@media (max-width: 500px) {
+  .region-choices > div {
+    grid-template-columns: 1fr;
+  }
+}
+.region-optional {
+  margin: 12px 0;
+}
+.region-optional summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+}

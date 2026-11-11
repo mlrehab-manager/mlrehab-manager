@@ -32,8 +32,12 @@ Confirmación antes de descartar formularios modificados con X o Escape y solici
 
 Vista previa al importar copias JSON: comparación de recuentos, descarga opcional de los datos actuales y sustitución explícita tras revisión. El usuario confirmó la mejora y autorizó publicar la versión 0.9.
 
-## Versión 0.10 · en revisión
+## Versión 0.10 · publicada
 
-Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, con un catálogo de nombres ampliable manualmente. Se prepara un catálogo local ampliado de 112 nombres, selección en fichas, adición manual y conservación de los textos antiguos. Los nuevos datos se incluyen en copias e informes. Pendiente de revisión del usuario en iPad; la web publicada permanece en 0.9.
+Petición del usuario: dividir tratamiento en pasivo y ejercicio terapéutico, con un catálogo de nombres ampliable manualmente. Se prepara un catálogo local ampliado de 112 nombres, selección en fichas, adición manual y conservación de los textos antiguos. Los nuevos datos se incluyen en copias e informes. El usuario revisó y autorizó la versión 0.10, ya publicada.
 
-Ampliación solicitada durante la revisión de 0.10: clasificación en isométricos, dinámicos (combinados, énfasis concéntrico y énfasis excéntrico), pliometría y otros. Se investigan fuentes y se añaden 45 nombres sin eliminar los 67 previos. Las modalidades se pueden filtrar, asignar y modificar manualmente y se conservan en copias. La publicación de 0.10 sigue en pausa hasta revisar esta clasificación.
+Ampliación solicitada durante la revisión de 0.10: clasificación en isométricos, dinámicos (combinados, énfasis concéntrico y énfasis excéntrico), pliometría y otros. Se investigan fuentes y se añaden 45 nombres sin eliminar los 67 previos. Las modalidades se pueden filtrar, asignar y modificar manualmente y se conservan en copias. El usuario aprobó la clasificación y autorizó su publicación en 0.10.
+
+## Versión 0.11 · en revisión
+
+Prioridad elegida por el usuario al retomar: ampliar ejercicios y filtrar por zona corporal. Se añaden 18 nombres con referencias (130 en total), etiquetas de varias zonas por ejercicio, filtros combinados con modalidad y buscador, asignación manual y conservación en copias. Pendiente de revisión en iPad; la versión pública permanece en 0.10.

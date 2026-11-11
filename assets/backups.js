@@ -11,6 +11,7 @@ function backupCounts(snapshot) {
     ),
     (snapshot.exerciseCatalog || []).length,
     (snapshot.exerciseClassifications || []).length,
+    (snapshot.exerciseRegions || []).length,
   ];
 }
 async function importData(file) {
@@ -34,7 +35,7 @@ async function importData(file) {
       <p>La copia es válida. Comprueba el resumen antes de sustituir los datos de esta demo.</p>
       <table><caption>Comparación de datos ficticios</caption>
         <thead><tr><th scope="col">Contenido</th><th scope="col">Actuales</th><th scope="col">En la copia</th></tr></thead>
-        <tbody>${["Pacientes", "Citas", "Sesiones", "Ejercicios añadidos", "Clasificaciones personalizadas"].map((label, i) => `<tr><th scope="row">${label}</th><td>${before[i]}</td><td>${after[i]}</td></tr>`).join("")}</tbody>
+        <tbody>${["Pacientes", "Citas", "Sesiones", "Ejercicios añadidos", "Clasificaciones personalizadas", "Zonas personalizadas"].map((label, i) => `<tr><th scope="row">${label}</th><td>${before[i]}</td><td>${after[i]}</td></tr>`).join("")}</tbody>
       </table>
       <p><b>La importación sustituye todos los datos; no los combina.</b> Una copia vacía también puede borrar los datos actuales.</p>
       <div class="actions"><button onclick="exportData()">Descargar copia actual antes de importar</button>${recoverySource !== null ? '<button onclick="downloadRecovery()">Descargar original para recuperación</button>' : ""}</div>

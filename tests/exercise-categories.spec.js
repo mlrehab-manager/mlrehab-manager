@@ -26,8 +26,8 @@ test("expanded catalogue has unique names and every category can be filtered", a
       ]),
     ),
   }));
-  expect(seed.total).toBe(112);
-  expect(seed.unique).toBe(112);
+  expect(seed.total).toBe(130);
+  expect(seed.unique).toBe(130);
   for (const [category, count] of Object.entries(seed.counts)) {
     expect(count).toBeGreaterThan(0);
     await page.getByLabel("Modalidad", { exact: true }).selectOption(category);
@@ -40,7 +40,7 @@ test("expanded catalogue has unique names and every category can be filtered", a
     seed.counts.dynamic + seed.counts.concentric + seed.counts.eccentric,
   );
   await page.getByLabel("Buscar por nombre").fill("excEntrica de muneca");
-  await expect(page.locator("#exerciseList .listrow > span")).toHaveText(
+  await expect(page.locator("#exerciseList .exercise-name > span")).toHaveText(
     "Extensión excéntrica de muñeca con carga",
   );
 });
