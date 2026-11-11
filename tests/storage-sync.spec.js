@@ -80,6 +80,12 @@ test("pre-write comparison catches changes without a storage event and blocks re
     mimeType: "application/json",
     buffer: Buffer.from(backup),
   });
+  await page
+    .getByLabel("Entiendo que se sustituirán los datos actuales.")
+    .check();
+  await page
+    .getByRole("button", { name: "Sustituir datos e importar" })
+    .click();
   await expect(page.getByRole("status")).toContainText("No se guardaron");
   expect(await page.evaluate(() => localStorage.getItem(KEY))).toBe(newer);
 });

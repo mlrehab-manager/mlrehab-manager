@@ -65,6 +65,12 @@ test("patient, clinical record, sessions, appointments, drag and backup round tr
   await page
     .locator("input[type=file]")
     .setInputFiles("test-results/roundtrip.json");
+  await page
+    .getByLabel("Entiendo que se sustituirán los datos actuales.")
+    .check();
+  await page
+    .getByRole("button", { name: "Sustituir datos e importar" })
+    .click();
   await page.getByRole("button", { name: "♙ Pacientes" }).click();
   await page.getByRole("button", { name: "Abrir ficha" }).last().click();
   await expect(page.getByText("Historia ficticia revisada")).toBeVisible();

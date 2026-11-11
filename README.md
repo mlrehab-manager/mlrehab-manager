@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.8 DEMO
+# MLREHAB Manager · 0.9 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -69,10 +69,20 @@ Esta comprobación reduce sobrescrituras de vistas antiguas; no es una transacci
 
 `assets/storage-sync.js` contiene los avisos y la recarga explícita. Las pruebas usan dos páginas del mismo contexto de navegador y cubren cambios externos, conservación del formulario, descarga de copia, recarga y posterior guardado, eliminación del almacenamiento, comparación sin evento previo y bloqueo de importación/restablecimiento desde una vista antigua.
 
-## Protección de formularios sin guardar (0.8, en revisión)
+## Protección de formularios sin guardar (0.8)
 
 Al modificar los valores de un formulario, cerrar con la X o con Escape pide confirmación antes de descartarlos. Cancelar conserva el texto. Un formulario sin cambios cierra directamente; si se deshace manualmente una edición hasta recuperar los valores iniciales, tampoco se considera pendiente. Después de un guardado correcto no aparece una segunda confirmación. Si el guardado falla, el formulario sigue protegido.
 
 Los informes conservan su confirmación de descarte específica, sin duplicarla. Ante una recarga o salida de la página con un formulario modificado o un borrador de informe abierto se solicita el aviso nativo de `beforeunload`. Su aparición y texto dependen del navegador y de que haya habido interacción con la página. Safari/iPadOS puede omitirlo, especialmente al cerrar la aplicación o suspenderla; esta función no guarda borradores ni garantiza recuperarlos.
 
 La lógica está separada en `assets/form-guard.js`. Las pruebas comprueban X y Escape, cancelación y aceptación del descarte, conservación del texto, guardado, edición revertida, inicialización de citas desde la ficha y aviso de recarga en Chromium. Pendiente de comprobar el cierre en Safari de iPad antes de publicar. Se mantienen las copias, informes, calendario, tema crema y uso exclusivo de datos ficticios.
+
+## Vista previa de importación (0.9, en revisión)
+
+En **Copias de prueba → Importar JSON**, elige una copia ficticia válida. Antes de cambiar nada se muestra su nombre y una tabla con los recuentos de pacientes, citas y sesiones actuales y de la copia. No se muestran nombres de pacientes ni textos clínicos. Desde esta vista puedes descargar una copia de los datos actuales; si hay datos dañados pendientes de recuperación también puedes descargar el original conservado.
+
+Para importar, marca **Entiendo que se sustituirán los datos actuales** y pulsa **Sustituir datos e importar**. Los datos se sustituyen por completo, sin combinación. Una copia vacía es válida y elimina los registros actuales si se confirma. Cancelar la vista previa deja el almacenamiento intacto; puedes volver a elegir el mismo archivo.
+
+Los archivos se leen y validan localmente, con el límite existente de 5 MB. Ningún archivo se sube. Se conserva la validación de referencias, fechas y sesiones y la protección frente a otra pestaña desactualizada. Si el guardado falla, no se sustituye la vista actual y la importación queda abierta. Las copias siguen sin cifrar y solo pueden contener datos ficticios. Los formularios e informes temporales no se incluyen en las copias.
+
+`assets/backups.js` separa lectura, vista previa y aplicación. Las pruebas comprueban recuentos, cancelación, descarga del estado anterior, importación explícita de una copia vacía, rechazo de archivos inválidos o grandes, escape del nombre de archivo, errores de escritura y los recorridos de copias y conflictos existentes. Pendiente de revisar la vista previa y la selección de archivos en Safari de iPad antes de publicar.

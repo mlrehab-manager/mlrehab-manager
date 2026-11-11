@@ -115,6 +115,7 @@ function openModal(title, html) {
 function closeModal() {
   if (!confirmFormClose()) return;
   if (typeof discardReport === "function" && !discardReport()) return;
+  if (typeof clearPendingImport === "function") clearPendingImport();
   $("modal").close();
 }
 function dateStr(d) {
@@ -151,7 +152,7 @@ function calendar() {
     dates = Array.from({ length: view === "day" ? 1 : 7 }, (_, i) =>
       isoAdd(start, i),
     );
-  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.8</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
+  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.9</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
   for (let h = 8; h < 20; h++) {
     html += `<div class="hour">${String(h).padStart(2, "0")}:00</div>`;
     for (let d of dates) {
@@ -594,7 +595,7 @@ function saveSession() {
 }
 function backups() {
   $("app").innerHTML =
-    `<h1>Copias de prueba</h1><div class="card"><h2>Exportar e importar datos ficticios</h2>${recoverySource !== null ? '<button onclick="downloadRecovery()">Descargar original para recuperación</button>' : ""}<p>Guarda una copia JSON de esta demo. El almacenamiento del navegador puede desaparecer, especialmente si abres el archivo desde Archivos en iPad.</p><div class="actions"><button class="primary" onclick="exportData()">Descargar copia JSON</button><label style="border:1px solid #ddd;padding:10px;border-radius:9px;cursor:pointer">Importar JSON<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this.files[0])"></label><button onclick="resetDemo()">Restablecer demo</button></div><p class="muted">Estas copias no están cifradas. Nunca las utilices para datos sanitarios reales.</p></div>`;
+    `<h1>Copias de prueba</h1><div class="card"><h2>Exportar e importar datos ficticios</h2>${recoverySource !== null ? '<button onclick="downloadRecovery()">Descargar original para recuperación</button>' : ""}<p>Guarda una copia JSON de esta demo. El almacenamiento del navegador puede desaparecer, especialmente si abres el archivo desde Archivos en iPad.</p><div class="actions"><button class="primary" onclick="exportData()">Descargar copia JSON</button><label style="border:1px solid #ddd;padding:10px;border-radius:9px;cursor:pointer">Importar JSON<input type="file" accept=".json,application/json" style="display:none" onchange="const file=this.files[0];this.value='';importData(file)"></label><button onclick="resetDemo()">Restablecer demo</button></div><p class="muted">Estas copias no están cifradas. Nunca las utilices para datos sanitarios reales.</p></div>`;
 }
 function exportData() {
   let blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -605,30 +606,6 @@ function exportData() {
   a.download = "MLREHAB_DEMO_copia.json";
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-}
-async function importData(file) {
-  if (!file) return;
-  try {
-    if (file.size > 5 * 1024 * 1024)
-      throw Error("La copia supera el límite de 5 MB.");
-    let x = validateData(JSON.parse(await file.text()));
-    if (
-      !confirm(
-        "¿Sustituir los datos actuales por esta copia ficticia validada?",
-      )
-    )
-      return;
-    const previousRecovery = recoverySource;
-    recoverySource = null;
-    data = x;
-    if (!save()) {
-      recoverySource = previousRecovery;
-      return;
-    }
-    render();
-  } catch (e) {
-    alert("No se pudo importar el archivo: " + e.message);
-  }
 }
 function downloadRecovery() {
   if (recoverySource === null) return;
