@@ -1,4 +1,4 @@
-# MLREHAB Manager · 0.7 DEMO
+# MLREHAB Manager · 0.8 DEMO
 
 Aplicación gratuita y estática para ensayar la gestión de una clínica de fisioterapia. **Utiliza exclusivamente datos ficticios.** El almacenamiento local y las copias JSON no están cifrados y no constituyen almacenamiento clínico seguro.
 
@@ -59,7 +59,7 @@ Los borradores son temporales, no se guardan en copias JSON y se descartan al ce
 
 La lógica de informes está separada en `assets/reports.js`. Las pruebas cubren selección explícita, exclusión de apartados, edición sin alterar la historia, escape de HTML, confirmación de descarte, revisión obligatoria, validación de fecha y aislamiento del documento al imprimir. Se genera un PDF de prueba en Chromium; esto no sustituye la prueba de impresión en Safari.
 
-## Detección de pestañas desactualizadas (0.7, en revisión)
+## Detección de pestañas desactualizadas (0.7)
 
 Cuando otra pestaña cambia o borra el almacenamiento de esta demo, aparece un aviso. No se recarga automáticamente ni se cierra el formulario que estás editando. Al guardar se vuelve a comparar el contenido del almacenamiento con la versión que se cargó en esta pestaña: si es diferente, el guardado se rechaza, el cambio en memoria se revierte y el formulario permanece abierto cuando corresponde. La misma comprobación protege importaciones y restablecimientos.
 
@@ -68,3 +68,11 @@ Cierra el formulario para usar las opciones del aviso. **Descargar copia de esta
 Esta comprobación reduce sobrescrituras de vistas antiguas; no es una transacción ni combina cambios. Dos escrituras que ocurran a la vez entre la lectura y la escritura de localStorage aún pueden competir. No sustituye almacenamiento clínico seguro ni sincronización entre dispositivos.
 
 `assets/storage-sync.js` contiene los avisos y la recarga explícita. Las pruebas usan dos páginas del mismo contexto de navegador y cubren cambios externos, conservación del formulario, descarga de copia, recarga y posterior guardado, eliminación del almacenamiento, comparación sin evento previo y bloqueo de importación/restablecimiento desde una vista antigua.
+
+## Protección de formularios sin guardar (0.8, en revisión)
+
+Al modificar los valores de un formulario, cerrar con la X o con Escape pide confirmación antes de descartarlos. Cancelar conserva el texto. Un formulario sin cambios cierra directamente; si se deshace manualmente una edición hasta recuperar los valores iniciales, tampoco se considera pendiente. Después de un guardado correcto no aparece una segunda confirmación. Si el guardado falla, el formulario sigue protegido.
+
+Los informes conservan su confirmación de descarte específica, sin duplicarla. Ante una recarga o salida de la página con un formulario modificado o un borrador de informe abierto se solicita el aviso nativo de `beforeunload`. Su aparición y texto dependen del navegador y de que haya habido interacción con la página. Safari/iPadOS puede omitirlo, especialmente al cerrar la aplicación o suspenderla; esta función no guarda borradores ni garantiza recuperarlos.
+
+La lógica está separada en `assets/form-guard.js`. Las pruebas comprueban X y Escape, cancelación y aceptación del descarte, conservación del texto, guardado, edición revertida, inicialización de citas desde la ficha y aviso de recarga en Chromium. Pendiente de comprobar el cierre en Safari de iPad antes de publicar. Se mantienen las copias, informes, calendario, tema crema y uso exclusivo de datos ficticios.

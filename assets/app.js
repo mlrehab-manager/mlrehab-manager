@@ -64,6 +64,7 @@ function save() {
     storageBaseline = serialized;
     showStorageConflict(false);
     persistedData = structuredClone(data);
+    markModalClean();
     storageMessage("Cambios guardados en este navegador.");
     return true;
   } catch (e) {
@@ -108,9 +109,11 @@ function openModal(title, html) {
       control = field.querySelector("input,textarea,select");
     if (label && control) label.htmlFor = control.id;
   });
+  markModalClean();
   $("modal").showModal();
 }
 function closeModal() {
+  if (!confirmFormClose()) return;
   if (typeof discardReport === "function" && !discardReport()) return;
   $("modal").close();
 }
@@ -148,7 +151,7 @@ function calendar() {
     dates = Array.from({ length: view === "day" ? 1 : 7 }, (_, i) =>
       isoAdd(start, i),
     );
-  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.7</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
+  let html = `<div class="top"><div><h1>Agenda</h1><div class="muted">MLREHAB Manager · v0.8</div></div><button class="primary" onclick="newAppointment()">+ Nueva cita</button></div><div class="card"><div class="toolbar"><button class="${view === "day" ? "active" : ""}" onclick="view='day';calendar()">Día</button><button class="${view === "week" ? "active" : ""}" onclick="view='week';calendar()">Semana</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? -1 : -7});calendar()">‹ Anterior</button><button onclick="anchor=isoAdd(anchor,${view === "day" ? 1 : 7});calendar()">Siguiente ›</button><button onclick="anchor=localDate();calendar()">Hoy</button><input aria-label="Elegir fecha" style="width:160px" type="date" value="${anchor}" onchange="if(this.value){anchor=this.value;calendar()}"><span class="muted">08:00–20:00 · 60 min</span></div></div><div class="calendar" id="calendarScroll"><div class="hours" style="--cols:${dates.length};${view === "day" ? "min-width:0;grid-template-columns:60px minmax(0,1fr)" : ""}"><div class="dayhead">Hora</div>${dates.map((d) => `<div class="dayhead">${dateStr(d)}</div>`).join("")}`;
   for (let h = 8; h < 20; h++) {
     html += `<div class="hour">${String(h).padStart(2, "0")}:00</div>`;
     for (let d of dates) {
@@ -507,6 +510,7 @@ function newAppointmentForPatient() {
   let id = currentPatient;
   appointmentForm(null, anchor, 8);
   $("aptPatient").value = id;
+  markModalClean();
 }
 function addDemoDocument() {
   openModal(
