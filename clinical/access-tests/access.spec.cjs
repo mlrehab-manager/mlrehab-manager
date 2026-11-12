@@ -6,6 +6,12 @@ const factor = {
   status: "verified",
 };
 const secret = "SYNTHETICNOTASECRET";
+const reserveFactor = {
+  id: "44444444-4444-4444-8444-444444444444",
+  factor_type: "totp",
+  status: "verified",
+  friendly_name: "MLREHAB reserva synthetic",
+};
 
 async function mockAuth(
   page,
@@ -15,9 +21,12 @@ async function mockAuth(
     badCode = false,
     access = "ok",
     revocation = "revoked",
+    hasReserve = false,
   } = {},
 ) {
   let verified = enrolled;
+  let reserveVerified = hasReserve;
+  let pendingReserve = false;
   let loggedOut = false;
   let accessCalls = 0;
   const calls = [];
@@ -26,7 +35,10 @@ async function mockAuth(
     aud: "authenticated",
     role: "authenticated",
     email: "synthetic@example.invalid",
-    factors: verified ? [factor] : [],
+    factors: [
+      ...(verified ? [factor] : []),
+      ...(reserveVerified ? [reserveFactor] : []),
+    ],
   });
   const session = (aal) => ({
     access_token:
@@ -86,8 +98,12 @@ async function mockAuth(
       if (badPassword) status = 400;
     } else if (path.endsWith("/user")) body = user();
     else if (path.endsWith("/factors")) {
+      pendingReserve =
+        request.postDataJSON()?.friendlyName?.startsWith("MLREHAB reserva") ??
+        request.postDataJSON()?.friendly_name?.startsWith("MLREHAB reserva") ??
+        false;
       body = {
-        id: factor.id,
+        id: pendingReserve ? reserveFactor.id : factor.id,
         type: "totp",
         totp: {
           qr_code:
@@ -106,7 +122,8 @@ async function mockAuth(
         body = { code: "mfa_verification_failed", msg: "Invalid code" };
         status = 422;
       } else {
-        verified = true;
+        if (path.includes(reserveFactor.id)) reserveVerified = true;
+        else verified = true;
         body = session("aal2");
       }
     } else if (path.endsWith("/logout")) {
@@ -156,7 +173,9 @@ test("existing MFA promotes assurance without fetching patients or storing a ses
   await expect(page.locator("#verify")).toBeVisible();
   await expect(page.locator("#enrollment")).toBeHidden();
   await expect(page.locator("#complete")).toBeHidden();
-  await page.getByLabel("Código de 6 dígitos").fill("123456");
+  await page
+    .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+    .fill("123456");
   await page.getByRole("button", { name: "Verificar segundo factor" }).click();
   await expect(page.locator("#complete")).toBeVisible();
   expect(
@@ -191,7 +210,9 @@ test("first enrollment shows a private image and erases the secret after verific
     /^data:image\/svg\+xml/,
   );
   await expect(page.locator("#secret")).toHaveText(secret);
-  await page.getByLabel("Código de 6 dígitos").fill("123456");
+  await page
+    .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+    .fill("123456");
   await page.getByRole("button", { name: "Verificar segundo factor" }).click();
   await expect(page.locator("#complete")).toBeVisible();
   await expect(page.locator("#secret")).toHaveText("");
@@ -201,7 +222,9 @@ test("first enrollment shows a private image and erases the secret after verific
 test("invalid MFA does not open the completed screen", async ({ page }) => {
   await mockAuth(page, { badCode: true });
   await login(page);
-  await page.getByLabel("Código de 6 dígitos").fill("123456");
+  await page
+    .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+    .fill("123456");
   await page.getByRole("button", { name: "Verificar segundo factor" }).click();
   await expect(page.getByRole("status")).toContainText("Código no verificado");
   await expect(page.locator("#complete")).toBeHidden();
@@ -241,7 +264,9 @@ for (const access of ["denied", "false", "unavailable"]) {
   }) => {
     await mockAuth(page, { access });
     await login(page);
-    await page.getByLabel("Código de 6 dígitos").fill("123456");
+    await page
+      .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+      .fill("123456");
     await page
       .getByRole("button", { name: "Verificar segundo factor" })
       .click();
@@ -255,7 +280,9 @@ for (const access of ["denied", "false", "unavailable"]) {
 
 async function authorized(page) {
   await login(page);
-  await page.getByLabel("Código de 6 dígitos").fill("123456");
+  await page
+    .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+    .fill("123456");
   await page.getByRole("button", { name: "Verificar segundo factor" }).click();
   await expect(page.locator("#complete")).toBeVisible();
 }
@@ -319,3 +346,84 @@ for (const revocation of [
     ).toBeVisible();
   });
 }
+
+test("a verified user adds a reserve authenticator without deleting the principal", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await page
+    .getByRole("button", { name: "Añadir autenticador de reserva" })
+    .click();
+  await expect(page.locator("#reserve")).toBeVisible();
+  await expect(page.locator("#reserve-secret")).toHaveText(secret);
+  await page
+    .getByLabel("Código de 6 dígitos del dispositivo de reserva")
+    .fill("123456");
+  await page
+    .getByRole("button", { name: "Verificar autenticador de reserva" })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "Autenticador de reserva verificado",
+  );
+  await expect(page.locator("#factor-count")).toHaveText(
+    "2 autenticadores verificados.",
+  );
+  await expect(page.locator("#add-reserve")).toBeHidden();
+  await expect(page.locator("#reserve-secret")).toHaveText("");
+  expect(await page.locator("#reserve-qr").getAttribute("src")).toBeNull();
+  expect(calls.some((c) => c.method === "DELETE")).toBe(false);
+});
+
+test("the reserve device can be selected for login without using the principal factor", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { hasReserve: true });
+  await login(page);
+  await page
+    .getByLabel("Autenticador que vas a utilizar")
+    .selectOption(reserveFactor.id);
+  await page
+    .getByLabel("Código de 6 dígitos del autenticador", { exact: true })
+    .fill("123456");
+  await page.getByRole("button", { name: "Verificar segundo factor" }).click();
+  await expect(page.locator("#complete")).toBeVisible();
+  expect(
+    calls.some((c) => c.path.endsWith(`/factors/${reserveFactor.id}/verify`)),
+  ).toBe(true);
+  expect(
+    calls.some((c) => c.path.endsWith(`/factors/${factor.id}/verify`)),
+  ).toBe(false);
+  await expect(page.locator("#add-reserve")).toBeHidden();
+});
+
+test("reserve enrollment requires a fresh server authorization", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { revocation: "preflight-error" });
+  await authorized(page);
+  await page
+    .getByRole("button", { name: "Añadir autenticador de reserva" })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "El servidor no ha autorizado",
+  );
+  await expect(page.locator("#reserve")).toBeHidden();
+  expect(calls.some((c) => c.path.endsWith("/factors"))).toBe(false);
+});
+
+test("leaving an unfinished reserve setup clears its QR and secret", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await page
+    .getByRole("button", { name: "Añadir autenticador de reserva" })
+    .click();
+  await expect(page.locator("#reserve")).toBeVisible();
+  await page.getByRole("button", { name: "Salir", exact: true }).click();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#reserve")).toBeHidden();
+  await expect(page.locator("#reserve-secret")).toHaveText("");
+  expect(await page.locator("#reserve-qr").getAttribute("src")).toBeNull();
+});

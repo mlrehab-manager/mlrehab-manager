@@ -60,6 +60,10 @@
         </div>
       </section>
       <form id="verify" hidden>
+        <label id="factor-label" for="factor-select" hidden
+          >Autenticador que vas a utilizar</label
+        >
+        <select id="factor-select" hidden></select>
         <label for="code">Código de 6 dígitos del autenticador</label>
         <input
           id="code"
@@ -79,10 +83,52 @@
           vigencia de esta sesión. El acceso a pacientes aún no está habilitado
           en esta interfaz.
         </p>
+        <h2>Recuperación de acceso</h2>
+        <p id="factor-count"></p>
+        <button id="add-reserve" type="button">
+          Añadir autenticador de reserva
+        </button>
+        <p>
+          Configúralo en tu otro dispositivo protegido. Podrás elegirlo al
+          entrar si pierdes el principal. Al confirmarlo se cerrarán las otras
+          sesiones de la aplicación.
+        </p>
         <button id="test-revoke" type="button">Probar cierre seguro</button>
         <p>
           Esta prueba cerrará tu sesión y comprobará que ya no permite acceder.
         </p>
+      </section>
+      <section id="reserve" hidden>
+        <h2>Autenticador de reserva</h2>
+        <p>
+          Escanea este QR con el autenticador de tu segundo dispositivo. Mantén
+          la clave en privado y confirma el código generado allí.
+        </p>
+        <img
+          id="reserve-qr"
+          alt="Código QR del autenticador de reserva"
+          width="240"
+          height="240"
+        />
+        <details>
+          <summary>Introducir la clave de reserva manualmente</summary>
+          <code id="reserve-secret"></code>
+        </details>
+        <form id="verify-reserve">
+          <label for="reserve-code"
+            >Código de 6 dígitos del dispositivo de reserva</label
+          >
+          <input
+            id="reserve-code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            required
+          />
+          <button type="submit">Verificar autenticador de reserva</button>
+        </form>
       </section>
       <section id="closed" hidden>
         <h2>Comprobación de cierre</h2>

@@ -6,6 +6,7 @@ const message = (value) => {
 };
 let epoch = 0;
 let factorId = null;
+let reserveId = null;
 let active = false;
 let busy = false;
 let lastActivity = Date.now();
@@ -22,11 +23,32 @@ function reset() {
   active = false;
   factorId = null;
   clearSetup();
+  clearReserve();
   $("enroll").hidden = false;
   $("login").reset();
-  for (const id of ["enrollment", "verify", "complete", "closed", "logout"])
+  for (const id of [
+    "enrollment",
+    "verify",
+    "complete",
+    "reserve",
+    "closed",
+    "logout",
+  ])
     $(id).hidden = true;
   $("login").hidden = false;
+}
+
+function clearReserve() {
+  reserveId = null;
+  $("reserve-qr").removeAttribute("src");
+  $("reserve-secret").textContent = "";
+  $("reserve-code").value = "";
+}
+function qrSource(svg) {
+  if (svg.startsWith("<svg"))
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  if (svg.startsWith("data:image/svg+xml;utf-8,")) return svg;
+  throw new Error("Invalid QR");
 }
 
 if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
@@ -49,7 +71,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     busy = true;
     const current = epoch;
     document
-      .querySelectorAll("form button, #enroll, #test-revoke")
+      .querySelectorAll(
+        "form button, select, #enroll, #test-revoke, #add-reserve",
+      )
       .forEach((el) => {
         el.disabled = true;
       });
@@ -63,7 +87,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     } finally {
       busy = false;
       document
-        .querySelectorAll("form button, #enroll, #test-revoke")
+        .querySelectorAll(
+          "form button, select, #enroll, #test-revoke, #add-reserve",
+        )
         .forEach((el) => {
           el.disabled = false;
         });
@@ -90,8 +116,8 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     if (!isCurrent()) return;
     if (error) throw error;
     const verified = data.totp.filter((factor) => factor.status === "verified");
+    renderFactors(verified);
     if (verified.length) {
-      // The initial single-clinician setup uses the first verified authenticator.
       factorId = verified[0].id;
       $("verify").hidden = false;
       message("Introduce el código de tu autenticador.");
@@ -99,6 +125,32 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       $("enrollment").hidden = false;
       message("Falta configurar el segundo factor de la aplicación.");
     }
+  }
+
+  function renderFactors(factors) {
+    $("factor-select").replaceChildren();
+    for (const [index, factor] of factors.entries()) {
+      const option = document.createElement("option");
+      option.value = factor.id;
+      option.textContent = factor.friendly_name?.startsWith("MLREHAB reserva")
+        ? "Autenticador de reserva"
+        : factor.friendly_name || `Autenticador ${index + 1}`;
+      $("factor-select").append(option);
+    }
+    $("factor-label").hidden = $("factor-select").hidden = factors.length < 2;
+    $("factor-count").textContent =
+      `${factors.length} autenticador${factors.length === 1 ? "" : "es"} verificado${factors.length === 1 ? "" : "s"}.`;
+    $("add-reserve").hidden = factors.length >= 2;
+  }
+  $("factor-select").addEventListener("change", () => {
+    factorId = $("factor-select").value;
+    $("code").value = "";
+  });
+  async function updateFactors(isCurrent) {
+    const { data, error } = await client.auth.mfa.listFactors();
+    if (!isCurrent()) return;
+    if (error) throw error;
+    renderFactors(data.totp.filter((f) => f.status === "verified"));
   }
 
   $("login").addEventListener("submit", (event) => {
@@ -155,16 +207,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       if (!isCurrent()) return;
       if (error) throw error;
       // Treat SVG as an image, never as HTML or an external image URL.
-      const svg = data.totp.qr_code;
-      if (
-        !svg.startsWith("data:image/svg+xml;utf-8,") &&
-        !svg.startsWith("<svg")
-      )
-        throw new Error("Invalid QR");
+      const svg = qrSource(data.totp.qr_code);
       factorId = data.id;
-      $("qr").src = svg.startsWith("<svg")
-        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
-        : svg;
+      $("qr").src = svg;
       $("secret").textContent = data.totp.secret;
       $("setup").hidden = false;
       $("enroll").hidden = true;
@@ -212,12 +257,95 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
         );
         return;
       }
+      await updateFactors(isCurrent);
+      if (!isCurrent()) return;
       $("enrollment").hidden = true;
       $("verify").hidden = true;
       $("complete").hidden = false;
       message("Acceso de pruebas autorizado por el servidor.");
     });
   });
+  $("add-reserve").addEventListener("click", () =>
+    run(async (isCurrent) => {
+      if (!active || $("complete").hidden || reserveId) return;
+      const { data: access, error: accessError } = await client.rpc(
+        "clinical_access_check",
+      );
+      if (!isCurrent()) return;
+      if (accessError || access?.authorized !== true) {
+        message(
+          "El servidor no ha autorizado la configuración de reserva. Sal y vuelve a entrar.",
+        );
+        return;
+      }
+      const { data: factors, error: listError } =
+        await client.auth.mfa.listFactors();
+      if (!isCurrent()) return;
+      if (listError) throw listError;
+      const verified = factors.totp.filter((f) => f.status === "verified");
+      renderFactors(verified);
+      if (verified.length !== 1) {
+        message(
+          "Ya hay varios autenticadores o falta el principal. Revisa el acceso antes de añadir otro.",
+        );
+        return;
+      }
+      const { data, error } = await client.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: `MLREHAB reserva ${crypto.randomUUID().slice(0, 6)}`,
+      });
+      if (!isCurrent()) return;
+      if (error) throw error;
+      const src = qrSource(data.totp.qr_code);
+      reserveId = data.id;
+      $("reserve-qr").src = src;
+      $("reserve-secret").textContent = data.totp.secret;
+      $("complete").hidden = true;
+      $("reserve").hidden = false;
+      message(
+        "Añade este autenticador en tu segundo dispositivo y confirma su código.",
+      );
+    }),
+  );
+  $("verify-reserve").addEventListener("submit", (event) => {
+    event.preventDefault();
+    run(async (isCurrent) => {
+      if (!active || !reserveId) return;
+      const code = $("reserve-code").value;
+      $("reserve-code").value = "";
+      if (!/^[0-9]{6}$/.test(code)) return;
+      const { error } = await client.auth.mfa.challengeAndVerify({
+        factorId: reserveId,
+        code,
+      });
+      if (!isCurrent()) return;
+      if (error) {
+        message(
+          "Código de reserva no verificado. Prueba un código nuevo de tu segundo dispositivo.",
+        );
+        return;
+      }
+      clearReserve();
+      $("reserve").hidden = true;
+      const { data: access, error: accessError } = await client.rpc(
+        "clinical_access_check",
+      );
+      if (!isCurrent()) return;
+      if (accessError || access?.authorized !== true) {
+        message(
+          "El autenticador se ha verificado, pero falta confirmar el permiso del servidor. Sal y vuelve a entrar.",
+        );
+        return;
+      }
+      await updateFactors(isCurrent);
+      if (!isCurrent()) return;
+      $("complete").hidden = false;
+      message(
+        "Autenticador de reserva verificado. En el próximo acceso podrás elegirlo.",
+      );
+    });
+  });
+
   async function probeAccess(token) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);

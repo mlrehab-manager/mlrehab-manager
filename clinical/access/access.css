@@ -33,6 +33,7 @@ label {
   margin-top: 20px;
 }
 input,
+select,
 button {
   width: 100%;
   font: inherit;
@@ -41,7 +42,8 @@ button {
   margin-top: 8px;
   padding: 12px;
 }
-input {
+input,
+select {
   border: 1px solid #999;
   background: #fffdf9;
   color: #222;
@@ -71,7 +73,8 @@ button:disabled {
   background: #e9e5de;
   border-radius: 10px;
 }
-#qr {
+#qr,
+#reserve-qr {
   display: block;
   max-width: 100%;
   height: auto;
