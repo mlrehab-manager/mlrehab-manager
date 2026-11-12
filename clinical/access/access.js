@@ -24,7 +24,7 @@ function reset() {
   clearSetup();
   $("enroll").hidden = false;
   $("login").reset();
-  for (const id of ["enrollment", "verify", "complete", "logout"])
+  for (const id of ["enrollment", "verify", "complete", "closed", "logout"])
     $(id).hidden = true;
   $("login").hidden = false;
 }
@@ -48,9 +48,11 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     if (busy) return;
     busy = true;
     const current = epoch;
-    document.querySelectorAll("form button, #enroll").forEach((el) => {
-      el.disabled = true;
-    });
+    document
+      .querySelectorAll("form button, #enroll, #test-revoke")
+      .forEach((el) => {
+        el.disabled = true;
+      });
     try {
       await operation(() => current === epoch);
     } catch {
@@ -60,9 +62,11 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
         );
     } finally {
       busy = false;
-      document.querySelectorAll("form button, #enroll").forEach((el) => {
-        el.disabled = false;
-      });
+      document
+        .querySelectorAll("form button, #enroll, #test-revoke")
+        .forEach((el) => {
+          el.disabled = false;
+        });
     }
   }
 
@@ -214,6 +218,106 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       message("Acceso de pruebas autorizado por el servidor.");
     });
   });
+  async function probeAccess(token) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/clinical_access_check`,
+        {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: "{}",
+          cache: "no-store",
+          credentials: "omit",
+          redirect: "error",
+          signal: controller.signal,
+        },
+      );
+      return { status: response.status, body: await response.json() };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  $("test-revoke").addEventListener("click", () =>
+    run(async (isCurrent) => {
+      if (!active || $("complete").hidden) return;
+      const { data, error } = await client.auth.getSession();
+      if (!isCurrent()) return;
+      let token = data?.session?.access_token;
+      if (error || !token) {
+        message(
+          "La sesión ha terminado. Sal y vuelve a entrar para hacer la prueba.",
+        );
+        return;
+      }
+      // Lock before sign-out so its SIGNED_OUT event cannot reopen a login form mid-test.
+      active = false;
+      client.auth.stopAutoRefresh();
+      for (const id of ["complete", "login", "logout"]) $(id).hidden = true;
+      $("closed").hidden = false;
+      $("restart").hidden = true;
+      message("Comprobando acceso y cerrando esta sesión…");
+      let timeout;
+      try {
+        // Use exactly the same token before and after logout. Never store or display it.
+        const before = await probeAccess(token);
+        const logout = await Promise.race([
+          client.auth.signOut({ scope: "local" }),
+          new Promise((_, reject) => {
+            timeout = setTimeout(() => reject(new Error("Timeout")), 10000);
+          }),
+        ]);
+        if (!isCurrent()) return;
+        if (
+          before?.status !== 200 ||
+          before.body?.authorized !== true ||
+          logout.error
+        ) {
+          message(
+            "No se pudo verificar el cierre. Comprueba la conexión y vuelve a entrar para repetir la prueba.",
+          );
+          return;
+        }
+        const after = await probeAccess(token);
+        if (!isCurrent()) return;
+        if (
+          [401, 403].includes(after?.status) &&
+          after.body?.code === "42501"
+        ) {
+          message(
+            "Cierre seguro verificado: la sesión anterior ya no permite acceder.",
+          );
+        } else if (after?.status === 200 && after.body?.authorized === true) {
+          message(
+            "La sesión anterior sigue autorizada. La prueba ha fallado; el uso clínico sigue bloqueado.",
+          );
+        } else {
+          message(
+            "No se pudo verificar el cierre. Comprueba la conexión y vuelve a entrar para repetir la prueba.",
+          );
+        }
+      } catch {
+        if (isCurrent())
+          message(
+            "No se pudo verificar el cierre. Comprueba la conexión y vuelve a entrar para repetir la prueba.",
+          );
+      } finally {
+        token = null;
+        clearTimeout(timeout);
+        clearSetup();
+        if (isCurrent()) $("restart").hidden = false;
+      }
+    }),
+  );
+  $("restart").addEventListener("click", () => location.reload());
   $("logout").addEventListener("click", () => exit("Cerrando sesión…"));
   client.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT" && active) {

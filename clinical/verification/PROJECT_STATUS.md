@@ -1,6 +1,6 @@
 # Verificación del proyecto de pruebas alojado
 
-Fecha: 11 de noviembre de 2026. Uso: exclusivamente pruebas; no apto todavía para pacientes reales.
+Última actualización: 12 de noviembre de 2026. Uso: exclusivamente pruebas; no apto todavía para pacientes reales.
 
 El usuario creó un proyecto y conectó la integración Supabase. Se localizó un único proyecto recién creado en `eu-central-1` (Frankfurt), PostgreSQL 17.11, sin tablas de aplicación, migraciones ni usuarios. No se incluyen aquí identificadores de cuenta, correos, claves ni secretos.
 
@@ -21,13 +21,15 @@ La comprobación inicial señaló funciones privilegiadas en el esquema expuesto
 
 Verificados mediante consulta administrativa y configuración pública: una cuenta, una admisión habilitada, un TOTP verificado, una sesión del proveedor con AAL2 y cero pacientes. El propietario confirma que completó el autenticador. El registro se cerró desde el panel; no se han manipulado las tablas gestionadas de Auth para crear usuarios, factores ni contraseñas.
 
-Se ha preparado `clinical/access`, una pantalla independiente de autenticación y alta/verificación TOTP. Usa el SDK empaquetado localmente, versiones fijadas, CSP sin scripts inline ni CDN y sesiones exclusivamente en memoria. Nueve pruebas de navegador con respuestas Auth simuladas pasan: contraseña incorrecta, MFA existente, primer enrolamiento, código incorrecto, salida, inactividad y servidor que deniega, devuelve falso o no está disponible. Solo se solicita la comprobación de acceso, nunca datos clínicos.
+Se ha preparado `clinical/access`, una pantalla independiente de autenticación y alta/verificación TOTP. Usa el SDK empaquetado localmente, versiones fijadas, CSP sin scripts inline ni CDN y sesiones exclusivamente en memoria. Quince pruebas de navegador con respuestas Auth simuladas pasan: las nueve de autenticación/permisos y seis de comprobación de cierre. Solo se solicita la comprobación de acceso, nunca datos clínicos.
 
-La pantalla está publicada en un sitio Sites privado, separado de la demo: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . La política consultada solo incluye al propietario, sin grupos ni editores. La versión publicada es la tercera, procedente del commit de su repositorio privado `06f0163ffd2b2859c8d3a79e26e64c7290a59e24`. Ahora solo muestra «Acceso de pruebas autorizado» si la API confirma la autorización de la sesión. No se ha habilitado uso clínico.
+La pantalla utiliza un sitio Sites privado, separado de la demo: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . La política consultada solo incluye al propietario, sin grupos ni editores. La cuarta versión procede del commit de su repositorio privado `652e2f1b6cecbb7b6b08dd56cd42b7e31622a8dd` y añade «Probar cierre seguro». No se ha habilitado uso clínico.
 
 La primera publicación estática ignoraba `_headers`. Se sustituyó por un Worker que devuelve explícitamente CSP con `frame-ancestors 'none'`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` y permisos de dispositivos desactivados. Las tres respuestas HTTPS (HTML, JS, CSS) dan HTTP 200, coinciden byte a byte con los archivos compilados y contienen esas cabeceras. Se verificaron localmente las rutas del Worker, HEAD y el rechazo de POST. No contiene datos clínicos ni claves secretas.
 
-La compilación impide utilizar el origen de la demo. La plataforma confirma la publicación; no se ha hecho QA automatizada de navegador del nuevo alojamiento porque no está disponible `cua_repl.js` para la vista previa gestionada. Las nueve pruebas locales del flujo usan solo claves y cuentas sintéticas. El propietario ya ha probado el enrolamiento real; la siguiente prueba es confirmar la nueva respuesta de la API desde su dispositivo, sin compartir contraseñas, códigos ni QR.
+La compilación impide utilizar el origen de la demo. No se ha hecho QA automatizada de navegador del alojamiento porque no está disponible `cua_repl.js` para la vista previa gestionada. Las quince pruebas locales del flujo usan solo claves y cuentas sintéticas. El propietario confirma el 12 de noviembre que aparece «Acceso de pruebas autorizado»: queda registrado el éxito de la prueba del RPC con su sesión real y MFA. No ha compartido contraseñas, tokens, códigos ni QR.
+
+La siguiente prueba reutiliza en el navegador el mismo token antes y después de `signOut({scope:'local'})`, exclusivamente contra `clinical_access_check`. Primero debe recibir HTTP 200 y `{authorized:true}`; después del cierre correcto debe recibir HTTP 401/403 y SQLSTATE `42501`. No cuentan como éxito una caída de red, un JWT caducado, un cierre fallido ni una sesión que siga autorizada. El token no se muestra ni persiste; las solicitudes se limitan al proveedor y tienen tiempo máximo. El resultado requiere una nueva prueba del propietario; todavía no está confirmado con su sesión real.
 
 ## Vigencia de sesión en cada operación
 
@@ -37,4 +39,4 @@ El máximo de ocho horas se aplica en esta API, no cambia las opciones del plan 
 
 Pendiente configurar/verificar por separado el MFA de la cuenta administradora del proveedor. La integración no permite comprobarlo ni sustituye esa protección. La cuenta del panel de Supabase no es el usuario Auth de la aplicación; sus segundos factores son distintos.
 
-Pendientes la confirmación del nuevo RPC con JWT real del propietario, una prueba completa de reutilización de token tras salir, recuperación de cuenta, copias/restauración y el resto de recursos clínicos. No hay una interfaz clínica conectada y no se han eliminado los avisos de demo.
+Pendientes la prueba completa de reutilización de token tras salir, recuperación de cuenta, copias/restauración y el resto de recursos clínicos. No hay una interfaz clínica conectada y no se han eliminado los avisos de demo.

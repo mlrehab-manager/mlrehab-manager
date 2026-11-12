@@ -9,9 +9,17 @@ const secret = "SYNTHETICNOTASECRET";
 
 async function mockAuth(
   page,
-  { enrolled = true, badPassword = false, badCode = false, access = "ok" } = {},
+  {
+    enrolled = true,
+    badPassword = false,
+    badCode = false,
+    access = "ok",
+    revocation = "revoked",
+  } = {},
 ) {
   let verified = enrolled;
+  let loggedOut = false;
+  let accessCalls = 0;
   const calls = [];
   const user = () => ({
     id: userId,
@@ -36,10 +44,15 @@ async function mockAuth(
   await page.route("https://synthetic.supabase.co/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
-    calls.push({ path, method: request.method() });
+    calls.push({
+      path,
+      method: request.method(),
+      authorization: request.headers().authorization,
+    });
     let body;
     let status = 200;
     if (path === "/rest/v1/rpc/clinical_access_check") {
+      accessCalls++;
       body = { authorized: true };
       if (access === "denied") {
         status = 401;
@@ -49,6 +62,22 @@ async function mockAuth(
       if (access === "unavailable") {
         status = 503;
         body = { message: "Unavailable" };
+      }
+      if (revocation === "preflight-error" && accessCalls === 2) {
+        status = 503;
+        body = { message: "Unavailable" };
+      }
+      if (loggedOut && revocation !== "still-valid") {
+        status = 403;
+        body = { code: "42501", message: "Acceso no autorizado" };
+        if (revocation === "unavailable") {
+          status = 503;
+          body = { message: "Unavailable" };
+        }
+        if (revocation === "expired") {
+          status = 401;
+          body = { code: "PGRST303", message: "JWT expired" };
+        }
       }
     } else if (path.endsWith("/token")) {
       body = badPassword
@@ -80,8 +109,15 @@ async function mockAuth(
         verified = true;
         body = session("aal2");
       }
-    } else if (path.endsWith("/logout")) body = {};
-    else throw new Error(`Unexpected endpoint ${path}`);
+    } else if (path.endsWith("/logout")) {
+      if (revocation === "logout-error") {
+        status = 500;
+        body = { message: "Logout failed" };
+      } else {
+        loggedOut = true;
+        body = {};
+      }
+    } else throw new Error(`Unexpected endpoint ${path}`);
     await route.fulfill({
       status,
       contentType: "application/json",
@@ -214,5 +250,72 @@ for (const access of ["denied", "false", "unavailable"]) {
     );
     await expect(page.locator("#complete")).toBeHidden();
     await expect(page.locator("#logout")).toBeVisible();
+  });
+}
+
+async function authorized(page) {
+  await login(page);
+  await page.getByLabel("Código de 6 dígitos").fill("123456");
+  await page.getByRole("button", { name: "Verificar segundo factor" }).click();
+  await expect(page.locator("#complete")).toBeVisible();
+}
+
+test("secure logout test reuses the same token before and after logout without persisting it", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await page.getByRole("button", { name: "Probar cierre seguro" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Cierre seguro verificado",
+  );
+  await expect(page.locator("#complete")).toBeHidden();
+  await expect(page.locator("#login")).toBeHidden();
+  await expect(page.locator("#logout")).toBeHidden();
+  const probes = calls.filter(
+    (call) => call.path === "/rest/v1/rpc/clinical_access_check",
+  );
+  expect(probes).toHaveLength(3);
+  expect(probes[1].authorization).toBeTruthy();
+  expect(probes[2].authorization).toBe(probes[1].authorization);
+  const logoutIndex = calls.findIndex((call) => call.path.endsWith("/logout"));
+  expect(calls.indexOf(probes[1])).toBeLessThan(logoutIndex);
+  expect(calls.indexOf(probes[2])).toBeGreaterThan(logoutIndex);
+  expect(
+    await page.evaluate(() => ({
+      local: { ...localStorage },
+      session: { ...sessionStorage },
+    })),
+  ).toEqual({ local: {}, session: {} });
+  await page.getByRole("button", { name: "Volver al acceso" }).click();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#closed")).toBeHidden();
+});
+
+for (const revocation of [
+  "still-valid",
+  "unavailable",
+  "expired",
+  "logout-error",
+  "preflight-error",
+]) {
+  test(`secure logout cannot pass when the result is ${revocation}`, async ({
+    page,
+  }) => {
+    await mockAuth(page, { revocation });
+    await authorized(page);
+    await page.getByRole("button", { name: "Probar cierre seguro" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      revocation === "still-valid"
+        ? "La prueba ha fallado"
+        : "No se pudo verificar el cierre",
+    );
+    await expect(page.getByRole("status")).not.toContainText(
+      "Cierre seguro verificado",
+    );
+    await expect(page.locator("#complete")).toBeHidden();
+    await expect(
+      page.getByRole("button", { name: "Volver al acceso" }),
+    ).toBeVisible();
   });
 }

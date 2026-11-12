@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta todas las llamadas Auth y la comprobación de acceso; nunca se envía la contraseña de prueba a un proveedor real. Las nueve pruebas de navegador no certifican la revocación real. El propietario ya ha completado el enrolamiento real; la respuesta del nuevo RPC debe comprobarse también con su sesión.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta todas las llamadas Auth y la comprobación de acceso; nunca se envía la contraseña de prueba a un proveedor real. Las quince pruebas de navegador no certifican la revocación real. El propietario ya ha confirmado el enrolamiento y el resultado «Acceso de pruebas autorizado» con su sesión real.
 
 ## Preparar el alojamiento de pruebas
 
@@ -33,6 +33,8 @@ El enrolamiento solo elimina factores TOTP incompletos; nunca elimina un factor 
 
 Después de verificar el TOTP, la interfaz solicita `clinical_access_check`, que no lee pacientes ni devuelve identificadores. Solo muestra autorización cuando la API confirma `{authorized:true}`. Una denegación, respuesta falsa o error de red mantiene bloqueado el resultado. El servidor consulta `auth.sessions` en cada operación: exige sesión del mismo usuario, AAL2, vigencia de `not_after` y antigüedad menor de ocho horas, además de admisión y cuenta confirmada sin bloqueo. No se conceden permisos de tablas Auth al cliente.
 
-Antes de uso clínico faltan la confirmación del nuevo RPC con JWT real, una prueba completa de revocación reutilizando el token tras salir, recuperación de cuenta y copias, inactividad impuesta por servidor y el resto de recursos clínicos. Las cabeceras HTTPS se han comprobado. El estado `aal2` mostrado por el SDK solo sirve para el flujo de interfaz; las operaciones clínicas vuelven a exigir permiso en el servidor. No se habilita uso clínico por superar este asistente.
+«Probar cierre seguro» cierra solo la sesión actual y comprueba en el navegador que el mismo token, aceptado inmediatamente antes del cierre, recibe después una denegación explícita `42501` (HTTP 401/403). El token no sale hacia otros servicios, no se muestra ni se persiste. Las solicitudes de prueba duran como máximo 10 segundos cada una. Un fallo de red, un token caducado, un cierre fallido o una autorización que continúe vigente no se presentan como éxito. «Volver al acceso» recarga y descarta la memoria de esta pantalla. El resultado de la prueba real sigue pendiente.
+
+Antes de uso clínico faltan la prueba completa de revocación reutilizando el token tras salir, recuperación de cuenta y copias, inactividad impuesta por servidor y el resto de recursos clínicos. Las cabeceras HTTPS se han comprobado. El estado `aal2` mostrado por el SDK solo sirve para el flujo de interfaz; las operaciones clínicas vuelven a exigir permiso en el servidor. No se habilita uso clínico por superar este asistente.
 
 Documentación consultada el 11 de noviembre de 2026: [enrolamiento](https://supabase.com/docs/reference/javascript/auth-mfa-enroll), [verificación](https://supabase.com/docs/reference/javascript/auth-mfa-challengeandverify), [nivel de autenticación](https://supabase.com/docs/reference/javascript/auth-mfa-getauthenticatorassurancelevel), [sesiones y cierre estricto](https://supabase.com/docs/guides/auth/sessions). Revisado el changelog vigente, incluido el cambio de cifrados TLS del 10 de noviembre: no se desactiva verificación TLS ni se habilitan cifrados antiguos.
