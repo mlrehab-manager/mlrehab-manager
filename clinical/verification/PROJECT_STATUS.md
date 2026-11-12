@@ -17,7 +17,7 @@ El usuario creó un proyecto y conectó la integración Supabase. Se localizó u
 
 La comprobación inicial señaló funciones privilegiadas en el esquema expuesto y RLS sin políticas. La segunda migración mueve las implementaciones al esquema privado, añade entradas públicas sin elevación y explicita la denegación restrictiva. No se relajaron permisos para quitar avisos.
 
-## Autenticación: estado y siguiente prueba
+## Autenticación: pruebas reales confirmadas
 
 Verificados mediante consulta administrativa y configuración pública: una cuenta, una admisión habilitada, un TOTP verificado, una sesión del proveedor con AAL2 y cero pacientes. El propietario confirma que completó el autenticador. El registro se cerró desde el panel; no se han manipulado las tablas gestionadas de Auth para crear usuarios, factores ni contraseñas.
 
@@ -29,7 +29,7 @@ La primera publicación estática ignoraba `_headers`. Se sustituyó por un Work
 
 La compilación impide utilizar el origen de la demo. No se ha hecho QA automatizada de navegador del alojamiento porque no está disponible `cua_repl.js` para la vista previa gestionada. Las quince pruebas locales del flujo usan solo claves y cuentas sintéticas. El propietario confirma el 12 de noviembre que aparece «Acceso de pruebas autorizado»: queda registrado el éxito de la prueba del RPC con su sesión real y MFA. No ha compartido contraseñas, tokens, códigos ni QR.
 
-La siguiente prueba reutiliza en el navegador el mismo token antes y después de `signOut({scope:'local'})`, exclusivamente contra `clinical_access_check`. Primero debe recibir HTTP 200 y `{authorized:true}`; después del cierre correcto debe recibir HTTP 401/403 y SQLSTATE `42501`. No cuentan como éxito una caída de red, un JWT caducado, un cierre fallido ni una sesión que siga autorizada. El token no se muestra ni persiste; las solicitudes se limitan al proveedor y tienen tiempo máximo. El resultado requiere una nueva prueba del propietario; todavía no está confirmado con su sesión real.
+La prueba de cierre reutiliza en el navegador el mismo token antes y después de `signOut({scope:'local'})`, exclusivamente contra `clinical_access_check`. Primero debe recibir HTTP 200 y `{authorized:true}`; después del cierre correcto debe recibir HTTP 401/403 y SQLSTATE `42501`. No cuentan como éxito una caída de red, un JWT caducado, un cierre fallido ni una sesión que siga autorizada. El token no se muestra ni persiste; las solicitudes se limitan al proveedor y tienen tiempo máximo. El propietario confirmó el 12 de noviembre el mensaje «Cierre seguro verificado». Queda registrada la prueba real de aceptación antes del cierre y denegación posterior del mismo token contra este RPC; no equivale a revocar criptográficamente el JWT en todos los servicios del proveedor.
 
 ## Vigencia de sesión en cada operación
 
@@ -39,4 +39,4 @@ El máximo de ocho horas se aplica en esta API, no cambia las opciones del plan 
 
 Pendiente configurar/verificar por separado el MFA de la cuenta administradora del proveedor. La integración no permite comprobarlo ni sustituye esa protección. La cuenta del panel de Supabase no es el usuario Auth de la aplicación; sus segundos factores son distintos.
 
-Pendientes la prueba completa de reutilización de token tras salir, recuperación de cuenta, copias/restauración y el resto de recursos clínicos. No hay una interfaz clínica conectada y no se han eliminado los avisos de demo.
+Pendientes recuperación de cuenta, copias/restauración y el resto de recursos clínicos. El siguiente bloque de seguridad es definir y ensayar la recuperación si se pierde el autenticador, sin abrir el registro ni reducir el MFA, y preparar copias cifradas independientes con restauración probada. No se considera resuelto por haber superado el acceso y el cierre. No hay una interfaz clínica conectada y no se han eliminado los avisos de demo.

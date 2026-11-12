@@ -6,7 +6,7 @@ Fecha: 11 de noviembre de 2026. Estado: diseño y primera base de pacientes bajo
 
 Un profesional usará iPad y ordenador en la Comunitat Valenciana, España. Se conserva la demo 0.11 y su catálogo; se construye otra aplicación/entorno con almacenamiento privado. No se transforman automáticamente los JSON o datos del navegador en historias clínicas reales. No se cambia el aviso de demo para simular seguridad.
 
-Se propone Supabase como candidato para autenticación y PostgreSQL en la UE. La elección definitiva requiere comprobar condiciones y operativa. El plan gratuito sirve para comenzar el desarrollo sin contratar servicios; no se da por resuelta la continuidad clínica, las copias ni la recuperación. El usuario ha creado un proyecto gratuito y ha conectado Supabase. Se han aplicado dos migraciones sin datos clínicos y se han comprobado permisos y rechazo HTTP anónimo. No se ha activado facturación ni se ha conectado la demo a esa base.
+Se propone Supabase como candidato para autenticación y PostgreSQL en la UE. La elección definitiva requiere comprobar condiciones y operativa. El plan gratuito sirve para comenzar el desarrollo sin contratar servicios; no se da por resuelta la continuidad clínica, las copias ni la recuperación. El usuario ha creado un proyecto gratuito y ha conectado Supabase. Se han aplicado tres migraciones sin datos clínicos y se han comprobado permisos y rechazo HTTP anónimo. El propietario confirmó el 12 de noviembre de 2026 el acceso real con MFA y la denegación del mismo token después de cerrar la sesión, mediante la pantalla privada de pruebas. No se ha activado facturación ni se ha conectado la demo a esa base.
 
 ## Hallazgos del código publicado
 
