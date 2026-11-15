@@ -1,11 +1,28 @@
-# Base de cifrado de copias · solo pruebas
+# Copias cifradas y restauración aislada · solo datos ficticios
 
 `crypto.mjs` cifra y descifra JSON mediante Web Crypto (sin dependencias ni peticiones de red): AES-GCM de 256 bits, etiqueta de autenticación de 128 bits, nonce aleatorio de 96 bits, sal aleatoria de 128 bits y PBKDF2-SHA256 con 600 000 iteraciones. La clave derivada no es exportable. El archivo tiene versión y parámetros cerrados; no admite algoritmos ni costes elegidos por un archivo importado. No incluye la frase, nombres ni índices sin cifrar.
 
 La frase tiene un mínimo técnico de 16 caracteres; eso no garantiza entropía. Se deberá usar una frase larga aleatoria y custodiarla separada de la copia y del autenticador. Si se pierde, este módulo no permite recuperar el archivo. No compartir frases por chat, no incluirlas en logs, código, argumentos de shell o en la propia copia. JavaScript no garantiza borrar de memoria todas las representaciones de una cadena; no se afirma borrado seguro de memoria.
 
-Se limita el contenido a 4 MiB y el tamaño del archivo cifrado antes de procesarlo. La validación rechaza campos/algoritmos/versiones desconocidos y valores no canónicos. Un fallo de autenticidad o frase incorrecta no devuelve datos parciales. La función devuelve JSON descifrado en memoria; el futuro restaurador deberá validar el esquema clínico antes de usarlo y nunca mezclarlo directamente con el estado actual.
+Se limita el contenido a 4 MiB y el tamaño del archivo cifrado antes de procesarlo. La validación rechaza campos/algoritmos/versiones desconocidos y valores no canónicos. Un fallo de autenticidad o frase incorrecta no devuelve datos parciales. `snapshot.mjs` valida propiedad, continuidad de versiones, coincidencia de registro e historial, referencias y auditoría antes de restaurar; no mezcla el archivo con el estado actual.
 
-Las pruebas solo cifran un conjunto ficticio y lo recuperan en memoria, incluyendo versiones, auditoría y Unicode. Comprueban sal/nonce distintos, frase incorrecta, manipulación, límites y parámetros hostiles. Ejecutar `npm run test:backup-crypto`.
+La pantalla privada prepara dos pacientes ficticios: uno activo con cambios y otro archivado, con cuatro versiones y auditoría. `clinical_backup_seed_test` es idempotente; no duplica ni sobrescribe otros registros. `clinical_backup_export_test` solo admite ese conjunto de prueba del propietario. Ambas entradas son SECURITY INVOKER y exigen admisión, MFA AAL2 y sesión actual mediante implementaciones privadas; no hay permisos de tablas ni un endpoint de restauración.
 
-**Esto todavía no es una copia de la base ni una restauración clínica.** No está conectado a Supabase ni a formularios de pacientes, no exporta cuentas/Auth, archivos ni claves, y no escribe datos descifrados a disco. Antes de uso real faltan exportación consistente de todos los recursos, conservación y auditoría, cifrado y custodia externa, prueba de claves en otro dispositivo, programación/avisos de fallos y restauración en una base aislada. Un ciclo JSON → cifrado → JSON no verifica esos procesos. No se ha creado almacenamiento externo ni activado facturación.
+La migración `20261115164119_clinical_test_backups.sql` registra `backup.export` y obtiene pacientes, versiones y auditoría mediante una sola sentencia SELECT, con una misma instantánea MVCC e incluyendo el evento de exportación. Si falla la auditoría, no se confirma la operación. Ese evento acredita la exportación del servidor, no que el usuario haya guardado el archivo. Se rechazan más de 5 000 versiones, 10 000 eventos o exceso de tamaño, sin truncar. Los payloads se transportan como texto JSONB y los IDs bigint como cadenas para evitar el redondeo de JavaScript; los tiempos conservan seis decimales en UTC.
+
+La descarga solo contiene el archivo cifrado, con nombre genérico. «Comprobar archivo» lo descifra y valida en el dispositivo: ni el archivo ni la frase se suben a Supabase. Comprueba también que pertenece a la cuenta actual. No restaura ni sobrescribe la base. La frase de la copia no cambia la contraseña de MLREHAB y debe custodiarse separada del archivo.
+
+`restore-sandbox.mjs` es una herramienta Node que siempre crea una base PostgreSQL/PGlite nueva en memoria. No acepta URL ni conexión de destino. Restaura con parámetros SQL y una transacción, conserva registros, versiones, archivo, auditoría y la secuencia, vuelve a leer las tres tablas y compara hashes SHA-256. Si algo falla, cierra y descarta la base; los errores no contienen parámetros con historias.
+
+```sh
+npm run test:backup-crypto
+npm run verify:backup-restore
+```
+
+El ensayo reproducible crea un origen con las migraciones de la aplicación e identidades Auth simuladas, genera el conjunto ficticio, exporta y cifra, escribe el archivo cifrado, **cierra el origen** y lee ese archivo desde disco para restaurarlo en una base distinta. Su frase aleatoria solo vive en el proceso. El [informe](../verification/BACKUP_RESTORE_REPORT.json) guarda recuentos y hashes coincidentes, sin secretos. El archivo desechable queda en `work/`, ignorado por Git; no es una copia operativa del proyecto alojado.
+
+Las doce pruebas cubren cifrado, manipulación, propiedad, AAL1/sesiones inválidas, idempotencia, versiones o auditoría incompletas, números grandes, precisión temporal, fallo de auditoría y rechazo del límite sin truncado. La interfaz se comprueba con una exportación ficticia generada mediante ese mismo SQL.
+
+**La copia se limita al conjunto de prueba, no es una recuperación completa del servicio clínico.** No incluye calendario ni otros recursos de la demo local, cuentas/Auth, sesiones de acceso, archivos, secretos o configuración/políticas del proveedor. La restauración aislada prueba datos y relaciones; no reconstruye Supabase ni su autenticación. No se restaura sobre el proyecto conectado ni se ha ensayado recuperación del servicio alojado. Antes de uso real faltan todos los recursos clínicos, custodia externa y recuperación de claves, prueba en otro dispositivo, automatización/avisos, retención y objetivos RPO/RTO. No se crea almacenamiento externo, se activan pagos ni se habilitan pacientes reales.
+
+Fuente: [copias y límites de Supabase](https://supabase.com/docs/guides/platform/backups), incluida la recomendación de exportaciones externas en Free y la ausencia de objetos de Storage en una copia de la base.

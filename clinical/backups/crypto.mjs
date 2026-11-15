@@ -4,6 +4,7 @@ const ITERATIONS = 600000;
 export const MAX_PLAINTEXT_BYTES = 4 * 1024 * 1024;
 const MAX_CIPHERTEXT_BYTES = MAX_PLAINTEXT_BYTES + 16;
 const MAX_FILE_CHARS = 4 * Math.ceil(MAX_CIPHERTEXT_BYTES / 3) + 1024;
+export const MAX_BACKUP_FILE_BYTES = MAX_FILE_CHARS;
 const encoder = new TextEncoder();
 const aad = encoder.encode(
   `${FORMAT}:1:AES-GCM-256:PBKDF2-SHA256:${ITERATIONS}`,

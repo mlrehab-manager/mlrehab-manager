@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { clearBackupSecrets, installBackupTools } from "./backup-tools.js";
 
 const $ = (id) => document.getElementById(id);
 const message = (value) => {
@@ -24,6 +25,7 @@ function reset() {
   factorId = null;
   clearSetup();
   clearReserve();
+  clearBackupSecrets();
   $("enroll").hidden = false;
   $("login").reset();
   for (const id of [
@@ -110,6 +112,12 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     ]);
     location.reload();
   }
+  installBackupTools({
+    client,
+    run,
+    isAuthorized: () => active && !$("complete").hidden,
+    message,
+  });
 
   async function showMfa(isCurrent) {
     const { data, error } = await client.auth.mfa.listFactors();
@@ -302,6 +310,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       $("reserve-secret").textContent = data.totp.secret;
       $("complete").hidden = true;
       $("reserve").hidden = false;
+      clearBackupSecrets();
       message(
         "Añade este autenticador en tu segundo dispositivo y confirma su código.",
       );
@@ -388,6 +397,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       }
       // Lock before sign-out so its SIGNED_OUT event cannot reopen a login form mid-test.
       active = false;
+      clearBackupSecrets();
       client.auth.stopAutoRefresh();
       for (const id of ["complete", "login", "logout"]) $(id).hidden = true;
       $("closed").hidden = false;

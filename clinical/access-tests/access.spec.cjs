@@ -1,4 +1,6 @@
 const { test, expect } = require("@playwright/test");
+const backupFixture = require("./backup-fixture.json");
+const { readFile } = require("node:fs/promises");
 const userId = "11111111-1111-4111-8111-111111111111";
 const factor = {
   id: "22222222-2222-4222-8222-222222222222",
@@ -22,6 +24,7 @@ async function mockAuth(
     access = "ok",
     revocation = "revoked",
     hasReserve = false,
+    backupMode = "ok",
   } = {},
 ) {
   let verified = enrolled;
@@ -60,10 +63,19 @@ async function mockAuth(
       path,
       method: request.method(),
       authorization: request.headers().authorization,
+      postBody: request.postData(),
     });
     let body;
     let status = 200;
-    if (path === "/rest/v1/rpc/clinical_access_check") {
+    if (path === "/rest/v1/rpc/clinical_backup_seed_test") {
+      body = { patients: 2, already_present: false };
+      if (backupMode === "refuse") {
+        status = 400;
+        body = { code: "22023", message: "Fixture only" };
+      }
+    } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
+      body = backupFixture;
+    } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
       body = { authorized: true };
       if (access === "denied") {
@@ -426,4 +438,106 @@ test("leaving an unfinished reserve setup clears its QR and secret", async ({
   await expect(page.locator("#reserve")).toBeHidden();
   await expect(page.locator("#reserve-secret")).toHaveText("");
   expect(await page.locator("#reserve-qr").getAttribute("src")).toBeNull();
+});
+
+const backupPhrase = "Frase-sintetica-de-copia-para-la-interfaz";
+async function fillBackup(page, confirm = backupPhrase) {
+  await page
+    .getByLabel("Frase para cifrar esta copia", { exact: true })
+    .fill(backupPhrase);
+  await page.getByLabel("Repite la frase de la copia").fill(confirm);
+}
+test("database snapshot downloads encrypted and can be checked locally without uploading the phrase or file", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await fillBackup(page);
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Crear copia cifrada de prueba" })
+    .click();
+  const download = await downloadPromise;
+  const encrypted = await readFile(await download.path(), "utf8");
+  const { decryptBackup } = await import("../backups/crypto.mjs");
+  expect(await decryptBackup(encrypted, backupPhrase)).toEqual(backupFixture);
+  expect(encrypted).not.toContain("FICTICIO");
+  expect(encrypted).not.toContain(backupPhrase);
+  await expect(page.locator("#backup-phrase")).toHaveValue("");
+  await expect(page.locator("#backup-confirm")).toHaveValue("");
+  const before = calls.length;
+  await page.getByLabel("Archivo cifrado de prueba").setInputFiles({
+    name: "ensayo.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.getByLabel("Frase para abrir la copia").fill(backupPhrase);
+  await page.getByRole("button", { name: "Comprobar archivo" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Archivo verificado: 2 pacientes ficticios, 4 versiones y 5 eventos",
+  );
+  expect(
+    calls
+      .slice(before)
+      .every(
+        (c) =>
+          c.path.endsWith("/clinical_access_check") || c.path.endsWith("/user"),
+      ),
+  ).toBe(true);
+  expect(calls.every((c) => !c.postBody?.includes(backupPhrase))).toBe(true);
+});
+test("mismatched encryption phrases never request a fixture or export", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await fillBackup(page, "Otra-frase-sintetica-diferente");
+  await page
+    .getByRole("button", { name: "Crear copia cifrada de prueba" })
+    .click();
+  await expect(page.getByRole("status")).toContainText("repítela exactamente");
+  expect(calls.some((c) => c.path.includes("clinical_backup_"))).toBe(false);
+});
+test("a refused test fixture never downloads a partial backup", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { backupMode: "refuse" });
+  await authorized(page);
+  await fillBackup(page);
+  const downloads = [];
+  page.on("download", (d) => downloads.push(d));
+  await page
+    .getByRole("button", { name: "Crear copia cifrada de prueba" })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "No se pudo preparar la copia completa",
+  );
+  expect(downloads).toHaveLength(0);
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_backup_export_test")),
+  ).toBe(false);
+});
+test("wrong phrases and incomplete encrypted snapshots fail local verification", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  const { encryptBackup } = await import("../backups/crypto.mjs");
+  for (const [snapshot, phrase] of [
+    [backupFixture, "Otra-frase-sintetica-incorrecta"],
+    [{ ...backupFixture, patient_versions: [] }, backupPhrase],
+  ]) {
+    const encrypted = await encryptBackup(snapshot, backupPhrase);
+    await page.getByLabel("Archivo cifrado de prueba").setInputFiles({
+      name: "ensayo.mlrehab",
+      mimeType: "application/octet-stream",
+      buffer: Buffer.from(encrypted),
+    });
+    await page.getByLabel("Frase para abrir la copia").fill(phrase);
+    await page.getByRole("button", { name: "Comprobar archivo" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      "No se pudo verificar el archivo",
+    );
+    await expect(page.locator("#restore-phrase")).toHaveValue("");
+  }
 });

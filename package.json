@@ -14,7 +14,8 @@
     "build:access": "node clinical/access/build.mjs",
     "build:access:test": "MLREHAB_ACCESS_ORIGIN=http://127.0.0.1:4180 MLREHAB_SUPABASE_URL=https://synthetic.supabase.co MLREHAB_SUPABASE_PUBLISHABLE_KEY=sb_publishable_synthetic npm run build:access",
     "test:access": "npm run build:access:test && playwright test --config clinical/access-tests/playwright.config.cjs",
-    "test:backup-crypto": "node --test clinical/backups/*.test.mjs"
+    "test:backup-crypto": "node --test clinical/backups/*.test.mjs",
+    "verify:backup-restore": "node clinical/backups/verify-restoration.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.0"

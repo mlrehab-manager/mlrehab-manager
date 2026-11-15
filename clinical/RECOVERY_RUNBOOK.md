@@ -2,6 +2,8 @@
 
 El propietario confirmó el 12 de noviembre de 2026 que dispone de otro dispositivo protegido. Se prepara un segundo TOTP independiente para la misma cuenta. No se abre el registro, se sustituye la cuenta ni se rebaja la exigencia AAL2. Esto no recupera la contraseña ni el acceso administrativo al proveedor.
 
+**Actualización del 15 de noviembre:** el propietario aclaró que Contraseñas sincroniza el mismo TOTP entre iPhone e iPad y pidió dejar la reserva pendiente. La base solo muestra un TOTP verificado: no se registra como segundo factor independiente ni como ensayo de reserva superado. Se mantiene el acceso actual sin cambiar ni borrar factores. Los pasos siguientes quedan como procedimiento futuro.
+
 ## Preparar y ensayar el autenticador de reserva
 
 1. Entrar en la dirección privada de pruebas con contraseña y autenticador principal; comprobar «Acceso de pruebas autorizado».
@@ -23,4 +25,4 @@ El MFA de Supabase/ChatGPT y el MFA de MLREHAB son distintos. La reserva de la a
 
 ## Copias: trabajo preparado y pendiente
 
-La [base de cifrado](backups/README.md) supera pruebas de cifrado/descifrado de datos ficticios, incluida manipulación y contraseña incorrecta. Todavía no exporta la base ni restaura historias, sesiones, documentos o cuentas en un entorno aislado. Siguen pendientes exportación consistente, custodia externa de copias y claves, objetivos de pérdida/recuperación, automatización con avisos y restauración ensayada. La prueba del autenticador no sustituye esas tareas ni autoriza pacientes reales.
+La [copia de prueba](backups/README.md) exporta el conjunto ficticio actual, lo cifra y supera una restauración de datos/versiones/auditoría en PostgreSQL/PGlite nuevo y separado, cerrando antes el origen. Todavía no recupera el servicio Supabase/Auth ni calendario, sesiones clínicas, documentos o configuración completa. Siguen pendientes todos esos recursos, custodia externa de copias y claves, objetivos de pérdida/recuperación, automatización con avisos y ensayo del servicio alojado. La prueba del autenticador no sustituye esas tareas ni autoriza pacientes reales.

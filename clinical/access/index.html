@@ -83,7 +83,66 @@
           vigencia de esta sesión. El acceso a pacientes aún no está habilitado
           en esta interfaz.
         </p>
+        <h2>Copias cifradas · prueba</h2>
+        <p>
+          Esta prueba prepara dos pacientes ficticios: uno activo con cambios y
+          otro archivado. Incluye sus versiones y auditoría. No copia el
+          calendario ni otros datos de la demo.
+        </p>
+        <form id="backup-export" autocomplete="off">
+          <label for="backup-phrase">Frase para cifrar esta copia</label>
+          <input
+            id="backup-phrase"
+            type="password"
+            autocomplete="new-password"
+            minlength="16"
+            maxlength="1024"
+            required
+          />
+          <label for="backup-confirm">Repite la frase de la copia</label>
+          <input
+            id="backup-confirm"
+            type="password"
+            autocomplete="new-password"
+            minlength="16"
+            maxlength="1024"
+            required
+          />
+          <p>
+            Guarda esta frase separada del archivo. Sirve para abrir la copia;
+            no cambia la contraseña de acceso a MLREHAB. Si la pierdes, el
+            archivo no se podrá abrir.
+          </p>
+          <button type="submit">Crear copia cifrada de prueba</button>
+        </form>
+        <form id="backup-inspect">
+          <label for="backup-file">Archivo cifrado de prueba</label>
+          <input
+            id="backup-file"
+            type="file"
+            accept=".mlrehab,.json,application/octet-stream,application/json"
+            required
+          />
+          <label for="restore-phrase">Frase para abrir la copia</label>
+          <input
+            id="restore-phrase"
+            type="password"
+            autocomplete="off"
+            minlength="16"
+            maxlength="1024"
+            required
+          />
+          <button type="submit">Comprobar archivo</button>
+          <p>
+            Comprueba el archivo en este dispositivo. No restaura ni sobrescribe
+            la base.
+          </p>
+        </form>
         <h2>Recuperación de acceso</h2>
+        <p>
+          Autenticador de reserva: pendiente; puedes continuar con el acceso
+          actual.
+        </p>
         <p id="factor-count"></p>
         <button id="add-reserve" type="button">
           Añadir autenticador de reserva
