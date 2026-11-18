@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las veintinueve pruebas cubren autenticación, reserva, cierre, copias y fichas. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las treinta y siete pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 
@@ -40,3 +40,5 @@ Después de verificar el TOTP, la interfaz solicita `clinical_access_check`, que
 Antes de uso clínico faltan recuperación de cuenta, copias completas y recuperación del servicio alojado, custodia externa/automatización, inactividad impuesta por servidor y el resto de recursos clínicos. Se ha ensayado una restauración de los datos ficticios en PostgreSQL/PGlite nuevo; no es una reconstrucción de Supabase/Auth. Las cabeceras HTTPS se han comprobado. El estado `aal2` mostrado por el SDK solo sirve para el flujo de interfaz; las operaciones clínicas vuelven a exigir permiso en el servidor. No se habilita uso clínico por superar este asistente.
 
 Documentación consultada el 11 de noviembre de 2026: [enrolamiento](https://supabase.com/docs/reference/javascript/auth-mfa-enroll), [verificación](https://supabase.com/docs/reference/javascript/auth-mfa-challengeandverify), [nivel de autenticación](https://supabase.com/docs/reference/javascript/auth-mfa-getauthenticatorassurancelevel), [sesiones y cierre estricto](https://supabase.com/docs/guides/auth/sessions). Revisado el changelog vigente, incluido el cambio de cifrados TLS del 10 de noviembre: no se desactiva verificación TLS ni se habilitan cifrados antiguos.
+
+La [agenda y las sesiones ficticias](AGENDA.md) se guardan en esta misma base privada con horario Europe/Madrid, revisión esperada, versiones y auditoría. La copia versión 2 las incluye. No se modifica la autenticación actual ni se habilita uso clínico.

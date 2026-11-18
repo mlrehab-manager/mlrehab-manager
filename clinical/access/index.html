@@ -136,11 +136,101 @@
             </button>
           </section>
         </section>
+        <section id="agenda-panel" aria-labelledby="agenda-title">
+          <h2 id="agenda-title">Agenda y sesiones ficticias</h2>
+          <p>
+            Horario de la clínica: Europe/Madrid. Solo puedes citar a los
+            pacientes ficticios activos de esta base privada.
+          </p>
+          <label for="agenda-date">Día de la agenda</label>
+          <input
+            id="agenda-date"
+            type="date"
+            min="2020-01-01"
+            max="2100-12-31"
+            required
+          />
+          <div class="agenda-navigation">
+            <button id="agenda-prev" type="button">Día anterior</button
+            ><button id="agenda-next" type="button">Día siguiente</button>
+          </div>
+          <div id="agenda-week" aria-label="Días de la semana"></div>
+          <button id="agenda-load" type="button">Cargar agenda</button>
+          <button id="agenda-new" type="button">Nueva cita ficticia</button>
+          <p id="agenda-loaded-day"></p>
+          <ul id="agenda-list" aria-label="Citas ficticias"></ul>
+          <section id="agenda-editor" hidden>
+            <h3 id="agenda-editor-title"></h3>
+            <form id="appointment-form" autocomplete="off">
+              <fieldset id="appointment-fields">
+                <legend>Cita ficticia</legend>
+                <fieldset id="appointment-patient-lock">
+                  <legend>Paciente</legend>
+                  <label for="appointment-patient">Paciente ficticio</label
+                  ><select id="appointment-patient" required></select>
+                </fieldset>
+                <label for="appointment-start">Fecha y hora en la clínica</label
+                ><input
+                  id="appointment-start"
+                  type="datetime-local"
+                  min="2020-01-01T00:00"
+                  max="2100-12-31T23:59"
+                  step="60"
+                  required
+                />
+                <label for="appointment-minutes">Duración en minutos</label
+                ><input
+                  id="appointment-minutes"
+                  type="number"
+                  min="5"
+                  max="240"
+                  step="5"
+                  required
+                />
+                <label for="appointment-status">Estado de la cita</label
+                ><select id="appointment-status">
+                  <option value="scheduled">Programada</option>
+                  <option value="cancelled">Cancelada</option>
+                  <option value="completed" disabled>Realizada</option>
+                </select>
+                <button type="submit">Guardar cita ficticia</button>
+              </fieldset>
+            </form>
+            <form id="session-form" autocomplete="off" hidden>
+              <p id="session-state"></p>
+              <fieldset id="session-fields">
+                <legend>Sesión ficticia</legend>
+                <label for="session-evolution">Evolución de la sesión</label
+                ><textarea
+                  id="session-evolution"
+                  rows="4"
+                  maxlength="8000"
+                ></textarea>
+                <label for="session-passive">Tratamiento pasivo</label
+                ><textarea
+                  id="session-passive"
+                  rows="4"
+                  maxlength="4000"
+                ></textarea>
+                <label for="session-exercise">Ejercicio terapéutico</label
+                ><textarea
+                  id="session-exercise"
+                  rows="4"
+                  maxlength="4000"
+                ></textarea>
+                <button type="submit">Guardar sesión ficticia</button>
+              </fieldset>
+            </form>
+            <button id="agenda-refresh" type="button">
+              Cargar cita y sesión guardadas
+            </button>
+          </section>
+        </section>
         <h2>Copias cifradas · prueba</h2>
         <p>
           Esta prueba prepara dos pacientes ficticios: uno activo con cambios y
-          otro archivado. Incluye sus versiones y auditoría. No copia el
-          calendario ni otros datos de la demo.
+          otro archivado. Incluye fichas, citas y sesiones de esta base privada
+          con sus versiones y auditoría. No copia datos de la demo pública.
         </p>
         <form id="backup-export" autocomplete="off">
           <label for="backup-phrase">Frase para cifrar esta copia</label>

@@ -1,0 +1,198 @@
+{
+  "format": "mlrehab-clinical-test-snapshot",
+  "version": 2,
+  "patients": [
+    {
+      "id": "06637381-0c55-40b1-9956-ba041a7e1317",
+      "revision": 2,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "updated_at": "2026-11-18T19:17:46.673000Z",
+      "archived_at": "2026-11-18T19:17:46.673000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "revision": 2,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "updated_at": "2026-11-18T19:17:46.673000Z",
+      "archived_at": null,
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}}"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "8be6e60d-a7e2-46e6-a71d-0c1f4c70feeb",
+      "passive": "Pasivo ficticio",
+      "exercise": "Ejercicio ficticio",
+      "revision": 1,
+      "evolution": "Evolución ficticia",
+      "created_at": "2026-11-18T19:17:46.709000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "updated_at": "2026-11-18T19:17:46.709000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "appointment_id": "9d4c675a-17ac-4fcd-94a5-01b092353414"
+    }
+  ],
+  "test_only": true,
+  "created_at": "2026-11-18T19:17:46.715000Z",
+  "appointments": [
+    {
+      "id": "9d4c675a-17ac-4fcd-94a5-01b092353414",
+      "status": "completed",
+      "ends_at": "2026-11-20T08:45:00.000000Z",
+      "revision": 2,
+      "starts_at": "2026-11-20T08:00:00.000000Z",
+      "created_at": "2026-11-18T19:17:46.696000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "updated_at": "2026-11-18T19:17:46.709000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "audit_events": [
+    {
+      "id": "1",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "entity_type": null
+    },
+    {
+      "id": "2",
+      "action": "patient.update",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "entity_type": null
+    },
+    {
+      "id": "3",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "06637381-0c55-40b1-9956-ba041a7e1317",
+      "entity_type": null
+    },
+    {
+      "id": "4",
+      "action": "patient.archive",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "06637381-0c55-40b1-9956-ba041a7e1317",
+      "entity_type": null
+    },
+    {
+      "id": "5",
+      "action": "patient.list",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": null,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.693000Z",
+      "patient_id": null,
+      "entity_type": null
+    },
+    {
+      "id": "6",
+      "action": "appointment.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": "9d4c675a-17ac-4fcd-94a5-01b092353414",
+      "created_at": "2026-11-18T19:17:46.696000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "entity_type": "appointment"
+    },
+    {
+      "id": "7",
+      "action": "appointment.complete",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": "9d4c675a-17ac-4fcd-94a5-01b092353414",
+      "created_at": "2026-11-18T19:17:46.709000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "entity_type": "appointment"
+    },
+    {
+      "id": "8",
+      "action": "session.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": "8be6e60d-a7e2-46e6-a71d-0c1f4c70feeb",
+      "created_at": "2026-11-18T19:17:46.709000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "entity_type": "session"
+    },
+    {
+      "id": "9",
+      "action": "backup.export",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": null,
+      "entity_id": null,
+      "created_at": "2026-11-18T19:17:46.715000Z",
+      "patient_id": null,
+      "entity_type": null
+    }
+  ],
+  "clinician_id": "11111111-1111-4111-8111-111111111111",
+  "patient_versions": [
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "06637381-0c55-40b1-9956-ba041a7e1317",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "archived": true,
+      "revision": 2,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "06637381-0c55-40b1-9956-ba041a7e1317",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia inicial\", \"testOnly\": true}"
+    },
+    {
+      "archived": false,
+      "revision": 2,
+      "created_at": "2026-11-18T19:17:46.673000Z",
+      "patient_id": "ba45395d-cfeb-4bb6-baec-f05da6801c10",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}}"
+    }
+  ],
+  "session_versions": [
+    {
+      "revision": 1,
+      "created_at": "2026-11-18T19:17:46.709000Z",
+      "session_id": "8be6e60d-a7e2-46e6-a71d-0c1f4c70feeb",
+      "payload_json": "{\"id\": \"8be6e60d-a7e2-46e6-a71d-0c1f4c70feeb\", \"passive\": \"Pasivo ficticio\", \"exercise\": \"Ejercicio ficticio\", \"revision\": 1, \"evolution\": \"Evolución ficticia\", \"created_at\": \"2026-11-18T19:17:46.709000Z\", \"patient_id\": \"ba45395d-cfeb-4bb6-baec-f05da6801c10\", \"updated_at\": \"2026-11-18T19:17:46.709000Z\", \"clinician_id\": \"11111111-1111-4111-8111-111111111111\", \"appointment_id\": \"9d4c675a-17ac-4fcd-94a5-01b092353414\"}"
+    }
+  ],
+  "appointment_versions": [
+    {
+      "revision": 1,
+      "created_at": "2026-11-18T19:17:46.696000Z",
+      "payload_json": "{\"id\": \"9d4c675a-17ac-4fcd-94a5-01b092353414\", \"status\": \"scheduled\", \"ends_at\": \"2026-11-20T08:45:00.000000Z\", \"revision\": 1, \"starts_at\": \"2026-11-20T08:00:00.000000Z\", \"created_at\": \"2026-11-18T19:17:46.696000Z\", \"patient_id\": \"ba45395d-cfeb-4bb6-baec-f05da6801c10\", \"updated_at\": \"2026-11-18T19:17:46.696000Z\", \"clinician_id\": \"11111111-1111-4111-8111-111111111111\"}",
+      "appointment_id": "9d4c675a-17ac-4fcd-94a5-01b092353414"
+    },
+    {
+      "revision": 2,
+      "created_at": "2026-11-18T19:17:46.709000Z",
+      "payload_json": "{\"id\": \"9d4c675a-17ac-4fcd-94a5-01b092353414\", \"status\": \"completed\", \"ends_at\": \"2026-11-20T08:45:00.000000Z\", \"revision\": 2, \"starts_at\": \"2026-11-20T08:00:00.000000Z\", \"created_at\": \"2026-11-18T19:17:46.696000Z\", \"patient_id\": \"ba45395d-cfeb-4bb6-baec-f05da6801c10\", \"updated_at\": \"2026-11-18T19:17:46.709000Z\", \"clinician_id\": \"11111111-1111-4111-8111-111111111111\"}",
+      "appointment_id": "9d4c675a-17ac-4fcd-94a5-01b092353414"
+    }
+  ]
+}

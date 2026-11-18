@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-15T17:01:40.370Z",
+  "tested_at": "2026-11-18T19:16:53.613Z",
   "test_only": true,
   "source": "PostgreSQL/PGlite with application migrations and simulated Auth identities",
   "target": "New in-memory PostgreSQL/PGlite database without Auth or application RPCs",
@@ -8,12 +8,17 @@
   "counts": {
     "patients": 2,
     "versions": 4,
-    "events": 5,
+    "events": 10,
+    "appointments": 1,
+    "appointmentVersions": 2,
+    "sessions": 1,
+    "sessionVersions": 2,
     "active": 1,
     "archived": 1
   },
-  "source_hash": "ea6ddababb159cb2ee1a2234e514611615fad9e2db2de98cb831f6207b13a42c",
-  "restored_hash": "ea6ddababb159cb2ee1a2234e514611615fad9e2db2de98cb831f6207b13a42c",
+  "snapshot_version": 2,
+  "source_hash": "7120083eeabc6b6b144eb8bae805c1f7eee0ab081fc736edfad1ff077b702b15",
+  "restored_hash": "7120083eeabc6b6b144eb8bae805c1f7eee0ab081fc736edfad1ff077b702b15",
   "passed": true,
   "limits": [
     "Not a hosted Supabase disaster recovery test",

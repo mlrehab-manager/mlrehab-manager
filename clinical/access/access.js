@@ -4,9 +4,19 @@ import {
   clearPatientData,
   installPatientTools,
   hasPatientChanges,
-  confirmPatientDiscard,
 } from "./patient-tools.js";
 
+import {
+  clearAgendaData,
+  installAgendaTools,
+  hasAgendaChanges,
+} from "./agenda-tools.js";
+const hasAnyChanges = () => hasPatientChanges() || hasAgendaChanges();
+const confirmAllDiscard = () =>
+  !hasAnyChanges() ||
+  window.confirm(
+    "Hay cambios sin guardar en una ficha, cita o sesión ficticia. ¿Quieres descartarlos?",
+  );
 const $ = (id) => document.getElementById(id);
 const message = (value) => {
   $("status").textContent = value;
@@ -33,6 +43,7 @@ function reset() {
   clearReserve();
   clearBackupSecrets();
   clearPatientData();
+  clearAgendaData();
   $("enroll").hidden = false;
   $("login").reset();
   for (const id of [
@@ -81,7 +92,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     const current = epoch;
     document
       .querySelectorAll(
-        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button",
+        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button",
       )
       .forEach((el) => {
         el.disabled = true;
@@ -97,7 +108,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       busy = false;
       document
         .querySelectorAll(
-          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button",
+          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button",
         )
         .forEach((el) => {
           el.disabled = false;
@@ -124,9 +135,16 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     run,
     isAuthorized: () => active && !$("complete").hidden,
     message,
-    hasPendingChanges: hasPatientChanges,
+    hasPendingChanges: hasAnyChanges,
   });
   installPatientTools({
+    client,
+    run,
+    isAuthorized: () => active && !$("complete").hidden,
+    message,
+  });
+
+  installAgendaTools({
     client,
     run,
     isAuthorized: () => active && !$("complete").hidden,
@@ -290,8 +308,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   $("add-reserve").addEventListener("click", () =>
     run(async (isCurrent) => {
       if (!active || $("complete").hidden || reserveId) return;
-      if (!confirmPatientDiscard()) return;
+      if (!confirmAllDiscard()) return;
       clearPatientData();
+      clearAgendaData();
       const { data: access, error: accessError } = await client.rpc(
         "clinical_access_check",
       );
@@ -328,6 +347,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       $("reserve").hidden = false;
       clearBackupSecrets();
       clearPatientData();
+      clearAgendaData();
       message(
         "Añade este autenticador en tu segundo dispositivo y confirma su código.",
       );
@@ -403,8 +423,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   $("test-revoke").addEventListener("click", () =>
     run(async (isCurrent) => {
       if (!active || $("complete").hidden) return;
-      if (!confirmPatientDiscard()) return;
+      if (!confirmAllDiscard()) return;
       clearPatientData();
+      clearAgendaData();
       const { data, error } = await client.auth.getSession();
       if (!isCurrent()) return;
       let token = data?.session?.access_token;
@@ -418,6 +439,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       active = false;
       clearBackupSecrets();
       clearPatientData();
+      clearAgendaData();
       client.auth.stopAutoRefresh();
       for (const id of ["complete", "login", "logout"]) $(id).hidden = true;
       $("closed").hidden = false;
@@ -477,7 +499,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   );
   $("restart").addEventListener("click", () => location.reload());
   $("logout").addEventListener("click", () => {
-    if (confirmPatientDiscard()) exit("Cerrando sesión…");
+    if (confirmAllDiscard()) exit("Cerrando sesión…");
   });
   client.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT" && active) {

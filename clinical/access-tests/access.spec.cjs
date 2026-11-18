@@ -26,6 +26,7 @@ async function mockAuth(
     hasReserve = false,
     backupMode = "ok",
     patientMode = "ok",
+    agendaMode = "ok",
   } = {},
 ) {
   let verified = enrolled;
@@ -39,6 +40,9 @@ async function mockAuth(
     payload: JSON.parse(p.payload_json),
     archived_at: p.archived_at,
   }));
+  const appointments = [],
+    sessions = [];
+  let agendaConflictGiven = false;
   let conflictGiven = false;
   const calls = [];
   const user = () => ({
@@ -75,7 +79,80 @@ async function mockAuth(
     });
     let body;
     let status = 200;
-    if (path === "/rest/v1/rpc/clinical_patient_list_test") {
+    if (path === "/rest/v1/rpc/clinical_agenda_list_test") {
+      const day = request.postDataJSON().p_day;
+      body = {
+        patients: patients
+          .filter((p) => !p.archived_at)
+          .map((p) => ({ id: p.id, name: p.payload.name })),
+        appointments: appointments
+          .filter((a) => a.local.slice(0, 10) === day)
+          .map((a) => ({
+            ...a,
+            patient_name: patients.find((p) => p.id === a.patient_id).payload
+              .name,
+            patient_archived: false,
+            session_id:
+              sessions.find((s) => s.appointment_id === a.id)?.id ?? null,
+          })),
+      };
+    } else if (path === "/rest/v1/rpc/clinical_appointment_save_test") {
+      const a = request.postDataJSON();
+      if (agendaMode === "overlap" && !agendaConflictGiven) {
+        agendaConflictGiven = true;
+        status = 409;
+        body = { code: "23P01", message: "Overlap" };
+      } else {
+        const old = appointments.find((p) => p.id === a.p_id),
+          start = new Date(a.p_start_local + "Z");
+        start.setUTCHours(start.getUTCHours() - 1);
+        body = {
+          id: old?.id ?? "77777777-7777-4777-8777-777777777777",
+          clinician_id: userId,
+          patient_id: a.p_patient_id,
+          starts_at: start.toISOString(),
+          ends_at: new Date(+start + a.p_minutes * 60000).toISOString(),
+          status: a.p_status,
+          revision: (old?.revision ?? 0) + 1,
+          local: a.p_start_local,
+        };
+        if (old) Object.assign(old, body);
+        else appointments.push(body);
+      }
+    } else if (path === "/rest/v1/rpc/clinical_session_get_test") {
+      body =
+        sessions.find(
+          (s) => s.appointment_id === request.postDataJSON().p_appointment_id,
+        ) ?? null;
+    } else if (path === "/rest/v1/rpc/clinical_session_save_test") {
+      const a = request.postDataJSON();
+      if (["conflict", "unavailable"].includes(agendaMode)) {
+        status = agendaMode === "conflict" ? 409 : 503;
+        body = {
+          code: agendaMode === "conflict" ? "40001" : "503",
+          message: "Synthetic refusal",
+        };
+      } else {
+        const old = sessions.find((s) => s.id === a.p_id),
+          appt = appointments.find((p) => p.id === a.p_appointment_id);
+        body = {
+          id: old?.id ?? "88888888-8888-4888-8888-888888888888",
+          clinician_id: userId,
+          patient_id: appt.patient_id,
+          appointment_id: appt.id,
+          evolution: a.p_evolution,
+          passive: a.p_passive,
+          exercise: a.p_exercise,
+          revision: (old?.revision ?? 0) + 1,
+        };
+        if (old) Object.assign(old, body);
+        else {
+          sessions.push(body);
+          appt.status = "completed";
+          appt.revision++;
+        }
+      }
+    } else if (path === "/rest/v1/rpc/clinical_patient_list_test") {
       body = patients.map((p) => ({
         id: p.id,
         name: p.payload.name,
@@ -108,7 +185,10 @@ async function mockAuth(
         body = { code: "22023", message: "Fixture only" };
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
-      body = backupFixture;
+      body =
+        backupMode === "agenda"
+          ? require("./backup-agenda-fixture.json")
+          : backupFixture;
     } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
       body = { authorized: true };
@@ -766,4 +846,205 @@ test("typing while a save is pending stays as a newer unsaved draft after confir
   await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
     "Texto ficticio escrito después",
   );
+});
+
+async function authorizeAgenda(page, options = {}) {
+  const calls = await mockAuth(page, options);
+  await login(page);
+  await page.locator("#code").fill("123456");
+  await page.locator("#verify button").click();
+  await expect(page.locator("#complete")).toBeVisible();
+  await page.locator("#agenda-date").fill("2026-11-20");
+  await page.locator("#agenda-load").click();
+  await expect(page.locator("#agenda-loaded-day")).toContainText("20/11/2026");
+  return calls;
+}
+async function bookAppointment(page) {
+  await page.locator("#agenda-new").click();
+  await expect(page.locator("#agenda-editor")).toBeVisible();
+  await page.locator("#appointment-start").fill("2026-11-20T09:00");
+  await page.locator("#appointment-form button").click();
+  await expect(page.getByRole("status")).toContainText(
+    "Cita ficticia guardada",
+  );
+}
+test("private agenda books, reopens, reschedules and cancels a fictional appointment on iPad", async ({
+  page,
+}) => {
+  const calls = await authorizeAgenda(page);
+  await bookAppointment(page);
+  await expect(page.locator("#appointment-patient")).toBeDisabled();
+  await expect(page.locator("#agenda-list")).toContainText("09:00–09:45");
+  const args = JSON.parse(
+    calls.find((c) => c.path.endsWith("clinical_appointment_save_test"))
+      .postBody,
+  );
+  expect(args.p_start_local).toBe("2026-11-20T09:00");
+  expect(args.p_expected_revision).toBeNull();
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-20T09:00",
+  );
+  await page.locator("#appointment-start").fill("2026-11-20T11:30");
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#agenda-list")).toContainText("11:30–12:15");
+  await page.locator("#appointment-status").selectOption("cancelled");
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#agenda-list")).toContainText("Cancelada");
+  await expect(page.locator("#session-evolution")).toBeDisabled();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+test("an overlap refusal retains appointment values for correction", async ({
+  page,
+}) => {
+  await authorizeAgenda(page, { agendaMode: "overlap" });
+  await page.locator("#agenda-new").click();
+  await page.locator("#appointment-form button").click();
+  await expect(page.getByRole("status")).toContainText("solapa");
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-20T09:00",
+  );
+  await page.locator("#appointment-start").fill("2026-11-20T10:00");
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#agenda-list")).toContainText("10:00");
+});
+test("sessions persist evolution, passive treatment and exercise and complete the appointment", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page.locator("#session-evolution").fill("Evolución ficticia de prueba");
+  await page.locator("#session-passive").fill("Tratamiento pasivo de prueba");
+  await page.locator("#session-exercise").fill("Isométricos ficticios");
+  await page.locator("#session-form button").click();
+  await expect(page.getByRole("status")).toContainText("queda realizada");
+  await expect(page.locator("#appointment-start")).toBeDisabled();
+  await expect(page.locator("#session-exercise")).toBeEnabled();
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#session-passive")).toHaveValue(
+    "Tratamiento pasivo de prueba",
+  );
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "Isométricos ficticios",
+  );
+  await page.locator("#session-evolution").fill("Evolución ficticia revisada");
+  await page.locator("#session-form button").click();
+  await expect(page.locator("#session-state")).toContainText("versión 2");
+});
+for (const agendaMode of ["conflict", "unavailable"])
+  test(`session ${agendaMode} preserves drafts and blocks a misleading backup`, async ({
+    page,
+  }) => {
+    const calls = await authorizeAgenda(page, { agendaMode });
+    await bookAppointment(page);
+    await page
+      .locator("#session-evolution")
+      .fill("Borrador ficticio que conservar");
+    await page.locator("#session-form button").click();
+    await expect(page.getByRole("status")).toContainText(
+      agendaMode === "conflict" ? "ha cambiado" : "borrador",
+    );
+    await expect(page.locator("#session-evolution")).toHaveValue(
+      "Borrador ficticio que conservar",
+    );
+    await page.locator("#backup-phrase").fill("Frase sintetica suficiente");
+    await page.locator("#backup-confirm").fill("Frase sintetica suficiente");
+    await page.locator("#backup-export button").click();
+    await expect(page.getByRole("status")).toContainText("Guarda o descarta");
+    expect(
+      calls.some((c) => c.path.endsWith("clinical_backup_export_test")),
+    ).toBe(false);
+  });
+test("pending session response cannot restore private text after automatic logout", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page
+    .locator("#session-evolution")
+    .fill("Texto ficticio sensible de prueba");
+  let finish;
+  const held = new Promise((resolve) => (finish = resolve));
+  let requested;
+  const started = new Promise((resolve) => (requested = resolve));
+  await page.route("**/rpc/clinical_session_save_test", async (route) => {
+    requested();
+    await held;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "synthetic",
+        appointment_id: "77777777-7777-4777-8777-777777777777",
+        revision: 1,
+      }),
+    });
+  });
+  await page.locator("#session-form button").click();
+  await started;
+  await page.evaluate(() => {
+    const now = Date.now();
+    Date.now = () => now + 6 * 60 * 1000;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  finish();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#agenda-editor")).toBeHidden();
+  await expect(page.locator("#session-evolution")).toHaveValue("");
+});
+test("changing agenda day asks before discarding session drafts", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page.locator("#session-evolution").fill("Borrador ficticio");
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.locator("#agenda-next").click();
+  await expect(page.locator("#agenda-date")).toHaveValue("2026-11-20");
+  await expect(page.locator("#session-evolution")).toHaveValue(
+    "Borrador ficticio",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.locator("#agenda-next").click();
+  await expect(page.locator("#agenda-loaded-day")).toContainText("21/11/2026");
+  await expect(page.locator("#agenda-editor")).toBeHidden();
+});
+
+test("version-2 encrypted files include agenda and sessions and are checked locally", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { backupMode: "agenda" });
+  await authorized(page);
+  await fillBackup(page);
+  const downloaded = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await downloaded,
+    encrypted = await readFile(await file.path(), "utf8");
+  const { decryptBackup } = await import("../backups/crypto.mjs");
+  const snapshot = await decryptBackup(encrypted, backupPhrase);
+  expect(snapshot.version).toBe(2);
+  expect(snapshot.sessions).toHaveLength(1);
+  const before = calls.length;
+  await page.locator("#backup-file").setInputFiles({
+    name: "agenda.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.getByRole("status")).toContainText(
+    "Incluye 1 citas y 1 sesiones",
+  );
+  expect(
+    calls
+      .slice(before)
+      .every(
+        (c) =>
+          c.path.endsWith("clinical_access_check") || c.path.endsWith("/user"),
+      ),
+  ).toBe(true);
 });

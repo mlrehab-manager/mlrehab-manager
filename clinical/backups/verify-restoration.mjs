@@ -14,6 +14,25 @@ let snapshot,
 try {
   await source.asUser();
   await source.rpc("clinical_backup_seed_test");
+  const patient = (await source.rpc("clinical_patient_list_test")).find(
+    (p) => !p.archived,
+  );
+  const appointment = (
+    await source.db.query(
+      "select public.clinical_appointment_save_test(null,null,$1,'2026-11-20T09:00',45,'scheduled') as result",
+      [patient.id],
+    )
+  ).rows[0].result;
+  const session = (
+    await source.db.query(
+      "select public.clinical_session_save_test(null,null,$1,'Evolución ficticia','Pasivo ficticio','Ejercicio ficticio') as result",
+      [appointment.id],
+    )
+  ).rows[0].result;
+  await source.db.query(
+    "select public.clinical_session_save_test($1,1,$2,'Evolución ficticia revisada','Pasivo ficticio','Ejercicio ficticio')",
+    [session.id, appointment.id],
+  );
   snapshot = await source.rpc("clinical_backup_export_test");
   sourceHash = await snapshotDigest(snapshot);
   encrypted = await encryptBackup(snapshot, phrase);
@@ -52,7 +71,8 @@ try {
       "New in-memory PostgreSQL/PGlite database without Auth or application RPCs",
     input: "Encrypted file read back from disk",
     source_closed_before_restore: true,
-    counts: { ...restored.counts, active, archived },
+    counts: { ...restored.counts, ...restored.agendaCounts, active, archived },
+    snapshot_version: 2,
     source_hash: sourceHash,
     restored_hash: restored.restoredHash,
     passed: true,
@@ -72,6 +92,7 @@ try {
       patients: restored.counts.patients,
       versions: restored.counts.versions,
       events: restored.counts.events,
+      agenda: restored.agendaCounts,
       source_closed_before_restore: true,
     }),
   );

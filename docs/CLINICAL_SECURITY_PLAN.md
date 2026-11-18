@@ -77,4 +77,4 @@ Definir registro de actividades, información y derechos del paciente, acceso de
 
 Este documento identifica trabajo técnico y decisiones que deben verificarse; no declara cumplimiento legal ni seguridad clínica completa.
 
-La primera interfaz privada de fichas ficticias ya permite lectura y edición con revisión esperada, combinación de campos en servidor, versiones/auditoría y archivados de solo lectura. No sustituye la integración de agenda, sesiones e informes ni habilita pacientes reales. Véase `clinical/access/PATIENTS.md`.
+La primera interfaz privada de fichas ficticias ya permite lectura y edición con revisión esperada, combinación de campos en servidor, versiones/auditoría y archivados de solo lectura. La agenda y las sesiones ficticias también están conectadas con revisión, auditoría y copias versión 2; su prueba manual está pendiente. Los informes y el catálogo de ejercicios privados siguen pendientes, al igual que la habilitación clínica. Véase `clinical/access/PATIENTS.md`.
