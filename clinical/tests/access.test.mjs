@@ -254,10 +254,10 @@ test("public wrappers are invoker-only and privileged implementations stay in th
   const result = await db.query(
     "select n.nspname,p.proname,p.prosecdef from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname like 'clinical_patient_%'",
   );
-  assert.equal(result.rows.filter((row) => row.nspname === "public").length, 5);
+  assert.equal(result.rows.filter((row) => row.nspname === "public").length, 7);
   assert.equal(
     result.rows.filter((row) => row.nspname === "clinical_private").length,
-    5,
+    7,
   );
   for (const row of result.rows)
     assert.equal(row.prosecdef, row.nspname === "clinical_private");

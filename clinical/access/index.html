@@ -80,9 +80,62 @@
         <h2>Acceso de pruebas autorizado</h2>
         <p>
           El servidor ha comprobado tu cuenta admitida, el segundo factor y la
-          vigencia de esta sesión. El acceso a pacientes aún no está habilitado
-          en esta interfaz.
+          vigencia de esta sesión. Este entorno solo admite datos ficticios;
+          todavía no está listo para pacientes reales.
         </p>
+        <section id="patients-panel" aria-labelledby="patients-title">
+          <h2 id="patients-title">Pacientes ficticios · base privada</h2>
+          <p>
+            Prueba la lectura y edición de las fichas existentes. Los cambios
+            confirmados quedan en la base y se incluyen en las copias. Las
+            fichas archivadas se consultan sin editarlas.
+          </p>
+          <button id="patient-load" type="button">
+            Cargar pacientes de prueba
+          </button>
+          <button id="patient-prepare" type="button">
+            Preparar los dos pacientes ficticios
+          </button>
+          <ul id="patient-list" aria-label="Pacientes de prueba"></ul>
+          <section id="patient-editor" hidden>
+            <h3 id="patient-name"></h3>
+            <p id="patient-revision"></p>
+            <p id="patient-treatment"></p>
+            <form id="patient-form" autocomplete="off">
+              <fieldset id="patient-fields">
+                <legend>Ficha ficticia</legend>
+                <label for="patient-history">Historia clínica ficticia</label>
+                <textarea
+                  id="patient-history"
+                  rows="5"
+                  maxlength="8000"
+                ></textarea>
+                <label for="patient-exam">Exploración ficticia</label>
+                <textarea
+                  id="patient-exam"
+                  rows="4"
+                  maxlength="8000"
+                ></textarea>
+                <label for="patient-diagnosis">Diagnóstico ficticio</label>
+                <textarea
+                  id="patient-diagnosis"
+                  rows="3"
+                  maxlength="2000"
+                ></textarea>
+                <label for="patient-goals">Objetivos ficticios</label>
+                <textarea
+                  id="patient-goals"
+                  rows="3"
+                  maxlength="2000"
+                ></textarea>
+                <button type="submit">Guardar ficha ficticia</button>
+              </fieldset>
+            </form>
+            <button id="patient-refresh" type="button">
+              Cargar versión guardada
+            </button>
+          </section>
+        </section>
         <h2>Copias cifradas · prueba</h2>
         <p>
           Esta prueba prepara dos pacientes ficticios: uno activo con cambios y

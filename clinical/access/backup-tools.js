@@ -26,7 +26,13 @@ function download(encrypted) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
-export function installBackupTools({ client, run, isAuthorized, message }) {
+export function installBackupTools({
+  client,
+  run,
+  isAuthorized,
+  message,
+  hasPendingChanges = () => false,
+}) {
   async function currentOwner(isCurrent) {
     const { data: access, error: accessError } = await client.rpc(
       "clinical_access_check",
@@ -42,6 +48,12 @@ export function installBackupTools({ client, run, isAuthorized, message }) {
     event.preventDefault();
     run(async (isCurrent) => {
       if (!isAuthorized()) return;
+      if (hasPendingChanges()) {
+        message(
+          "Guarda o descarta los cambios de la ficha antes de crear una copia.",
+        );
+        return;
+      }
       let phrase = $("backup-phrase").value;
       const matches = phrase === $("backup-confirm").value;
       $("backup-phrase").value = $("backup-confirm").value = "";

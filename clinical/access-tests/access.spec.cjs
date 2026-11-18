@@ -25,6 +25,7 @@ async function mockAuth(
     revocation = "revoked",
     hasReserve = false,
     backupMode = "ok",
+    patientMode = "ok",
   } = {},
 ) {
   let verified = enrolled;
@@ -32,6 +33,13 @@ async function mockAuth(
   let pendingReserve = false;
   let loggedOut = false;
   let accessCalls = 0;
+  const patients = structuredClone(backupFixture.patients).map((p) => ({
+    id: p.id,
+    revision: p.revision,
+    payload: JSON.parse(p.payload_json),
+    archived_at: p.archived_at,
+  }));
+  let conflictGiven = false;
   const calls = [];
   const user = () => ({
     id: userId,
@@ -67,7 +75,33 @@ async function mockAuth(
     });
     let body;
     let status = 200;
-    if (path === "/rest/v1/rpc/clinical_backup_seed_test") {
+    if (path === "/rest/v1/rpc/clinical_patient_list_test") {
+      body = patients.map((p) => ({
+        id: p.id,
+        name: p.payload.name,
+        revision: p.revision,
+        archived: p.archived_at !== null,
+      }));
+    } else if (path === "/rest/v1/rpc/clinical_patient_get") {
+      body = patients.find((p) => p.id === request.postDataJSON().p_id);
+    } else if (path === "/rest/v1/rpc/clinical_patient_save_fields_test") {
+      const args = request.postDataJSON(),
+        p = patients.find((p) => p.id === args.p_id);
+      if (patientMode === "conflict" && !conflictGiven) {
+        conflictGiven = true;
+        p.revision++;
+        p.payload.history = "Cambio ficticio desde otra pestaña";
+        status = 409;
+        body = { code: "40001", message: "Stale revision" };
+      } else if (patientMode === "unavailable") {
+        status = 503;
+        body = { message: "Unavailable" };
+      } else {
+        Object.assign(p.payload, args.p_fields);
+        p.revision++;
+        body = { id: p.id, revision: p.revision };
+      }
+    } else if (path === "/rest/v1/rpc/clinical_backup_seed_test") {
       body = { patients: 2, already_present: false };
       if (backupMode === "refuse") {
         status = 400;
@@ -540,4 +574,196 @@ test("wrong phrases and incomplete encrypted snapshots fail local verification",
     );
     await expect(page.locator("#restore-phrase")).toHaveValue("");
   }
+});
+
+async function openPatient(page, archived = false) {
+  await page
+    .getByRole("button", { name: "Cargar pacientes de prueba" })
+    .click();
+  await page
+    .locator("#patient-list button")
+    .filter({ hasText: archived ? "Archivado (solo lectura)" : "Activo" })
+    .click();
+  await expect(page.locator("#patient-editor")).toBeVisible();
+}
+test("private patient edits use revision-aware field patches, survive reopening and never persist in browser storage", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  await page
+    .getByLabel("Historia clínica ficticia")
+    .fill("Historia ficticia para probar el guardado");
+  await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Ficha ficticia guardada en la base privada",
+  );
+  const save = calls.find((c) =>
+    c.path.endsWith("/clinical_patient_save_fields_test"),
+  );
+  expect(JSON.parse(save.postBody)).toMatchObject({
+    p_expected_revision: 2,
+    p_fields: { history: "Historia ficticia para probar el guardado" },
+  });
+  expect(Object.keys(JSON.parse(save.postBody).p_fields)).toEqual(["history"]);
+  await page.getByRole("button", { name: "Cargar versión guardada" }).click();
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
+    "Historia ficticia para probar el guardado",
+  );
+  await expect(page.locator("#patient-revision")).toHaveText("Versión 3");
+  expect(await page.evaluate(() => ({ ...localStorage }))).toEqual({});
+  expect(await page.evaluate(() => ({ ...sessionStorage }))).toEqual({});
+});
+test("archived fictitious patients are read-only", async ({ page }) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await openPatient(page, true);
+  await expect(page.getByLabel("Historia clínica ficticia")).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Guardar ficha ficticia" }),
+  ).toBeDisabled();
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_patient_save_fields_test")),
+  ).toBe(false);
+});
+test("stale edits retain the draft until the user explicitly loads the stored version", async ({
+  page,
+}) => {
+  await mockAuth(page, { patientMode: "conflict" });
+  await authorized(page);
+  await openPatient(page);
+  await page
+    .getByLabel("Historia clínica ficticia")
+    .fill("Mi borrador ficticio");
+  await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+  await expect(page.getByRole("status")).toContainText("Tu texto sigue aquí");
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
+    "Mi borrador ficticio",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Cargar versión guardada" }).click();
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
+    "Cambio ficticio desde otra pestaña",
+  );
+});
+test("failed saves keep drafts, canceling navigation preserves them and backups exclude unsaved changes", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { patientMode: "unavailable" });
+  await authorized(page);
+  await openPatient(page);
+  await page
+    .getByLabel("Historia clínica ficticia")
+    .fill("Borrador ficticio sin confirmar");
+  await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "No se ha podido confirmar el guardado",
+  );
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page
+    .getByRole("button", { name: "Cargar pacientes de prueba" })
+    .click();
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
+    "Borrador ficticio sin confirmar",
+  );
+  await fillBackup(page);
+  await page
+    .getByRole("button", { name: "Crear copia cifrada de prueba" })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "Guarda o descarta los cambios",
+  );
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_backup_export_test")),
+  ).toBe(false);
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Salir", exact: true }).click();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#patient-editor")).toBeHidden();
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue("");
+});
+test("a late patient response cannot reopen clinical content after logout", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const p = backupFixture.patients.find((p) => p.archived_at === null);
+  await page.route("**/rest/v1/rpc/clinical_patient_get", async (route) => {
+    await gate;
+    await route
+      .fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: p.id,
+          revision: p.revision,
+          payload: JSON.parse(p.payload_json),
+          archived_at: null,
+        }),
+      })
+      .catch(() => {});
+  });
+  await page
+    .getByRole("button", { name: "Cargar pacientes de prueba" })
+    .click();
+  const request = page.waitForRequest("**/rest/v1/rpc/clinical_patient_get");
+  await page
+    .locator("#patient-list button")
+    .filter({ hasText: "Activo" })
+    .click();
+  await request;
+  await page.getByRole("button", { name: "Salir", exact: true }).click();
+  release();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#patient-editor")).toBeHidden();
+});
+
+test("typing while a save is pending stays as a newer unsaved draft after confirmation", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    "**/rest/v1/rpc/clinical_patient_save_fields_test",
+    async (route) => {
+      const args = route.request().postDataJSON();
+      await gate;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: args.p_id,
+          revision: args.p_expected_revision + 1,
+        }),
+      });
+    },
+  );
+  await page
+    .getByLabel("Historia clínica ficticia")
+    .fill("Texto ficticio enviado");
+  const request = page.waitForRequest(
+    "**/rest/v1/rpc/clinical_patient_save_fields_test",
+  );
+  await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+  await request;
+  await page
+    .getByLabel("Historia clínica ficticia")
+    .fill("Texto ficticio escrito después");
+  release();
+  await expect(page.getByRole("status")).toContainText(
+    "Hay cambios posteriores sin guardar",
+  );
+  await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
+    "Texto ficticio escrito después",
+  );
 });

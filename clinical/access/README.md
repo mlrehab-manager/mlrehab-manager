@@ -1,6 +1,6 @@
 # Acceso de pruebas independiente
 
-Solo autenticación y configuración TOTP. No hay formularios ni solicitudes a la API de pacientes. Publicada para el propietario en https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . No utilizar historias reales. Consulta el [estado de las comprobaciones HTTPS](../verification/PROJECT_STATUS.md).
+Interfaz privada de pruebas con autenticación, copias y una primera [consulta/edición de fichas ficticias](PATIENTS.md). Publicada para el propietario en https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . No utilizar historias reales. Consulta el [estado de las comprobaciones HTTPS](../verification/PROJECT_STATUS.md).
 
 ## Verificar localmente
 
@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las veintitrés pruebas cubren autenticación, reserva, cierre y copias. El propietario ha confirmado el acceso y cierre con su sesión real. La reserva independiente se dejó pendiente el 15 de noviembre; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las veintinueve pruebas cubren autenticación, reserva, cierre, copias y fichas. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 

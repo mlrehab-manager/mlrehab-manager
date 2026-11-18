@@ -1,0 +1,15 @@
+# Fichas ficticias conectadas a la base privada
+
+Esta primera interfaz permite listar las fichas del conjunto de prueba, abrirlas y editar historia, exploración, diagnóstico y objetivos. Incluye el registro archivado en modo lectura. No crea fichas personales nuevas ni migra calendario, sesiones, informes o catálogo de ejercicios desde la demo. Solo deben escribirse textos ficticios.
+
+«Preparar los dos pacientes ficticios» utiliza la preparación idempotente existente; no borra ni sustituye otros datos. «Cargar pacientes de prueba» lee resúmenes del propietario con el marcador de prueba. No usa datos de localStorage ni persiste borradores en localStorage/sessionStorage; el editor los mantiene solo en memoria durante la sesión.
+
+La migración `20261118183217_clinical_patient_fields_test.sql` añade dos entradas públicas SECURITY INVOKER. Sus implementaciones privadas requieren cuenta admitida, MFA AAL2, sesión vigente y propietario. El listado incluye hasta 50 fichas marcadas como prueba, incluidas archivadas. El guardado solo acepta cuatro campos de texto, bloquea la fila con FOR UPDATE, comprueba la revisión esperada y que esté activa y pertenezca al conjunto ficticio, y combina los campos en PostgreSQL antes de usar el guardado/auditoría existentes. No concede permisos de tabla.
+
+Se conservan el nombre, propietario, marcadores, tratamiento y todos los demás campos desconocidos. La combinación en servidor mantiene incluso números que JavaScript no representa exactamente. Cada guardado crea versión y auditoría atómicas. Si falla la auditoría, se revierte el cambio. Una ficha ajena, archivada o con revisión antigua se rechaza; la interfaz conserva el borrador y ofrece cargar explícitamente la versión guardada.
+
+No se afirma que una petición de guardado fallida no llegara al servidor: ante incertidumbre se conserva el texto y se pide revisar la versión antes de reintentar. Los cambios escritos mientras llega una confirmación se mantienen como un borrador posterior. Cambiar/cargar/salir manualmente con cambios requiere confirmación; recargar utiliza la advertencia nativa. El cierre por inactividad o pérdida de sesión prioriza bloquear y limpiar el contenido sin persistir el borrador. Una respuesta tardía después de salir no repuebla la pantalla.
+
+Una copia nueva no se inicia con un borrador sin guardar. Una vez confirmado el guardado, la exportación incluye su historial completo. Las pruebas verifican además que esa copia editada se cifra y restaura en PostgreSQL/PGlite nuevo con hashes coincidentes. Los archivos antiguos siguen siendo instantáneas válidas de su momento, no se actualizan automáticamente.
+
+La interfaz privada continúa siendo una prueba parcial. Faltan esquema clínico definitivo y validación de todos los recursos, navegación completa, permisos/operación de producción, recuperación del servicio alojado, copias externas automatizadas y revisión contractual/jurídica antes de introducir información real. La demo publicada conserva todas sus funciones y no se conecta a esta base.

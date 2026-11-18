@@ -34,6 +34,7 @@ label {
 }
 input,
 select,
+textarea,
 button {
   width: 100%;
   font: inherit;
@@ -43,7 +44,8 @@ button {
   padding: 12px;
 }
 input,
-select {
+select,
+textarea {
   border: 1px solid #999;
   background: #fffdf9;
   color: #222;
@@ -94,4 +96,28 @@ code {
 }
 [hidden] {
   display: none !important;
+}
+fieldset {
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+#patient-list {
+  list-style: none;
+  padding: 0;
+}
+#patient-list button {
+  text-align: left;
+  background: transparent;
+  color: #222;
+}
+#status {
+  position: sticky;
+  top: 8px;
+  z-index: 2;
 }
