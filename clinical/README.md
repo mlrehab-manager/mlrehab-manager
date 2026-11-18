@@ -1,6 +1,6 @@
 # Preparación de la versión clínica · fase 1
 
-**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las ocho migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
+**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las nueve migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
 
 Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comunitat Valenciana, España, preferencia por comenzar gratis. La forma jurídica del centro, el responsable del tratamiento y sus obligaciones concretas quedan por confirmar; un único usuario no determina esas cuestiones.
 
@@ -39,7 +39,7 @@ Se prueban anonimato, cuenta no admitida, ausencia de doble factor, separación 
 No ejecutar la migración contra un proyecto con datos ni copiar historias reales a este repositorio. Es una migración inicial, deliberadamente no idempotente: ante un error se revierte la transacción y se investiga; no se eliminan tablas para repetirla.
 
 1. Crear un proyecto de pruebas vacío en una región UE y guardar fuera del repositorio sus datos administrativos y credenciales. Verificar la región concreta, las condiciones y el DPA disponibles para la cuenta.
-2. Aplicar las ocho migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
+2. Aplicar las nueve migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
 3. Desactivar altas públicas, crear/invitar únicamente la cuenta del profesional por el procedimiento del proveedor y configurar MFA. Las invitaciones y el correo requieren configuración y prueba; este trabajo no envía mensajes.
 4. Admitir manualmente el UUID de esa cuenta en `clinical_private.authorized_clinicians` desde la administración. No hay UUID real ni usuario autorizado en la migración. Mantener también MFA y acceso mínimo en la cuenta administradora del proveedor.
 5. Ejecutar pruebas reales con dos cuentas ficticias, anonimato, MFA incompleto, cuenta revocada y peticiones HTTP manipuladas. Verificar privilegios efectivos y configuración de esquemas en el proyecto, no solo el SQL local.
@@ -54,3 +54,5 @@ El [plan clínico](../docs/CLINICAL_SECURITY_PLAN.md) y el [mapa de riesgos](../
 La [agenda y sesiones privadas](access/AGENDA.md) ya permiten probar citas y evolución/tratamiento por sesión con el horario de la clínica, control de solapamientos y revisiones. Se incluyen en las copias cifradas versión 2 y en su restauración aislada. Los archivos anteriores versión 1 siguen admitidos. No se habilitan pacientes reales.
 
 El [catálogo personal privado](access/CUSTOM_EXERCISES.md) ya permite guardar nombres con modalidad y zonas para reutilizarlos en sesiones y dispositivos. La copia versión 3 lo incluye; los archivos v1/v2 anteriores siguen admitidos. La nueva alta requiere prueba manual del propietario y no habilita datos reales.
+
+Los ejercicios propios ya admiten edición y archivo con revisión esperada, versiones/auditoría y copia v4. Se conservan las sesiones anteriores y los archivos v1/v2/v3. La prioridad siguiente es [cerrar los bloqueos para el uso clínico](../docs/CLINICAL_LAUNCH_MINIMUM.md), conforme a la petición del propietario de acelerar la puesta en marcha como autónomo individual.

@@ -150,10 +150,24 @@
             Cargar ejercicios propios
           </button>
           <p id="exercise-catalog-state"></p>
+          <label for="exercise-own-search"
+            >Buscar un ejercicio propio para gestionarlo</label
+          ><input
+            id="exercise-own-search"
+            type="search"
+            maxlength="120"
+            autocomplete="off"
+          />
+          <label class="archive-choice"
+            ><input id="exercise-show-archived" type="checkbox" />Mostrar
+            también archivados</label
+          >
           <ul id="exercise-own-list"></ul>
           <form id="custom-exercise-form" autocomplete="off">
             <fieldset id="custom-exercise-fields">
-              <legend>Nuevo ejercicio propio</legend>
+              <legend id="custom-exercise-editor-title">
+                Nuevo ejercicio propio
+              </legend>
               <label for="custom-exercise-name"
                 >Nombre del ejercicio propio</label
               ><input id="custom-exercise-name" maxlength="120" required />
@@ -167,7 +181,12 @@
                 Sin zonas marcadas, queda sin zona asignada. Se guarda como
                 nombre reutilizable, sin dosis ni pautas automáticas.
               </p>
-              <button type="submit">Guardar ejercicio propio</button>
+              <button id="custom-exercise-submit" type="submit">
+                Guardar ejercicio propio
+              </button>
+              <button id="custom-exercise-cancel" type="button" hidden>
+                Cerrar edición
+              </button>
             </fieldset>
           </form>
         </section>

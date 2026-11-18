@@ -103,8 +103,27 @@ async function mockAuth(
           category: a.p_category,
           regions: [...a.p_regions].sort(),
           created_at: "2026-11-18T12:00:00.000000Z",
+          revision: 1,
+          updated_at: "2026-11-18T12:00:00.000000Z",
+          archived_at: null,
         };
         customExercises.push(body);
+      }
+    } else if (path === "/rest/v1/rpc/clinical_exercise_save_test") {
+      const a = request.postDataJSON(),
+        row = customExercises.find((e) => e.id === a.p_id);
+      if (catalogMode === "conflict") {
+        status = 409;
+        body = { code: "40001", message: "Stale revision" };
+      } else {
+        Object.assign(row, {
+          name: a.p_name,
+          category: a.p_category,
+          regions: [...a.p_regions].sort(),
+          revision: row.revision + 1,
+          archived_at: a.p_archived ? "2026-11-18T13:00:00.000000Z" : null,
+        });
+        body = row;
       }
     } else if (path === "/rest/v1/rpc/clinical_agenda_list_test") {
       const day = request.postDataJSON().p_day;
@@ -213,11 +232,13 @@ async function mockAuth(
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
       body =
-        backupMode === "catalog"
-          ? require("./backup-catalog-fixture.json")
-          : backupMode === "agenda"
-            ? require("./backup-agenda-fixture.json")
-            : backupFixture;
+        backupMode === "revisions"
+          ? require("./backup-exercise-revisions-fixture.json")
+          : backupMode === "catalog"
+            ? require("./backup-catalog-fixture.json")
+            : backupMode === "agenda"
+              ? require("./backup-agenda-fixture.json")
+              : backupFixture;
     } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
       body = { authorized: true };
@@ -1377,6 +1398,124 @@ test("version-3 encrypted files include personal exercise names and still verify
   await expect(page.locator("#status")).toContainText(
     "Incluye 1 ejercicios propios",
   );
+  expect(
+    calls
+      .slice(before)
+      .every(
+        (c) =>
+          c.path.endsWith("clinical_access_check") || c.path.endsWith("/user"),
+      ),
+  ).toBe(true);
+});
+
+test("personal exercises can be revised and archived without altering saved session text", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await fillOwnExercise(page, "Ejercicio ficticio original");
+  await page.locator("#custom-exercise-submit").click();
+  await expect(page.locator("#status")).toContainText("guardado");
+  await bookAppointment(page);
+  await page.locator("#exercise-picker summary").click();
+  await page.locator("#exercise-search").fill("ficticio original");
+  await page
+    .getByRole("button", {
+      name: "Añadir Ejercicio ficticio original",
+      exact: true,
+    })
+    .click();
+  await page.locator("#session-form button[type=submit]").click();
+  await expect(page.locator("#status")).toContainText("queda realizada");
+  await page
+    .getByRole("button", {
+      name: "Editar Ejercicio ficticio original",
+      exact: true,
+    })
+    .click();
+  await page
+    .locator("#custom-exercise-name")
+    .fill("Ejercicio ficticio revisado");
+  await page.locator("#custom-exercise-submit").click();
+  await expect(page.locator("#exercise-own-list")).toContainText(
+    "Ejercicio ficticio revisado",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  await page
+    .getByRole("button", {
+      name: "Archivar Ejercicio ficticio revisado",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator("#status")).toContainText("Ejercicio archivado");
+  await expect(page.locator("#exercise-own-list")).not.toContainText(
+    "Ejercicio ficticio revisado",
+  );
+  await page.locator("#exercise-show-archived").check();
+  await expect(page.locator("#exercise-own-list")).toContainText("Archivado");
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "- Ejercicio ficticio original",
+  );
+  await page.locator("#exercise-picker summary").click();
+  await page.locator("#exercise-search").fill("ficticio revisado");
+  await expect(page.locator("#exercise-results button")).toHaveCount(0);
+});
+test("stale personal exercise edits retain the draft and require explicitly loading the stored version", async ({
+  page,
+}) => {
+  await mockAuth(page, { catalogMode: "conflict" });
+  await authorized(page);
+  await fillOwnExercise(page, "Ejercicio ficticio de conflicto");
+  await page.locator("#custom-exercise-submit").click();
+  await expect(page.locator("#status")).toContainText("guardado");
+  await page
+    .getByRole("button", {
+      name: "Editar Ejercicio ficticio de conflicto",
+      exact: true,
+    })
+    .click();
+  await page
+    .locator("#custom-exercise-name")
+    .fill("Borrador ficticio revisado");
+  await page.locator("#custom-exercise-submit").click();
+  await expect(page.locator("#status")).toContainText("ha cambiado");
+  await expect(page.locator("#custom-exercise-name")).toHaveValue(
+    "Borrador ficticio revisado",
+  );
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.locator("#custom-exercise-cancel").click();
+  await expect(page.locator("#custom-exercise-name")).toHaveValue(
+    "Borrador ficticio revisado",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.locator("#custom-exercise-cancel").click();
+  await expect(page.locator("#custom-exercise-name")).toHaveValue("");
+});
+
+test("version-4 encrypted backups include exercise history and retain local verification", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { backupMode: "revisions" });
+  await authorized(page);
+  await fillBackup(page);
+  const downloaded = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await downloaded,
+    encrypted = await readFile(await file.path(), "utf8"),
+    { decryptBackup } = await import("../backups/crypto.mjs");
+  const snapshot = await decryptBackup(encrypted, backupPhrase);
+  expect(snapshot.version).toBe(4);
+  expect(snapshot.exercise_versions).toHaveLength(2);
+  expect(snapshot.custom_exercises[0].archived_at).not.toBeNull();
+  const before = calls.length;
+  await page.locator("#backup-file").setInputFiles({
+    name: "historial.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.locator("#status")).toContainText("Archivo verificado");
   expect(
     calls
       .slice(before)

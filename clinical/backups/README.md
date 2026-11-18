@@ -12,7 +12,7 @@ La migración `20261115164119_clinical_test_backups.sql` y su ampliación `20261
 
 La descarga solo contiene el archivo cifrado, con nombre genérico. «Comprobar archivo» lo descifra y valida en el dispositivo: ni el archivo ni la frase se suben a Supabase. Comprueba también que pertenece a la cuenta actual. No restaura ni sobrescribe la base. La frase de la copia no cambia la contraseña de MLREHAB y debe custodiarse separada del archivo.
 
-`restore-sandbox.mjs` es una herramienta Node que siempre crea una base PostgreSQL/PGlite nueva en memoria. No acepta URL ni conexión de destino. Restaura con parámetros SQL y una transacción, conserva registros, versiones, archivo, auditoría y la secuencia, vuelve a leer las ocho colecciones (siete para archivos versión 2 y tres para versión 1) y compara hashes SHA-256. Si algo falla, cierra y descarta la base; los errores no contienen parámetros con historias.
+`restore-sandbox.mjs` es una herramienta Node que siempre crea una base PostgreSQL/PGlite nueva en memoria. No acepta URL ni conexión de destino. Restaura con parámetros SQL y una transacción, conserva registros, versiones, archivo, auditoría y la secuencia, vuelve a leer las nueve colecciones (ocho para versión 3, siete para versión 2 y tres para versión 1) y compara hashes SHA-256. Si algo falla, cierra y descarta la base; los errores no contienen parámetros con historias.
 
 ```sh
 npm run test:backup-crypto
@@ -30,3 +30,5 @@ Fuente: [copias y límites de Supabase](https://supabase.com/docs/guides/platfor
 La versión 2 añade `appointments`, `appointment_versions`, `sessions` y `session_versions`. Se comprueba propietario, paciente, cita/sesión, continuidad de revisiones, última versión y auditoría de cada cambio. Límite de 500 citas, 500 sesiones y 2 000 versiones de cada recurso, sin truncar. El ensayo actual crea una cita y registra y revisa una sesión antes de cerrar el origen; la restauración comprueba también esas cuatro colecciones. Los archivos versión 1 siguen descifrándose y restaurándose con su esquema anterior. La agenda de la demo pública permanece fuera de estas copias.
 
 La versión 3 añade `custom_exercises`: nombres personales inmutables desde esta API con propietario, modalidad, zonas, fecha e identificador. Se validan unicidad de nombre, pertenencia y auditoría de creación, con límite de 500 registros. El ensayo recupera un nombre personal y su texto en una sesión tras cerrar el origen. Se conservan pruebas de lectura/restauración de versiones 1 y 2. No se incluye la lista de admisión ni Auth en la copia de datos.
+
+La versión 4 incorpora el historial `exercise_versions`, revisión y estado de archivo. Valida revisiones continuas, última versión y auditoría de creación/cambio/archivo. Límite de 2 000 versiones del catálogo, sin truncar; se conservan ejercicios archivados. El ensayo recupera tres versiones de un nombre y el texto original que quedó en una sesión. Se siguen aceptando las versiones 1, 2 y 3.

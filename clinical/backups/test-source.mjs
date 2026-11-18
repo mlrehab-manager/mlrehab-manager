@@ -5,7 +5,7 @@ export const A = "11111111-1111-4111-8111-111111111111",
   B = "22222222-2222-4222-8222-222222222222";
 export const SA = "44444444-4444-4444-8444-444444444444",
   SB = "55555555-5555-4555-8555-555555555555";
-export async function testSource() {
+export async function testSource({ migrationLimit = Infinity } = {}) {
   const db = new PGlite();
   await db.exec(`create role anon nologin;create role authenticated nologin;create schema auth;
     create table auth.users(id uuid primary key,email_confirmed_at timestamptz default now(),banned_until timestamptz);
@@ -17,7 +17,8 @@ export async function testSource() {
   const directory = new URL("../migrations/", import.meta.url);
   for (const name of (await readdir(directory))
     .filter((n) => n.endsWith(".sql"))
-    .sort())
+    .sort()
+    .slice(0, migrationLimit))
     await db.exec(await readFile(new URL(name, directory), "utf8"));
   await db.exec(
     `insert into clinical_private.authorized_clinicians values('${A}',true),('${B}',true)`,

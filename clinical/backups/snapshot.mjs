@@ -17,6 +17,8 @@ const actions = new Set([
   "session.update",
   "exercise.list",
   "exercise.create",
+  "exercise.update",
+  "exercise.archive",
 ]);
 const encoder = new TextEncoder();
 function requireValue(ok) {
@@ -77,7 +79,8 @@ export function validateSnapshot(value) {
       "patients",
       "patient_versions",
       "audit_events",
-      ...(value.version === 3 ? ["custom_exercises"] : []),
+      ...(value.version >= 3 ? ["custom_exercises"] : []),
+      ...(value.version === 4 ? ["exercise_versions"] : []),
       ...(value.version >= 2
         ? [
             "appointments",
@@ -90,7 +93,7 @@ export function validateSnapshot(value) {
   );
   requireValue(
     value.format === "mlrehab-clinical-test-snapshot" &&
-      [1, 2, 3].includes(value.version) &&
+      [1, 2, 3, 4].includes(value.version) &&
       value.test_only === true &&
       uuid.test(value.clinician_id) &&
       timestamp(value.created_at),
@@ -191,7 +194,7 @@ export function validateSnapshot(value) {
     );
     ids.add(e.id);
     if (e.action.startsWith("exercise.")) {
-      requireValue(value.version === 3 && e.patient_id === null);
+      requireValue(value.version >= 3 && e.patient_id === null);
       if (e.action === "exercise.list")
         requireValue(
           e.entity_type === null && e.entity_id === null && e.revision === null,
@@ -200,9 +203,15 @@ export function validateSnapshot(value) {
         requireValue(
           e.entity_type === "exercise" &&
             exercises.has(e.entity_id) &&
-            e.revision === 1,
+            (value.version === 3
+              ? e.action === "exercise.create" && e.revision === 1
+              : exercises.history.get(e.entity_id).has(e.revision)),
         );
-        changes.add(`exercise:${e.entity_id}`);
+        changes.add(
+          value.version === 3
+            ? `exercise:${e.entity_id}`
+            : `exercise:${e.entity_id}:${e.revision}:${e.action}`,
+        );
       }
       continue;
     }
@@ -249,8 +258,16 @@ export function validateSnapshot(value) {
                   : "appointment.update";
         requireValue(changes.has(`${kind}:${v.id}:${v.revision}:${action}`));
       }
-  for (const id of exercises.keys())
-    requireValue(changes.has(`exercise:${id}`));
+  for (const id of exercises.keys()) {
+    if (value.version === 3) requireValue(changes.has(`exercise:${id}`));
+    else
+      for (const row of exercises.history.get(id).values())
+        requireValue(
+          changes.has(
+            `exercise:${id}:${row.revision}:${row.revision === 1 ? "exercise.create" : row.archived_at ? "exercise.archive" : "exercise.update"}`,
+          ),
+        );
+  }
   return structuredClone(value);
 }
 function canonical(value) {
@@ -290,9 +307,14 @@ export async function snapshotDigest(value) {
           a.session_id.localeCompare(b.session_id) || a.revision - b.revision,
       ),
     });
-  if (s.version === 3)
+  if (s.version >= 3)
     rows.custom_exercises = s.custom_exercises.sort((a, b) =>
       a.id.localeCompare(b.id),
+    );
+  if (s.version === 4)
+    rows.exercise_versions = s.exercise_versions.sort(
+      (a, b) =>
+        a.exercise_id.localeCompare(b.exercise_id) || a.revision - b.revision,
     );
   const bytes = await crypto.subtle.digest(
     "SHA-256",
@@ -473,13 +495,13 @@ function validateEntityAudit(event, agenda, changes) {
 
 function readExercises(snapshot) {
   const result = new Map();
-  if (snapshot.version !== 3) return result;
+  result.history = new Map();
+  if (snapshot.version < 3) return result;
   requireValue(
     Array.isArray(snapshot.custom_exercises) &&
       snapshot.custom_exercises.length <= 500,
   );
-  const names = new Set(),
-    categories = [
+  const categories = [
       "isometric",
       "dynamic",
       "concentric",
@@ -496,8 +518,9 @@ function readExercises(snapshot) {
       "hip",
       "knee",
       "ankle-foot",
-    ];
-  for (const row of snapshot.custom_exercises) {
+    ],
+    names = new Set();
+  function validateRow(row) {
     requireValue(
       keys(row, [
         "id",
@@ -506,9 +529,11 @@ function readExercises(snapshot) {
         "category",
         "regions",
         "created_at",
+        ...(snapshot.version === 4
+          ? ["revision", "updated_at", "archived_at"]
+          : []),
       ]) &&
         uuid.test(row.id) &&
-        !result.has(row.id) &&
         row.clinician_id === snapshot.clinician_id &&
         typeof row.name === "string" &&
         [...row.name.trim()].length >= 1 &&
@@ -521,15 +546,73 @@ function readExercises(snapshot) {
         row.regions.every((r) => regions.includes(r)) &&
         timestamp(row.created_at),
     );
+    if (snapshot.version === 4)
+      requireValue(
+        Number.isInteger(row.revision) &&
+          row.revision >= 1 &&
+          row.revision <= 2000 &&
+          timestamp(row.updated_at) &&
+          (row.archived_at === null || timestamp(row.archived_at)),
+      );
+  }
+  for (const row of snapshot.custom_exercises) {
+    validateRow(row);
     const name = row.name
       .trim()
       .replace(/\s+/g, " ")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase("es");
-    requireValue(!names.has(name));
+    requireValue(!result.has(row.id) && !names.has(name));
     names.add(name);
     result.set(row.id, row);
+    result.history.set(row.id, new Map());
+  }
+  if (snapshot.version === 4) {
+    requireValue(
+      Array.isArray(snapshot.exercise_versions) &&
+        snapshot.exercise_versions.length <= 2000,
+    );
+    for (const version of snapshot.exercise_versions) {
+      requireValue(
+        keys(version, [
+          "exercise_id",
+          "revision",
+          "payload_json",
+          "created_at",
+        ]) &&
+          result.has(version.exercise_id) &&
+          timestamp(version.created_at) &&
+          typeof version.payload_json === "string" &&
+          encoder.encode(version.payload_json).length <= 1048576,
+      );
+      let row;
+      try {
+        row = JSON.parse(version.payload_json);
+      } catch {
+        requireValue(false);
+      }
+      validateRow(row);
+      const current = result.get(version.exercise_id),
+        history = result.history.get(version.exercise_id);
+      requireValue(
+        row.id === version.exercise_id &&
+          row.revision === version.revision &&
+          row.created_at === current.created_at &&
+          !history.has(row.revision),
+      );
+      history.set(row.revision, row);
+    }
+    for (const row of result.values()) {
+      const history = result.history.get(row.id);
+      requireValue(history.size === row.revision);
+      for (let i = 1; i <= row.revision; i++) requireValue(history.has(i));
+      requireValue(
+        JSON.stringify(canonical(history.get(row.revision))) ===
+          JSON.stringify(canonical(row)),
+      );
+      requireValue(history.get(1).archived_at === null);
+    }
   }
   return result;
 }

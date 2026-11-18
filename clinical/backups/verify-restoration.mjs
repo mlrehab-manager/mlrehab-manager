@@ -14,9 +14,11 @@ let snapshot,
 try {
   await source.asUser();
   await source.rpc("clinical_backup_seed_test");
-  await source.db.query(
-    "select public.clinical_exercise_create_test('Ejercicio propio ficticio de ensayo','eccentric',array['knee'])",
-  );
+  const exercise = (
+    await source.db.query(
+      "select public.clinical_exercise_create_test('Ejercicio propio ficticio de ensayo','eccentric',array['knee']) as result",
+    )
+  ).rows[0].result;
   const patient = (await source.rpc("clinical_patient_list_test")).find(
     (p) => !p.archived,
   );
@@ -35,6 +37,14 @@ try {
   await source.db.query(
     "select public.clinical_session_save_test($1,1,$2,'Evolución ficticia revisada','Pasivo ficticio','Ejercicio propio ficticio de ensayo')",
     [session.id, appointment.id],
+  );
+  await source.db.query(
+    "select public.clinical_exercise_save_test($1,1,'Ejercicio propio ficticio revisado','eccentric',array['knee'],false)",
+    [exercise.id],
+  );
+  await source.db.query(
+    "select public.clinical_exercise_save_test($1,2,'Ejercicio propio ficticio revisado','eccentric',array['knee'],true)",
+    [exercise.id],
   );
   snapshot = await source.rpc("clinical_backup_export_test");
   sourceHash = await snapshotDigest(snapshot);
@@ -78,10 +88,11 @@ try {
       ...restored.counts,
       ...restored.agendaCounts,
       customExercises: restored.exerciseCount,
+      exerciseVersions: restored.exerciseVersionsCount,
       active,
       archived,
     },
-    snapshot_version: 3,
+    snapshot_version: 4,
     source_hash: sourceHash,
     restored_hash: restored.restoredHash,
     passed: true,

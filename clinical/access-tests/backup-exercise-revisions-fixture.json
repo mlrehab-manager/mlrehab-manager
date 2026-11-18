@@ -1,0 +1,160 @@
+{
+  "format": "mlrehab-clinical-test-snapshot",
+  "version": 4,
+  "patients": [
+    {
+      "id": "2c427f2a-136c-4649-adf0-8f076339427c",
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "updated_at": "2026-11-18T21:31:09.997000Z",
+      "archived_at": null,
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}}"
+    },
+    {
+      "id": "e8129e7b-0894-47c1-a749-c1c8da2a4384",
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "updated_at": "2026-11-18T21:31:09.997000Z",
+      "archived_at": "2026-11-18T21:31:09.997000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    }
+  ],
+  "sessions": [],
+  "test_only": true,
+  "created_at": "2026-11-18T21:31:10.056000Z",
+  "appointments": [],
+  "audit_events": [
+    {
+      "id": "1",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "2c427f2a-136c-4649-adf0-8f076339427c",
+      "entity_type": null
+    },
+    {
+      "id": "2",
+      "action": "patient.update",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "2c427f2a-136c-4649-adf0-8f076339427c",
+      "entity_type": null
+    },
+    {
+      "id": "3",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "e8129e7b-0894-47c1-a749-c1c8da2a4384",
+      "entity_type": null
+    },
+    {
+      "id": "4",
+      "action": "patient.archive",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "e8129e7b-0894-47c1-a749-c1c8da2a4384",
+      "entity_type": null
+    },
+    {
+      "id": "5",
+      "action": "exercise.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": "a9962783-1ff9-49ef-9ab5-031a2bb2be04",
+      "created_at": "2026-11-18T21:31:10.012000Z",
+      "patient_id": null,
+      "entity_type": "exercise"
+    },
+    {
+      "id": "6",
+      "action": "exercise.archive",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": "a9962783-1ff9-49ef-9ab5-031a2bb2be04",
+      "created_at": "2026-11-18T21:31:10.053000Z",
+      "patient_id": null,
+      "entity_type": "exercise"
+    },
+    {
+      "id": "7",
+      "action": "backup.export",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": null,
+      "entity_id": null,
+      "created_at": "2026-11-18T21:31:10.056000Z",
+      "patient_id": null,
+      "entity_type": null
+    }
+  ],
+  "clinician_id": "11111111-1111-4111-8111-111111111111",
+  "custom_exercises": [
+    {
+      "id": "a9962783-1ff9-49ef-9ab5-031a2bb2be04",
+      "name": "Nombre ficticio revisado",
+      "regions": [],
+      "category": "other",
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:10.012000Z",
+      "updated_at": "2026-11-18T21:31:10.053000Z",
+      "archived_at": "2026-11-18T21:31:10.053000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "patient_versions": [
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "2c427f2a-136c-4649-adf0-8f076339427c",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia inicial\", \"testOnly\": true}"
+    },
+    {
+      "archived": false,
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "2c427f2a-136c-4649-adf0-8f076339427c",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}}"
+    },
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "e8129e7b-0894-47c1-a749-c1c8da2a4384",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "archived": true,
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:09.997000Z",
+      "patient_id": "e8129e7b-0894-47c1-a749-c1c8da2a4384",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    }
+  ],
+  "session_versions": [],
+  "exercise_versions": [
+    {
+      "revision": 1,
+      "created_at": "2026-11-18T21:31:10.012000Z",
+      "exercise_id": "a9962783-1ff9-49ef-9ab5-031a2bb2be04",
+      "payload_json": "{\"id\": \"a9962783-1ff9-49ef-9ab5-031a2bb2be04\", \"name\": \"Nombre ficticio de copia\", \"regions\": [], \"category\": \"other\", \"revision\": 1, \"created_at\": \"2026-11-18T21:31:10.012000Z\", \"updated_at\": \"2026-11-18T21:31:10.012000Z\", \"archived_at\": null, \"clinician_id\": \"11111111-1111-4111-8111-111111111111\"}"
+    },
+    {
+      "revision": 2,
+      "created_at": "2026-11-18T21:31:10.053000Z",
+      "exercise_id": "a9962783-1ff9-49ef-9ab5-031a2bb2be04",
+      "payload_json": "{\"id\": \"a9962783-1ff9-49ef-9ab5-031a2bb2be04\", \"name\": \"Nombre ficticio revisado\", \"regions\": [], \"category\": \"other\", \"revision\": 2, \"created_at\": \"2026-11-18T21:31:10.012000Z\", \"updated_at\": \"2026-11-18T21:31:10.053000Z\", \"archived_at\": \"2026-11-18T21:31:10.053000Z\", \"clinician_id\": \"11111111-1111-4111-8111-111111111111\"}"
+    }
+  ],
+  "appointment_versions": []
+}

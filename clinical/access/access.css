@@ -213,3 +213,25 @@ textarea {
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+
+.archive-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+.archive-choice input {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  margin: 0;
+}
+#exercise-own-list button {
+  margin: 8px 0;
+  text-align: left;
+  background: transparent;
+  color: #222;
+}
+#exercise-own-list li {
+  margin-bottom: 20px;
+}

@@ -75,7 +75,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
           [v.session_id, v.revision, v.payload_json, v.created_at],
         );
     }
-    if (source.version === 3) {
+    if (source.version >= 3) {
       await db.exec(
         "create table custom_exercises(id uuid primary key,clinician_id uuid not null,name text not null,category text not null,regions text[] not null,created_at timestamptz not null)",
       );
@@ -83,6 +83,21 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         await db.query(
           "insert into custom_exercises values($1,$2,$3,$4,$5,$6)",
           [e.id, e.clinician_id, e.name, e.category, e.regions, e.created_at],
+        );
+    }
+    if (source.version === 4) {
+      await db.exec(
+        "alter table custom_exercises add column revision integer,add column updated_at timestamptz,add column archived_at timestamptz;create table exercise_versions(exercise_id uuid references custom_exercises(id),revision integer,payload jsonb,created_at timestamptz,primary key(exercise_id,revision))",
+      );
+      for (const e of source.custom_exercises)
+        await db.query(
+          "update custom_exercises set revision=$2,updated_at=$3,archived_at=$4 where id=$1",
+          [e.id, e.revision, e.updated_at, e.archived_at],
+        );
+      for (const v of source.exercise_versions)
+        await db.query(
+          "insert into exercise_versions values($1,$2,$3::jsonb,$4)",
+          [v.exercise_id, v.revision, v.payload_json, v.created_at],
         );
     }
     for (const e of source.audit_events)
@@ -224,12 +239,30 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         sessionVersions: restored.session_versions.length,
       };
     }
-    if (source.version === 3)
+    if (source.version >= 3)
       restored.custom_exercises = await rows(
         "custom_exercises",
-        ["id", "clinician_id", "name", "category", "regions", "created_at"],
-        ["created_at"],
+        [
+          "id",
+          "clinician_id",
+          "name",
+          "category",
+          "regions",
+          "created_at",
+          ...(source.version === 4
+            ? ["revision", "updated_at", "archived_at"]
+            : []),
+        ],
+        ["created_at", "updated_at", "archived_at"],
         "id",
+      );
+    if (source.version === 4)
+      restored.exercise_versions = await rows(
+        "exercise_versions",
+        ["exercise_id", "revision", "payload_json", "created_at"],
+        ["created_at"],
+        "exercise_id,revision",
+        { payload_json: "payload::text" },
       );
     const sourceHash = await snapshotDigest(source),
       restoredHash = await snapshotDigest(restored);
@@ -245,8 +278,10 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         events: restored.audit_events.length,
       },
       agendaCounts,
+      exerciseVersionsCount:
+        source.version === 4 ? restored.exercise_versions.length : null,
       exerciseCount:
-        source.version === 3 ? restored.custom_exercises.length : null,
+        source.version >= 3 ? restored.custom_exercises.length : null,
     };
   } catch {
     await db.exec("rollback").catch(() => {});
