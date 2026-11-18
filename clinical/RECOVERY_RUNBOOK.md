@@ -23,6 +23,10 @@ Si se pierden ambos autenticadores, se bloquea el uso clínico y se utiliza recu
 
 El MFA de Supabase/ChatGPT y el MFA de MLREHAB son distintos. La reserva de la aplicación no recupera automáticamente esas cuentas. Tampoco recupera una frase de cifrado de copias perdida: esta debe custodiarse separada y probarse en otro dispositivo. Ningún secreto de recuperación se solicita por chat.
 
-## Copias: trabajo preparado y pendiente
+## Recuperación de datos y del servicio
 
-La [copia de prueba](backups/README.md) exporta el conjunto ficticio actual, lo cifra y supera una restauración de datos/versiones/auditoría en PostgreSQL/PGlite nuevo y separado, cerrando antes el origen. Todavía no recupera el servicio Supabase/Auth ni calendario, sesiones clínicas, documentos o configuración completa. Siguen pendientes todos esos recursos, custodia externa de copias y claves, objetivos de pérdida/recuperación, automatización con avisos y ensayo del servicio alojado. La prueba del autenticador no sustituye esas tareas ni autoriza pacientes reales.
+La [copia de prueba](backups/README.md) incluye fichas, agenda, sesiones, catálogo e historiales/auditoría. Su restauración en una base nueva está verificada. El nuevo [ensayo de servicios](recovery/README.md) reconstruye además el esquema, permisos y componentes reales de Auth/API en Docker: crea usuarios solo por Auth Admin API, verifica contraseña/MFA nuevos, recupera datos con el origen cerrado y rechaza tokens antiguos y sesiones cerradas.
+
+Hay un proyecto alojado de recuperación separado, gratuito y autorizado, con estructura y permisos reconstruidos. No tiene todavía identidad de prueba ni datos restaurados; la conexión disponible no administra Auth. El paso pendiente es crear/confirmar un usuario ficticio en ese panel y cerrar sus altas públicas. No se deben solicitar sus credenciales por chat ni modificar tablas gestionadas de Auth. Los [dos informes](verification/SERVICE_RECOVERY_REPORT.json) distinguen la prueba local superada del [estado alojado pendiente](verification/HOSTED_RECOVERY_STATUS.json).
+
+Siguen pendientes la recuperación alojada completa, SMTP/archivos/configuración de alojamiento, custodia externa de copias y claves, automatización y objetivos de pérdida/recuperación. Una prueba local con componentes reales no garantiza RPO/RTO ni autoriza pacientes reales. No se han cambiado los factores de acceso del propietario; la reserva independiente sigue aplazada.

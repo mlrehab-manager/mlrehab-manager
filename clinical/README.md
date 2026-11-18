@@ -56,3 +56,5 @@ La [agenda y sesiones privadas](access/AGENDA.md) ya permiten probar citas y evo
 El [catálogo personal privado](access/CUSTOM_EXERCISES.md) ya permite guardar nombres con modalidad y zonas para reutilizarlos en sesiones y dispositivos. La copia versión 3 lo incluye; los archivos v1/v2 anteriores siguen admitidos. La nueva alta requiere prueba manual del propietario y no habilita datos reales.
 
 Los ejercicios propios ya admiten edición y archivo con revisión esperada, versiones/auditoría y copia v4. Se conservan las sesiones anteriores y los archivos v1/v2/v3. La prioridad siguiente es [cerrar los bloqueos para el uso clínico](../docs/CLINICAL_LAUNCH_MINIMUM.md), conforme a la petición del propietario de acelerar la puesta en marcha como autónomo individual.
+
+La [recuperación de servicios](recovery/README.md) ya supera un ensayo con PostgreSQL, Auth y API reales, además de las pruebas previas de datos. Hay un destino alojado gratuito independiente, con esquema/permisos reconstruidos y pendiente de cuenta ficticia/restauración/acceso. No se ha modificado el proyecto habitual ni se declara recuperación alojada completa.

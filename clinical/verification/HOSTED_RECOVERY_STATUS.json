@@ -1,0 +1,31 @@
+{
+  "test_only": true,
+  "project_name": "MLREHAB recovery test",
+  "project_ref": "wtlwhokxgskktjcqqtzn",
+  "region": "eu-central-1",
+  "organization_same_as_working_project": true,
+  "quoted_monthly_cost": 0,
+  "owner_confirmed_organization_and_cost": true,
+  "working_project_modified": false,
+  "application_migrations_reconstructed": 9,
+  "application_tables": 10,
+  "rls_tables_including_destination_guard": 11,
+  "client_table_grants": 0,
+  "public_invoker_rpc": 17,
+  "anonymous_rpc_http_denied": 17,
+  "private_schema_http_status": 406,
+  "auth_users": 0,
+  "data_restore_performed": false,
+  "hosted_auth_roundtrip_verified": false,
+  "stage": "schema_ready",
+  "pending": [
+    "Create and confirm a separate synthetic Auth user via the provider dashboard",
+    "Disable public signups on this recovery project",
+    "Bind generated fixtures to that confirmed test identity, restore and verify before admission",
+    "Verify fresh MFA and access against the hosted destination"
+  ],
+  "limits": [
+    "Not a hosted disaster recovery success report",
+    "No clinical data, payments, restoration to working project or changes to its authentication"
+  ]
+}
