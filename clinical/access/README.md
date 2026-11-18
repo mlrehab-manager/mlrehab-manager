@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las cuarenta y dos pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las cuarenta y ocho pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 
@@ -43,4 +43,4 @@ Documentación consultada el 11 de noviembre de 2026: [enrolamiento](https://sup
 
 La [agenda y las sesiones ficticias](AGENDA.md) se guardan en esta misma base privada con horario Europe/Madrid, revisión esperada, versiones y auditoría. La copia versión 2 las incluye. No se modifica la autenticación actual ni se habilita uso clínico.
 
-Dentro de cada sesión, **Buscar ejercicios del catálogo** permite elegir entre los 130 nombres existentes, combinando búsqueda, modalidad y zona. Se añaden al texto editable y se conservan al guardar la sesión, con sus versiones y copia cifrada. Las entradas manuales siguen siendo texto de esa sesión; el catálogo personal privado compartido queda pendiente.
+Dentro de cada sesión, **Buscar ejercicios del catálogo** permite elegir entre los 130 nombres existentes, combinando búsqueda, modalidad y zona. Se añaden al texto editable y se conservan al guardar la sesión, con sus versiones y copia cifrada. Las entradas manuales siguen siendo texto de esa sesión; el apartado [Ejercicios propios](CUSTOM_EXERCISES.md) permite guardar nombres reutilizables por cuenta, con modalidad y zonas. Se incluyen en la copia versión 3.

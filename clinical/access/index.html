@@ -136,6 +136,41 @@
             </button>
           </section>
         </section>
+        <section
+          id="custom-exercises-panel"
+          aria-labelledby="custom-exercises-title"
+        >
+          <h2 id="custom-exercises-title">Ejercicios propios · base privada</h2>
+          <p>
+            Añade nombres y clasifícalos para reutilizarlos en tus sesiones
+            ficticias desde otro dispositivo. No escribas datos de pacientes. Al
+            guardar aquí, el ejercicio se incorpora a tu catálogo personal.
+          </p>
+          <button id="exercise-catalog-load" type="button">
+            Cargar ejercicios propios
+          </button>
+          <p id="exercise-catalog-state"></p>
+          <ul id="exercise-own-list"></ul>
+          <form id="custom-exercise-form" autocomplete="off">
+            <fieldset id="custom-exercise-fields">
+              <legend>Nuevo ejercicio propio</legend>
+              <label for="custom-exercise-name"
+                >Nombre del ejercicio propio</label
+              ><input id="custom-exercise-name" maxlength="120" required />
+              <label for="custom-exercise-category"
+                >Modalidad del ejercicio propio</label
+              ><select id="custom-exercise-category"></select>
+              <fieldset id="custom-exercise-regions">
+                <legend>Zonas corporales del ejercicio propio</legend>
+              </fieldset>
+              <p>
+                Sin zonas marcadas, queda sin zona asignada. Se guarda como
+                nombre reutilizable, sin dosis ni pautas automáticas.
+              </p>
+              <button type="submit">Guardar ejercicio propio</button>
+            </fieldset>
+          </form>
+        </section>
         <section id="agenda-panel" aria-labelledby="agenda-title">
           <h2 id="agenda-title">Agenda y sesiones ficticias</h2>
           <p>
@@ -257,8 +292,9 @@
         <h2>Copias cifradas · prueba</h2>
         <p>
           Esta prueba prepara dos pacientes ficticios: uno activo con cambios y
-          otro archivado. Incluye fichas, citas y sesiones de esta base privada
-          con sus versiones y auditoría. No copia datos de la demo pública.
+          otro archivado. Incluye fichas, citas, sesiones y ejercicios propios
+          de esta base privada con sus versiones y auditoría. No copia datos de
+          la demo pública.
         </p>
         <form id="backup-export" autocomplete="off">
           <label for="backup-phrase">Frase para cifrar esta copia</label>

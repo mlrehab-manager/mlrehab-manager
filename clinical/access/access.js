@@ -1,3 +1,8 @@
+import {
+  clearCustomExerciseData,
+  installCustomExercises,
+  hasCustomExerciseChanges,
+} from "./custom-exercises.js";
 import { createClient } from "@supabase/supabase-js";
 import { clearBackupSecrets, installBackupTools } from "./backup-tools.js";
 import {
@@ -11,11 +16,12 @@ import {
   installAgendaTools,
   hasAgendaChanges,
 } from "./agenda-tools.js";
-const hasAnyChanges = () => hasPatientChanges() || hasAgendaChanges();
+const hasAnyChanges = () =>
+  hasPatientChanges() || hasAgendaChanges() || hasCustomExerciseChanges();
 const confirmAllDiscard = () =>
   !hasAnyChanges() ||
   window.confirm(
-    "Hay cambios sin guardar en una ficha, cita o sesión ficticia. ¿Quieres descartarlos?",
+    "Hay cambios sin guardar en una ficha, cita, sesión ficticia o ejercicio propio. ¿Quieres descartarlos?",
   );
 const $ = (id) => document.getElementById(id);
 const message = (value) => {
@@ -44,6 +50,7 @@ function reset() {
   clearBackupSecrets();
   clearPatientData();
   clearAgendaData();
+  clearCustomExerciseData();
   $("enroll").hidden = false;
   $("login").reset();
   for (const id of [
@@ -92,7 +99,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     const current = epoch;
     document
       .querySelectorAll(
-        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button",
+        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button",
       )
       .forEach((el) => {
         el.disabled = true;
@@ -108,7 +115,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       busy = false;
       document
         .querySelectorAll(
-          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button",
+          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button",
         )
         .forEach((el) => {
           el.disabled = false;
@@ -144,6 +151,12 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     message,
   });
 
+  installCustomExercises({
+    client,
+    run,
+    isAuthorized: () => active && !$("complete").hidden,
+    message,
+  });
   installAgendaTools({
     client,
     run,
@@ -311,6 +324,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       if (!confirmAllDiscard()) return;
       clearPatientData();
       clearAgendaData();
+      clearCustomExerciseData();
       const { data: access, error: accessError } = await client.rpc(
         "clinical_access_check",
       );
@@ -348,6 +362,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       clearBackupSecrets();
       clearPatientData();
       clearAgendaData();
+      clearCustomExerciseData();
       message(
         "Añade este autenticador en tu segundo dispositivo y confirma su código.",
       );
@@ -426,6 +441,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       if (!confirmAllDiscard()) return;
       clearPatientData();
       clearAgendaData();
+      clearCustomExerciseData();
       const { data, error } = await client.auth.getSession();
       if (!isCurrent()) return;
       let token = data?.session?.access_token;
@@ -440,6 +456,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       clearBackupSecrets();
       clearPatientData();
       clearAgendaData();
+      clearCustomExerciseData();
       client.auth.stopAutoRefresh();
       for (const id of ["complete", "login", "logout"]) $(id).hidden = true;
       $("closed").hidden = false;

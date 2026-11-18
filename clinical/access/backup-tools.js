@@ -50,7 +50,7 @@ export function installBackupTools({
       if (!isAuthorized()) return;
       if (hasPendingChanges()) {
         message(
-          "Guarda o descarta los cambios de la ficha, cita o sesión antes de crear una copia.",
+          "Guarda o descarta los cambios de la ficha, cita, sesión o catálogo antes de crear una copia.",
         );
         return;
       }
@@ -110,7 +110,7 @@ export function installBackupTools({
         if (!isCurrent()) return;
         if (snapshot.clinician_id !== owner) throw new Error();
         message(
-          `Archivo verificado: ${snapshot.patients.length} pacientes ficticios, ${snapshot.patient_versions.length} versiones y ${snapshot.audit_events.length} eventos.${snapshot.version === 2 ? ` Incluye ${snapshot.appointments.length} citas y ${snapshot.sessions.length} sesiones.` : ""} No se han cambiado datos de la base.`,
+          `Archivo verificado: ${snapshot.patients.length} pacientes ficticios, ${snapshot.patient_versions.length} versiones y ${snapshot.audit_events.length} eventos.${snapshot.version >= 2 ? ` Incluye ${snapshot.appointments.length} citas y ${snapshot.sessions.length} sesiones.` : ""}${snapshot.version === 3 ? ` Incluye ${snapshot.custom_exercises.length} ejercicios propios.` : ""} No se han cambiado datos de la base.`,
         );
       } catch {
         if (isCurrent())

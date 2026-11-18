@@ -14,6 +14,9 @@ let snapshot,
 try {
   await source.asUser();
   await source.rpc("clinical_backup_seed_test");
+  await source.db.query(
+    "select public.clinical_exercise_create_test('Ejercicio propio ficticio de ensayo','eccentric',array['knee'])",
+  );
   const patient = (await source.rpc("clinical_patient_list_test")).find(
     (p) => !p.archived,
   );
@@ -25,12 +28,12 @@ try {
   ).rows[0].result;
   const session = (
     await source.db.query(
-      "select public.clinical_session_save_test(null,null,$1,'Evolución ficticia','Pasivo ficticio','Ejercicio ficticio') as result",
+      "select public.clinical_session_save_test(null,null,$1,'Evolución ficticia','Pasivo ficticio','Ejercicio propio ficticio de ensayo') as result",
       [appointment.id],
     )
   ).rows[0].result;
   await source.db.query(
-    "select public.clinical_session_save_test($1,1,$2,'Evolución ficticia revisada','Pasivo ficticio','Ejercicio ficticio')",
+    "select public.clinical_session_save_test($1,1,$2,'Evolución ficticia revisada','Pasivo ficticio','Ejercicio propio ficticio de ensayo')",
     [session.id, appointment.id],
   );
   snapshot = await source.rpc("clinical_backup_export_test");
@@ -71,8 +74,14 @@ try {
       "New in-memory PostgreSQL/PGlite database without Auth or application RPCs",
     input: "Encrypted file read back from disk",
     source_closed_before_restore: true,
-    counts: { ...restored.counts, ...restored.agendaCounts, active, archived },
-    snapshot_version: 2,
+    counts: {
+      ...restored.counts,
+      ...restored.agendaCounts,
+      customExercises: restored.exerciseCount,
+      active,
+      archived,
+    },
+    snapshot_version: 3,
     source_hash: sourceHash,
     restored_hash: restored.restoredHash,
     passed: true,

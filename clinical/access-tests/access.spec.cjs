@@ -27,6 +27,7 @@ async function mockAuth(
     backupMode = "ok",
     patientMode = "ok",
     agendaMode = "ok",
+    catalogMode = "ok",
   } = {},
 ) {
   let verified = enrolled;
@@ -40,6 +41,7 @@ async function mockAuth(
     payload: JSON.parse(p.payload_json),
     archived_at: p.archived_at,
   }));
+  const customExercises = [];
   const appointments = [],
     sessions = [];
   let agendaConflictGiven = false;
@@ -79,7 +81,32 @@ async function mockAuth(
     });
     let body;
     let status = 200;
-    if (path === "/rest/v1/rpc/clinical_agenda_list_test") {
+    if (path === "/rest/v1/rpc/clinical_exercise_list_test") {
+      body = customExercises;
+      if (catalogMode === "unavailable") {
+        status = 503;
+        body = { message: "Unavailable" };
+      }
+    } else if (path === "/rest/v1/rpc/clinical_exercise_create_test") {
+      const a = request.postDataJSON();
+      if (catalogMode === "unavailable" || catalogMode === "duplicate") {
+        status = catalogMode === "duplicate" ? 409 : 503;
+        body = {
+          code: catalogMode === "duplicate" ? "23505" : "503",
+          message: "Synthetic refusal",
+        };
+      } else {
+        body = {
+          id: `99999999-9999-4999-8999-${String(customExercises.length + 1).padStart(12, "0")}`,
+          clinician_id: userId,
+          name: a.p_name,
+          category: a.p_category,
+          regions: [...a.p_regions].sort(),
+          created_at: "2026-11-18T12:00:00.000000Z",
+        };
+        customExercises.push(body);
+      }
+    } else if (path === "/rest/v1/rpc/clinical_agenda_list_test") {
       const day = request.postDataJSON().p_day;
       body = {
         patients: patients
@@ -186,9 +213,11 @@ async function mockAuth(
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
       body =
-        backupMode === "agenda"
-          ? require("./backup-agenda-fixture.json")
-          : backupFixture;
+        backupMode === "catalog"
+          ? require("./backup-catalog-fixture.json")
+          : backupMode === "agenda"
+            ? require("./backup-agenda-fixture.json")
+            : backupFixture;
     } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
       body = { authorized: true };
@@ -1059,8 +1088,11 @@ test("private exercise catalogue combines name, region and modality filters with
 }) => {
   const calls = await authorizeAgenda(page);
   await bookAppointment(page);
-  const before = calls.length;
   await page.locator("#exercise-picker summary").click();
+  await expect(page.locator("#exercise-catalog-state")).toContainText(
+    "0 ejercicios propios cargados",
+  );
+  const before = calls.length;
   await expect(page.locator("#exercise-count")).toContainText("130 ejercicios");
   await page.locator("#exercise-search").fill("extension");
   await page.locator("#exercise-region").selectOption("knee");
@@ -1176,4 +1208,181 @@ test("automatic logout clears exercise searches and selected session names", asy
   await expect(page.locator("#session-exercise")).toHaveValue("");
   await expect(page.locator("#exercise-search")).toHaveValue("");
   await expect(page.locator("#exercise-picker")).not.toHaveAttribute("open");
+});
+
+async function fillOwnExercise(
+  page,
+  name = "Ejercicio propio ficticio de rodilla",
+) {
+  await page.locator("#custom-exercise-name").fill(name);
+  await page.locator("#custom-exercise-category").selectOption("eccentric");
+  await page.locator("#custom-exercise-regions input[value=knee]").check();
+}
+test("a personal exercise is classified, reloaded and reusable after a fresh login", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await fillOwnExercise(page);
+  await page.locator("#custom-exercise-form button[type=submit]").click();
+  await expect(page.locator("#status")).toContainText(
+    "Ejercicio propio guardado",
+  );
+  await expect(page.locator("#custom-exercise-name")).toHaveValue("");
+  await page.reload();
+  await authorized(page);
+  await page.locator("#exercise-catalog-load").click();
+  await expect(page.locator("#exercise-catalog-state")).toContainText(
+    "1 ejercicios propios cargados",
+  );
+  await expect(page.locator("#exercise-own-list")).toContainText(
+    "Ejercicio propio ficticio de rodilla",
+  );
+  await page.locator("#agenda-date").fill("2026-11-20");
+  await page.locator("#agenda-new").click();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-20T09:00",
+  );
+  await page.locator("#appointment-form button[type=submit]").click();
+  await expect(page.locator("#session-form")).toBeVisible();
+  await page.locator("#exercise-picker summary").click();
+  await page.locator("#exercise-search").fill("ejercicio propio ficticio");
+  await page.locator("#exercise-region").selectOption("knee");
+  await page.locator("#exercise-category").selectOption("eccentric");
+  await page
+    .getByRole("button", {
+      name: "Añadir Ejercicio propio ficticio de rodilla",
+      exact: true,
+    })
+    .click();
+  await page.locator("#session-form button[type=submit]").click();
+  await expect(page.locator("#status")).toContainText("queda realizada");
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "- Ejercicio propio ficticio de rodilla",
+  );
+});
+for (const catalogMode of ["unavailable", "duplicate"])
+  test(`catalogue ${catalogMode} retains the creation draft and blocks backups`, async ({
+    page,
+  }) => {
+    await mockAuth(page, { catalogMode });
+    await authorized(page);
+    await fillOwnExercise(page);
+    await page.locator("#custom-exercise-form button[type=submit]").click();
+    await expect(page.locator("#status")).toContainText(
+      catalogMode === "duplicate" ? "Ya existe" : "No se pudo confirmar",
+    );
+    await expect(page.locator("#custom-exercise-name")).toHaveValue(
+      "Ejercicio propio ficticio de rodilla",
+    );
+    await fillBackup(page);
+    await page.locator("#backup-export button").click();
+    await expect(page.locator("#status")).toContainText("Guarda o descarta");
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await page.locator("#logout").click();
+    await expect(page.locator("#custom-exercise-name")).toHaveValue(
+      "Ejercicio propio ficticio de rodilla",
+    );
+  });
+test("catalogue draft and late creation responses are cleared on automatic logout", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await fillOwnExercise(page, "Nombre ficticio temporal");
+  let finish, started;
+  const held = new Promise((resolve) => (finish = resolve)),
+    requested = new Promise((resolve) => (started = resolve));
+  await page.route("**/rpc/clinical_exercise_create_test", async (route) => {
+    started();
+    await held;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "synthetic",
+        name: "Nombre ficticio temporal",
+        category: "eccentric",
+        regions: ["knee"],
+      }),
+    });
+  });
+  await page.locator("#custom-exercise-form button[type=submit]").click();
+  await requested;
+  await page.evaluate(() => {
+    const now = Date.now();
+    Date.now = () => now + 6 * 60 * 1000;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  finish();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#custom-exercise-name")).toHaveValue("");
+  await expect(page.locator("#exercise-own-list")).toBeEmpty();
+});
+test("built-in names are reused and a failed personal catalogue load keeps the built-in picker usable", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { catalogMode: "unavailable" });
+  await authorized(page);
+  await fillOwnExercise(page, "Sentadilla española isométrica");
+  await page.locator("#custom-exercise-form button[type=submit]").click();
+  await expect(page.locator("#status")).toContainText(
+    "ya está en el catálogo inicial",
+  );
+  expect(
+    calls.some((c) => c.path.endsWith("clinical_exercise_create_test")),
+  ).toBe(false);
+  await page.locator("#custom-exercise-name").fill("");
+  await page.locator("#custom-exercise-category").selectOption("other");
+  await page.locator("#custom-exercise-regions input[value=knee]").uncheck();
+  await page.locator("#agenda-date").fill("2026-11-20");
+  await page.locator("#agenda-new").click();
+  await page.locator("#appointment-form button[type=submit]").click();
+  await expect(page.locator("#session-form")).toBeVisible();
+  await page.locator("#exercise-picker summary").click();
+  await expect(page.locator("#status")).toContainText("catálogo");
+  await page.locator("#exercise-search").fill("sentadilla española");
+  await page
+    .getByRole("button", {
+      name: "Añadir Sentadilla española isométrica",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "- Sentadilla española isométrica",
+  );
+});
+test("version-3 encrypted files include personal exercise names and still verify locally", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { backupMode: "catalog" });
+  await authorized(page);
+  await fillBackup(page);
+  const downloaded = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await downloaded,
+    encrypted = await readFile(await file.path(), "utf8");
+  const { decryptBackup } = await import("../backups/crypto.mjs");
+  const snapshot = await decryptBackup(encrypted, backupPhrase);
+  expect(snapshot.version).toBe(3);
+  expect(snapshot.custom_exercises).toHaveLength(1);
+  const before = calls.length;
+  await page.locator("#backup-file").setInputFiles({
+    name: "catalogo.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.locator("#status")).toContainText(
+    "Incluye 1 ejercicios propios",
+  );
+  expect(
+    calls
+      .slice(before)
+      .every(
+        (c) =>
+          c.path.endsWith("clinical_access_check") || c.path.endsWith("/user"),
+      ),
+  ).toBe(true);
 });

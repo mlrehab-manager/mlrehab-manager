@@ -15,6 +15,8 @@ const actions = new Set([
   "session.read",
   "session.create",
   "session.update",
+  "exercise.list",
+  "exercise.create",
 ]);
 const encoder = new TextEncoder();
 function requireValue(ok) {
@@ -75,7 +77,8 @@ export function validateSnapshot(value) {
       "patients",
       "patient_versions",
       "audit_events",
-      ...(value.version === 2
+      ...(value.version === 3 ? ["custom_exercises"] : []),
+      ...(value.version >= 2
         ? [
             "appointments",
             "appointment_versions",
@@ -87,7 +90,7 @@ export function validateSnapshot(value) {
   );
   requireValue(
     value.format === "mlrehab-clinical-test-snapshot" &&
-      [1, 2].includes(value.version) &&
+      [1, 2, 3].includes(value.version) &&
       value.test_only === true &&
       uuid.test(value.clinician_id) &&
       timestamp(value.created_at),
@@ -162,6 +165,7 @@ export function validateSnapshot(value) {
     );
   }
   const agenda = readAgenda(value, patients);
+  const exercises = readExercises(value);
   const ids = new Set(),
     changes = new Set();
   for (const e of value.audit_events) {
@@ -173,7 +177,7 @@ export function validateSnapshot(value) {
         "action",
         "revision",
         "created_at",
-        ...(value.version === 2 ? ["entity_type", "entity_id"] : []),
+        ...(value.version >= 2 ? ["entity_type", "entity_id"] : []),
       ]),
     );
     requireValue(
@@ -186,13 +190,29 @@ export function validateSnapshot(value) {
         timestamp(e.created_at),
     );
     ids.add(e.id);
-    if (e.action === "agenda.read") requireValue(value.version === 2);
+    if (e.action.startsWith("exercise.")) {
+      requireValue(value.version === 3 && e.patient_id === null);
+      if (e.action === "exercise.list")
+        requireValue(
+          e.entity_type === null && e.entity_id === null && e.revision === null,
+        );
+      else {
+        requireValue(
+          e.entity_type === "exercise" &&
+            exercises.has(e.entity_id) &&
+            e.revision === 1,
+        );
+        changes.add(`exercise:${e.entity_id}`);
+      }
+      continue;
+    }
+    if (e.action === "agenda.read") requireValue(value.version >= 2);
     if (/^(appointment|session)\./.test(e.action)) {
-      requireValue(value.version === 2);
+      requireValue(value.version >= 2);
       validateEntityAudit(e, agenda, changes);
       continue;
     }
-    if (value.version === 2)
+    if (value.version >= 2)
       requireValue(e.entity_type === null && e.entity_id === null);
     if (["patient.list", "backup.export", "agenda.read"].includes(e.action))
       requireValue(e.patient_id === null && e.revision === null);
@@ -229,6 +249,8 @@ export function validateSnapshot(value) {
                   : "appointment.update";
         requireValue(changes.has(`${kind}:${v.id}:${v.revision}:${action}`));
       }
+  for (const id of exercises.keys())
+    requireValue(changes.has(`exercise:${id}`));
   return structuredClone(value);
 }
 function canonical(value) {
@@ -254,7 +276,7 @@ export async function snapshotDigest(value) {
       BigInt(a.id) < BigInt(b.id) ? -1 : 1,
     ),
   };
-  if (s.version === 2)
+  if (s.version >= 2)
     Object.assign(rows, {
       appointments: s.appointments.sort((a, b) => a.id.localeCompare(b.id)),
       appointment_versions: s.appointment_versions.sort(
@@ -268,6 +290,10 @@ export async function snapshotDigest(value) {
           a.session_id.localeCompare(b.session_id) || a.revision - b.revision,
       ),
     });
+  if (s.version === 3)
+    rows.custom_exercises = s.custom_exercises.sort((a, b) =>
+      a.id.localeCompare(b.id),
+    );
   const bytes = await crypto.subtle.digest(
     "SHA-256",
     encoder.encode(JSON.stringify(canonical(rows))),
@@ -443,4 +469,67 @@ function validateEntityAudit(event, agenda, changes) {
       history.has(event.revision),
   );
   changes.add(`${kind}:${event.entity_id}:${event.revision}:${event.action}`);
+}
+
+function readExercises(snapshot) {
+  const result = new Map();
+  if (snapshot.version !== 3) return result;
+  requireValue(
+    Array.isArray(snapshot.custom_exercises) &&
+      snapshot.custom_exercises.length <= 500,
+  );
+  const names = new Set(),
+    categories = [
+      "isometric",
+      "dynamic",
+      "concentric",
+      "eccentric",
+      "plyometric",
+      "other",
+    ],
+    regions = [
+      "cervical",
+      "shoulder",
+      "elbow-forearm",
+      "wrist-hand",
+      "trunk",
+      "hip",
+      "knee",
+      "ankle-foot",
+    ];
+  for (const row of snapshot.custom_exercises) {
+    requireValue(
+      keys(row, [
+        "id",
+        "clinician_id",
+        "name",
+        "category",
+        "regions",
+        "created_at",
+      ]) &&
+        uuid.test(row.id) &&
+        !result.has(row.id) &&
+        row.clinician_id === snapshot.clinician_id &&
+        typeof row.name === "string" &&
+        [...row.name.trim()].length >= 1 &&
+        [...row.name].length <= 120 &&
+        !/[\u0000-\u001f\u007f-\u009f]/.test(row.name) &&
+        categories.includes(row.category) &&
+        Array.isArray(row.regions) &&
+        row.regions.length <= 8 &&
+        new Set(row.regions).size === row.regions.length &&
+        row.regions.every((r) => regions.includes(r)) &&
+        timestamp(row.created_at),
+    );
+    const name = row.name
+      .trim()
+      .replace(/\s+/g, " ")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+    requireValue(!names.has(name));
+    names.add(name);
+    result.set(row.id, row);
+  }
+  return result;
 }

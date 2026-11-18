@@ -28,7 +28,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         "insert into patient_versions values($1,$2,$3::jsonb,$4,$5)",
         [v.patient_id, v.revision, v.payload_json, v.archived, v.created_at],
       );
-    if (source.version === 2) {
+    if (source.version >= 2) {
       await db.exec(`create table appointments(id uuid primary key,clinician_id uuid not null,patient_id uuid not null references patients(id),starts_at timestamptz not null,ends_at timestamptz not null,status text not null check(status in ('scheduled','cancelled','completed')),revision integer not null check(revision>0),created_at timestamptz not null,updated_at timestamptz not null,check(ends_at>starts_at));
         create table appointment_versions(appointment_id uuid references appointments(id),revision integer check(revision>0),payload jsonb not null,created_at timestamptz not null,primary key(appointment_id,revision));
         create table clinical_sessions(id uuid primary key,clinician_id uuid not null,patient_id uuid not null references patients(id),appointment_id uuid not null unique references appointments(id),evolution text not null,passive text not null,exercise text not null,revision integer not null check(revision>0),created_at timestamptz not null,updated_at timestamptz not null);
@@ -73,6 +73,16 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         await db.query(
           "insert into session_versions values($1,$2,$3::jsonb,$4)",
           [v.session_id, v.revision, v.payload_json, v.created_at],
+        );
+    }
+    if (source.version === 3) {
+      await db.exec(
+        "create table custom_exercises(id uuid primary key,clinician_id uuid not null,name text not null,category text not null,regions text[] not null,created_at timestamptz not null)",
+      );
+      for (const e of source.custom_exercises)
+        await db.query(
+          "insert into custom_exercises values($1,$2,$3,$4,$5,$6)",
+          [e.id, e.clinician_id, e.name, e.category, e.regions, e.created_at],
         );
     }
     for (const e of source.audit_events)
@@ -149,7 +159,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
           "action",
           "revision",
           "created_at",
-          ...(source.version === 2 ? ["entity_type", "entity_id"] : []),
+          ...(source.version >= 2 ? ["entity_type", "entity_id"] : []),
         ],
         ["created_at"],
         "id",
@@ -157,7 +167,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
       ),
     };
     let agendaCounts = null;
-    if (source.version === 2) {
+    if (source.version >= 2) {
       Object.assign(restored, {
         appointments: await rows(
           "appointments",
@@ -214,6 +224,13 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         sessionVersions: restored.session_versions.length,
       };
     }
+    if (source.version === 3)
+      restored.custom_exercises = await rows(
+        "custom_exercises",
+        ["id", "clinician_id", "name", "category", "regions", "created_at"],
+        ["created_at"],
+        "id",
+      );
     const sourceHash = await snapshotDigest(source),
       restoredHash = await snapshotDigest(restored);
     if (sourceHash !== restoredHash) throw new Error();
@@ -228,6 +245,8 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         events: restored.audit_events.length,
       },
       agendaCounts,
+      exerciseCount:
+        source.version === 3 ? restored.custom_exercises.length : null,
     };
   } catch {
     await db.exec("rollback").catch(() => {});

@@ -1,32 +1,8 @@
 // Catalogue is bundled at build time from the demo's single canonical data file.
 import { BUILTIN_EXERCISES } from "mlrehab:exercise-catalog";
 const $ = (id) => document.getElementById(id);
-const categories = {
-  isometric: "Isométricos",
-  dynamic: "Dinámicos · Combinados",
-  concentric: "Dinámicos · Concéntricos",
-  eccentric: "Dinámicos · Excéntricos",
-  plyometric: "Pliometría",
-  other: "Otros / sin clasificar",
-};
-const regions = {
-  cervical: "Cuello / cervical",
-  shoulder: "Hombro / escápula",
-  "elbow-forearm": "Codo / antebrazo",
-  "wrist-hand": "Muñeca / mano",
-  trunk: "Tronco / columna dorsal y lumbar",
-  hip: "Cadera",
-  knee: "Rodilla",
-  "ankle-foot": "Tobillo / pie",
-};
-const key = (value) =>
-  value
-    .trim()
-    .replace(/^[-•]\s*/, "")
-    .replace(/\s+/g, " ")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("es");
+import { categories, regions, key } from "./exercise-labels.js";
+import { getCustomExercises, loadCustomExercises } from "./custom-exercises.js";
 let editable = () => false,
   message = () => {};
 const contains = (name) =>
@@ -63,18 +39,27 @@ export function refreshExercisePicker() {
   const query = key($("exercise-search").value),
     category = $("exercise-category").value,
     region = $("exercise-region").value;
-  const matching = BUILTIN_EXERCISES.filter(
-    (e) =>
-      (!query || key(e.name).includes(query)) &&
-      (category === "all" ||
-        category === e.category ||
-        (category === "dynamic-all" &&
-          ["dynamic", "concentric", "eccentric"].includes(e.category))) &&
-      (region === "all" ||
-        (region === "unassigned"
-          ? !e.regions?.length
-          : e.regions?.includes(region))),
-  ).sort((a, b) => a.name.localeCompare(b.name, "es"));
+  const catalogue = [...BUILTIN_EXERCISES];
+  const names = new Set(catalogue.map((e) => key(e.name)));
+  for (const exercise of getCustomExercises())
+    if (!names.has(key(exercise.name))) {
+      catalogue.push(exercise);
+      names.add(key(exercise.name));
+    }
+  const matching = catalogue
+    .filter(
+      (e) =>
+        (!query || key(e.name).includes(query)) &&
+        (category === "all" ||
+          category === e.category ||
+          (category === "dynamic-all" &&
+            ["dynamic", "concentric", "eccentric"].includes(e.category))) &&
+        (region === "all" ||
+          (region === "unassigned"
+            ? !e.regions?.length
+            : e.regions?.includes(region))),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
   const visible = matching.slice(0, 24),
     fragment = document.createDocumentFragment();
   for (const exercise of visible) {
@@ -145,6 +130,10 @@ export function installExercisePicker({ isEditable, message: showMessage }) {
       id.endsWith("category") || id.endsWith("region") ? "change" : "input",
       refreshExercisePicker,
     );
+  document.addEventListener("custom-exercises-changed", refreshExercisePicker);
+  $("exercise-picker").addEventListener("toggle", () => {
+    if ($("exercise-picker").open) loadCustomExercises();
+  });
   $("exercise-search").addEventListener("keydown", (event) => {
     if (event.key === "Enter") event.preventDefault();
   });
