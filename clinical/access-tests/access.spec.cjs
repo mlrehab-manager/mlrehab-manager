@@ -920,7 +920,7 @@ test("sessions persist evolution, passive treatment and exercise and complete th
   await page.locator("#session-evolution").fill("Evolución ficticia de prueba");
   await page.locator("#session-passive").fill("Tratamiento pasivo de prueba");
   await page.locator("#session-exercise").fill("Isométricos ficticios");
-  await page.locator("#session-form button").click();
+  await page.locator("#session-form button[type=submit]").click();
   await expect(page.getByRole("status")).toContainText("queda realizada");
   await expect(page.locator("#appointment-start")).toBeDisabled();
   await expect(page.locator("#session-exercise")).toBeEnabled();
@@ -932,7 +932,7 @@ test("sessions persist evolution, passive treatment and exercise and complete th
     "Isométricos ficticios",
   );
   await page.locator("#session-evolution").fill("Evolución ficticia revisada");
-  await page.locator("#session-form button").click();
+  await page.locator("#session-form button[type=submit]").click();
   await expect(page.locator("#session-state")).toContainText("versión 2");
 });
 for (const agendaMode of ["conflict", "unavailable"])
@@ -944,7 +944,7 @@ for (const agendaMode of ["conflict", "unavailable"])
     await page
       .locator("#session-evolution")
       .fill("Borrador ficticio que conservar");
-    await page.locator("#session-form button").click();
+    await page.locator("#session-form button[type=submit]").click();
     await expect(page.getByRole("status")).toContainText(
       agendaMode === "conflict" ? "ha cambiado" : "borrador",
     );
@@ -984,7 +984,7 @@ test("pending session response cannot restore private text after automatic logou
       }),
     });
   });
-  await page.locator("#session-form button").click();
+  await page.locator("#session-form button[type=submit]").click();
   await started;
   await page.evaluate(() => {
     const now = Date.now();
@@ -1047,4 +1047,133 @@ test("version-2 encrypted files include agenda and sessions and are checked loca
           c.path.endsWith("clinical_access_check") || c.path.endsWith("/user"),
       ),
   ).toBe(true);
+});
+
+async function openExercisePicker(page) {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page.locator("#exercise-picker summary").click();
+}
+test("private exercise catalogue combines name, region and modality filters without network calls", async ({
+  page,
+}) => {
+  const calls = await authorizeAgenda(page);
+  await bookAppointment(page);
+  const before = calls.length;
+  await page.locator("#exercise-picker summary").click();
+  await expect(page.locator("#exercise-count")).toContainText("130 ejercicios");
+  await page.locator("#exercise-search").fill("extension");
+  await page.locator("#exercise-region").selectOption("knee");
+  await page.locator("#exercise-category").selectOption("concentric");
+  await expect(page.locator("#exercise-results button")).toHaveCount(1);
+  await expect(page.locator("#exercise-results")).toContainText(
+    "Extensión de rodilla con énfasis concéntrico",
+  );
+  await page.locator("#exercise-category").selectOption("isometric");
+  await expect(page.locator("#exercise-results")).toContainText(
+    "Extensión isométrica de rodilla en máquina",
+  );
+  await page.locator("#exercise-category").selectOption("dynamic-all");
+  await expect(page.locator("#exercise-results")).toContainText("Concéntricos");
+  await page.locator("#exercise-category").selectOption("plyometric");
+  await expect(page.locator("#exercise-results button")).toHaveCount(0);
+  await expect(page.locator("#exercise-count")).toContainText(
+    "No hay coincidencias",
+  );
+  await page.locator("#exercise-search").press("Enter");
+  expect(calls).toHaveLength(before);
+});
+test("adding exercise names preserves manual notes, avoids duplicates and persists on reopening the session", async ({
+  page,
+}) => {
+  await openExercisePicker(page);
+  await page
+    .locator("#session-exercise")
+    .fill("Nota ficticia manual para esta sesión");
+  await page.locator("#exercise-search").fill("sentadilla española");
+  const button = page.getByRole("button", {
+    name: "Añadir Sentadilla española isométrica",
+    exact: true,
+  });
+  await button.click();
+  await button.click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "Nota ficticia manual para esta sesión\n- Sentadilla española isométrica",
+  );
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#exercise-region").selectOption("shoulder");
+  await expect(page.locator("#exercise-results button")).toHaveCount(0);
+  await page.locator("#session-form button[type=submit]").click();
+  await expect(page.locator("#status")).toContainText("queda realizada");
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "Nota ficticia manual para esta sesión\n- Sentadilla española isométrica",
+  );
+  expect(
+    await page.evaluate(() => ({
+      local: Object.keys(localStorage),
+      session: Object.keys(sessionStorage),
+    })),
+  ).toEqual({ local: [], session: [] });
+});
+test("selecting a catalogue exercise is an unsaved session draft and blocks backup until saved", async ({
+  page,
+}) => {
+  await openExercisePicker(page);
+  await page.locator("#exercise-search").fill("sentadilla española");
+  await page
+    .getByRole("button", {
+      name: "Añadir Sentadilla española isométrica",
+      exact: true,
+    })
+    .click();
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.locator("#agenda-next").click();
+  await expect(page.locator("#session-exercise")).toHaveValue(
+    "- Sentadilla española isométrica",
+  );
+  await fillBackup(page);
+  await page.locator("#backup-export button").click();
+  await expect(page.locator("#status")).toContainText("Guarda o descarta");
+});
+test("the exercise picker respects cancellation and the session text size limit", async ({
+  page,
+}) => {
+  await openExercisePicker(page);
+  await page.locator("#exercise-search").fill("sentadilla española");
+  await page.locator("#session-exercise").fill("x".repeat(3990));
+  await page
+    .getByRole("button", {
+      name: "Añadir Sentadilla española isométrica",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator("#status")).toContainText("límite");
+  await expect(page.locator("#session-exercise")).toHaveValue("x".repeat(3990));
+  await page.locator("#session-exercise").fill("");
+  await page.locator("#appointment-status").selectOption("cancelled");
+  await page.locator("#appointment-form button[type=submit]").click();
+  await expect(page.locator("#exercise-search")).toBeDisabled();
+  await expect(page.locator("#exercise-results button").first()).toBeDisabled();
+});
+test("automatic logout clears exercise searches and selected session names", async ({
+  page,
+}) => {
+  await openExercisePicker(page);
+  await page.locator("#exercise-search").fill("sentadilla española");
+  await page
+    .getByRole("button", {
+      name: "Añadir Sentadilla española isométrica",
+      exact: true,
+    })
+    .click();
+  await page.evaluate(() => {
+    const now = Date.now();
+    Date.now = () => now + 6 * 60 * 1000;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#session-exercise")).toHaveValue("");
+  await expect(page.locator("#exercise-search")).toHaveValue("");
+  await expect(page.locator("#exercise-picker")).not.toHaveAttribute("open");
 });

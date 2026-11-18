@@ -159,3 +159,37 @@ textarea {
 #appointment-patient-lock {
   padding: 8px;
 }
+
+#exercise-picker {
+  margin: 20px 0;
+}
+#exercise-picker summary {
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid #999;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#exercise-results {
+  list-style: none;
+  padding: 0;
+  max-height: 380px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#exercise-results button {
+  text-align: left;
+  margin-top: 8px;
+  background: transparent;
+  color: #222;
+  overflow-wrap: anywhere;
+}
+#exercise-results button[aria-pressed="true"] {
+  background: #e9e5de;
+}
+#exercise-results small {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.5;
+  color: #555;
+}

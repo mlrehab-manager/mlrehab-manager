@@ -30,6 +30,44 @@ await build({
   format: "esm",
   minify: true,
   sourcemap: false,
+  plugins: [
+    {
+      name: "canonical-exercise-catalog",
+      setup(bundler) {
+        bundler.onResolve({ filter: /^mlrehab:exercise-catalog$/ }, () => ({
+          path: "catalog",
+          namespace: "mlrehab-catalog",
+        }));
+        bundler.onLoad(
+          { filter: /.*/, namespace: "mlrehab-catalog" },
+          async () => {
+            // Main checkout and the private hosting checkout keep the same source file.
+            let contents;
+            for (const relative of [
+              "../../assets/exercise-catalog.js",
+              "../assets/exercise-catalog.js",
+            ]) {
+              try {
+                contents = await readFile(
+                  new URL(relative, import.meta.url),
+                  "utf8",
+                );
+                break;
+              } catch (error) {
+                if (error.code !== "ENOENT") throw error;
+              }
+            }
+            if (!contents)
+              throw new Error("Falta el catálogo de ejercicios de referencia.");
+            return {
+              contents: contents + "\nexport { BUILTIN_EXERCISES };",
+              loader: "js",
+            };
+          },
+        );
+      },
+    },
+  ],
   define: {
     ACCESS_ORIGIN: JSON.stringify(origin),
     SUPABASE_URL: JSON.stringify(url),

@@ -218,6 +218,34 @@
                   rows="4"
                   maxlength="4000"
                 ></textarea>
+                <p>
+                  Escribe los nombres manualmente o añádelos desde el catálogo.
+                  Puedes editar el texto antes de guardar.
+                </p>
+                <details id="exercise-picker">
+                  <summary>Buscar ejercicios del catálogo</summary>
+                  <p>
+                    Nombres por zona y modalidad. La clasificación organiza el
+                    catálogo; no establece fases ni pautas de tratamiento.
+                  </p>
+                  <label for="exercise-search">Buscar por nombre</label
+                  ><input
+                    id="exercise-search"
+                    type="search"
+                    maxlength="120"
+                    autocomplete="off"
+                  />
+                  <label for="exercise-category">Modalidad del ejercicio</label
+                  ><select id="exercise-category"></select>
+                  <label for="exercise-region"
+                    >Zona corporal del ejercicio</label
+                  ><select id="exercise-region"></select>
+                  <p id="exercise-count" role="status" aria-live="polite"></p>
+                  <ul
+                    id="exercise-results"
+                    aria-label="Ejercicios del catálogo"
+                  ></ul>
+                </details>
                 <button type="submit">Guardar sesión ficticia</button>
               </fieldset>
             </form>

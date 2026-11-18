@@ -1,3 +1,8 @@
+import {
+  clearExercisePicker,
+  refreshExercisePicker,
+  installExercisePicker,
+} from "./exercise-picker.js";
 const $ = (id) => document.getElementById(id);
 const sessionFields = ["evolution", "passive", "exercise"];
 let appointment = null,
@@ -46,6 +51,7 @@ export function clearAgendaData() {
   $("appointment-minutes").value = "45";
   $("appointment-status").value = "scheduled";
   sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
+  clearExercisePicker();
 }
 function dayShift(day, amount) {
   const d = new Date(day + "T12:00:00Z");
@@ -77,6 +83,13 @@ const clinicToday = () =>
   }).format(new Date());
 export function installAgendaTools({ client, run, isAuthorized, message }) {
   $("agenda-date").value = clinicToday();
+  installExercisePicker({
+    isEditable: () =>
+      isAuthorized() &&
+      !$("session-form").hidden &&
+      !$("session-fields").disabled,
+    message,
+  });
   function fail(error, save = false) {
     if (["42501", "PGRST301", "PGRST303"].includes(error?.code)) {
       clearAgendaData();
@@ -111,6 +124,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
       !appointment ||
       appointment.status === "cancelled" ||
       appointment.patient_archived;
+    refreshExercisePicker();
   }
   function lockEditors() {
     $("appointment-fields").disabled = true;
@@ -204,6 +218,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     $("agenda-editor").hidden = true;
     $("session-form").hidden = true;
     sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
+    clearExercisePicker();
   }
   function requestDay(day) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
@@ -269,6 +284,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
         (data.appointment_id !== id || data.patient_id !== row.patient_id)
       )
         throw new Error();
+      clearExercisePicker();
       fillAppointment(row);
       session = data;
       sessionFields.forEach((f) => ($(`session-${f}`).value = data?.[f] ?? ""));
@@ -381,6 +397,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
         });
         session = null;
         sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
+        clearExercisePicker();
         sessionBaseline = sessionValues();
         $("session-form").hidden = false;
         $("session-state").textContent =
