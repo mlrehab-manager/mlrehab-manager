@@ -28,7 +28,7 @@ El [estado alojado](../verification/HOSTED_RECOVERY_STATUS.json) distingue lo ve
 
 La conexión MCP disponible administra la base, pero no ofrece Auth Admin API ni secretos administrativos. No se intenta obtenerlos mediante SQL, se insertan usuarios directamente en Auth ni se solicitan contraseñas/claves por chat.
 
-### Comprobación alojada pendiente
+### Comprobación alojada verificada
 
 El propietario ya creó y confirmó la cuenta ficticia. Se generaron los datos del ensayo asociados a su UUID y se repitió la prueba con servicios reales antes de importar. La restauración alojada superó las guardas y la igualdad completa dentro de la transacción: dos pacientes/cuatro versiones, una cita/dos versiones, una sesión/una versión, un ejercicio/tres versiones y doce eventos. El hash del marcador coincide con el de la copia de ensayo. Solo después se habilitó la admisión para esa cuenta confirmada; cada RPC continúa exigiendo AAL2 y sesión vigente.
 
@@ -45,9 +45,15 @@ Para una pérdida real de cuenta se necesita verificar la identidad del titular 
 ## Protecciones de restauración
 
 - `schema.mjs` solo construye el esquema de aplicación; no copia roles o tablas ficticias de los tests. Rechaza un esquema existente y registra hashes de las migraciones.
-- `restore-sql.mjs` acepta exclusivamente snapshots ficticios v4 validados. Las copias antiguas siguen abriéndose en la herramienta de datos, pero no se importan automáticamente por este procedimiento de servicio.
+- `restore-sql.mjs` acepta exclusivamente snapshots ficticios v4 o v5 validados. Las copias antiguas siguen abriéndose en la herramienta de datos, pero no se importan automáticamente por este procedimiento de servicio.
 - Rechaza explícitamente el ref del proyecto habitual. Exige un marcador de destino concordante en fase `schema_ready`, aplicación vacía e identidad Auth confirmada. Todo se comprueba dentro de la transacción.
 - Nombres/tablas/columnas son constantes; todos los valores se convierten en literales SQL escapados, incluidos backslashes, comillas, JSON y arrays. Una prueba inserta texto con apariencia de SQL y demuestra que sigue siendo texto.
 - No concede admisión automáticamente. Solo marca `data_restored` cuando la comparación completa de las nueve colecciones ha pasado. Un destino ocupado o un reintento se rechaza; no mezcla ni sobrescribe datos.
 
 La restauración alojada de los fixtures, el acceso con MFA y la lectura por el titular están verificados. Quedan pendientes recuperación de identidad humana/proveedor, SMTP, archivos/Storage, alojamiento de la interfaz, custodia externa/recuperación de claves, automatización, disponibilidad, revisión contractual y operación clínica. La reserva MFA independiente continúa aplazada por el propietario. El entorno sigue siendo ficticio.
+
+## Ampliación de fichas ficticias · copia v5
+
+El esquema reconstruible actual contiene diez migraciones de aplicación. El nuevo ensayo local con Auth/PostgREST reales crea una tercera ficha mediante el alta idempotente, edita su alias, le vincula una cita/sesión y recupera las nueve colecciones v5 con hashes coincidentes y autorización comprobada. La espera de PostgreSQL utiliza el listener TCP final, para no confundir el servidor temporal de initdb con el servicio listo.
+
+La restauración alojada inicial sigue siendo el ensayo v4 de dos pacientes: se conservan su hash, recuentos y evidencia de acceso. La nueva migración amplía el esquema de ambos proyectos sin repetir la importación, crear usuarios ni cambiar Auth. Las dos rutas privadas reciben la misma interfaz actualizada, con sus backends/CSP separados. El constructor de recuperación preserva los archivos recién compilados de la ruta habitual; esto no significa que una actualización funcional mantenga los bytes de una versión anterior del Site.

@@ -124,7 +124,7 @@ test("audit failure rolls back the exercise and the catalogue cap refuses withou
 });
 test("version-3 encrypted restoration includes the personal catalogue and validates names, ownership and audit links", async () => {
   const snapshot = validateSnapshot(await s.rpc("clinical_backup_export_test"));
-  assert.equal(snapshot.version, 4);
+  assert.equal(snapshot.version, 5);
   assert.equal(snapshot.custom_exercises.length, 4);
   const restored = await restoreEncryptedToSandbox(
     await encryptBackup(snapshot, "Frase ficticia para restauracion segura"),

@@ -64,14 +64,9 @@ export function installBackupTools({
           );
           return;
         }
-        message("Preparando el conjunto ficticio y cifrando la copia…");
+        message("Recopilando las fichas ficticias y cifrando la copia…");
         const owner = await currentOwner(isCurrent);
         if (!owner) return;
-        const { error: seedError } = await client.rpc(
-          "clinical_backup_seed_test",
-        );
-        if (!isCurrent()) return;
-        if (seedError) throw new Error();
         const { data, error } = await client.rpc("clinical_backup_export_test");
         if (!isCurrent()) return;
         if (error) throw new Error();

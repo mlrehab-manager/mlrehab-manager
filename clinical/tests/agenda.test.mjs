@@ -178,7 +178,7 @@ test("new tables deny direct clients even if an accidental permissive policy is 
 });
 test("current snapshot restores all seven agenda collections and rejects broken session/history/entity links", async () => {
   const snapshot = validateSnapshot(await s.rpc("clinical_backup_export_test"));
-  assert.equal(snapshot.version, 4);
+  assert.equal(snapshot.version, 5);
   assert.ok(snapshot.appointments.length >= 3);
   assert.equal(snapshot.sessions.length, 1);
   assert.equal(snapshot.session_versions.length, 2);

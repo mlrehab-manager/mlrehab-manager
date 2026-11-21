@@ -46,7 +46,7 @@ function timestamp(value) {
 function revision(value) {
   return Number.isInteger(value) && value >= 1 && value <= 5000;
 }
-function payload(value) {
+function payload(value, version) {
   requireValue(
     typeof value === "string" && encoder.encode(value).length <= 1048576,
   );
@@ -64,8 +64,28 @@ function payload(value) {
       [...parsed.name.trim()].length >= 1 &&
       [...parsed.name].length <= 150 &&
       parsed.testOnly === true &&
-      parsed.fixture === "backup-roundtrip-v1",
+      (parsed.fixture === "backup-roundtrip-v1" ||
+        (version >= 5 && parsed.fixture === "patient-workflow-v1")),
   );
+  if (parsed.fixture === "patient-workflow-v1") {
+    requireValue(
+      typeof parsed.alias === "string" &&
+        [...parsed.alias].length >= 1 &&
+        [...parsed.alias].length <= 80 &&
+        parsed.alias === parsed.alias.trim().replace(/\s+/g, " ") &&
+        !/[\u0000-\u001f\u007f-\u009f]/.test(parsed.alias) &&
+        parsed.name === "FICTICIO · " + parsed.alias,
+    );
+    for (const [field, max] of [
+      ["history", 8000],
+      ["exam", 8000],
+      ["diagnosis", 2000],
+      ["goals", 2000],
+    ])
+      requireValue(
+        typeof parsed[field] === "string" && [...parsed[field]].length <= max,
+      );
+  }
 }
 
 export function validateSnapshot(value) {
@@ -80,7 +100,7 @@ export function validateSnapshot(value) {
       "patient_versions",
       "audit_events",
       ...(value.version >= 3 ? ["custom_exercises"] : []),
-      ...(value.version === 4 ? ["exercise_versions"] : []),
+      ...(value.version >= 4 ? ["exercise_versions"] : []),
       ...(value.version >= 2
         ? [
             "appointments",
@@ -93,16 +113,18 @@ export function validateSnapshot(value) {
   );
   requireValue(
     value.format === "mlrehab-clinical-test-snapshot" &&
-      [1, 2, 3, 4].includes(value.version) &&
+      [1, 2, 3, 4, 5].includes(value.version) &&
       value.test_only === true &&
       uuid.test(value.clinician_id) &&
       timestamp(value.created_at),
   );
   requireValue(
     Array.isArray(value.patients) &&
-      value.patients.length === 2 &&
+      (value.version >= 5
+        ? value.patients.length <= 500
+        : value.patients.length === 2) &&
       Array.isArray(value.patient_versions) &&
-      value.patient_versions.length >= 2 &&
+      value.patient_versions.length >= (value.version >= 5 ? 0 : 2) &&
       value.patient_versions.length <= 5000 &&
       Array.isArray(value.audit_events) &&
       value.audit_events.length <= 10000,
@@ -133,7 +155,7 @@ export function validateSnapshot(value) {
         timestamp(p.updated_at) &&
         (p.archived_at === null || timestamp(p.archived_at)),
     );
-    payload(p.payload_json);
+    payload(p.payload_json, value.version);
     patients.set(p.id, p);
     versions.set(p.id, new Map());
   }
@@ -154,7 +176,7 @@ export function validateSnapshot(value) {
         timestamp(v.created_at) &&
         !versions.get(v.patient_id).has(v.revision),
     );
-    payload(v.payload_json);
+    payload(v.payload_json, value.version);
     versions.get(v.patient_id).set(v.revision, v);
   }
   for (const p of patients.values()) {
@@ -311,7 +333,7 @@ export async function snapshotDigest(value) {
     rows.custom_exercises = s.custom_exercises.sort((a, b) =>
       a.id.localeCompare(b.id),
     );
-  if (s.version === 4)
+  if (s.version >= 4)
     rows.exercise_versions = s.exercise_versions.sort(
       (a, b) =>
         a.exercise_id.localeCompare(b.exercise_id) || a.revision - b.revision,
@@ -529,7 +551,7 @@ function readExercises(snapshot) {
         "category",
         "regions",
         "created_at",
-        ...(snapshot.version === 4
+        ...(snapshot.version >= 4
           ? ["revision", "updated_at", "archived_at"]
           : []),
       ]) &&
@@ -546,7 +568,7 @@ function readExercises(snapshot) {
         row.regions.every((r) => regions.includes(r)) &&
         timestamp(row.created_at),
     );
-    if (snapshot.version === 4)
+    if (snapshot.version >= 4)
       requireValue(
         Number.isInteger(row.revision) &&
           row.revision >= 1 &&
@@ -568,7 +590,7 @@ function readExercises(snapshot) {
     result.set(row.id, row);
     result.history.set(row.id, new Map());
   }
-  if (snapshot.version === 4) {
+  if (snapshot.version >= 4) {
     requireValue(
       Array.isArray(snapshot.exercise_versions) &&
         snapshot.exercise_versions.length <= 2000,

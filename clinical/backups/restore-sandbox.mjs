@@ -85,7 +85,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
           [e.id, e.clinician_id, e.name, e.category, e.regions, e.created_at],
         );
     }
-    if (source.version === 4) {
+    if (source.version >= 4) {
       await db.exec(
         "alter table custom_exercises add column revision integer,add column updated_at timestamptz,add column archived_at timestamptz;create table exercise_versions(exercise_id uuid references custom_exercises(id),revision integer,payload jsonb,created_at timestamptz,primary key(exercise_id,revision))",
       );
@@ -249,14 +249,14 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
           "category",
           "regions",
           "created_at",
-          ...(source.version === 4
+          ...(source.version >= 4
             ? ["revision", "updated_at", "archived_at"]
             : []),
         ],
         ["created_at", "updated_at", "archived_at"],
         "id",
       );
-    if (source.version === 4)
+    if (source.version >= 4)
       restored.exercise_versions = await rows(
         "exercise_versions",
         ["exercise_id", "revision", "payload_json", "created_at"],
@@ -279,7 +279,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
       },
       agendaCounts,
       exerciseVersionsCount:
-        source.version === 4 ? restored.exercise_versions.length : null,
+        source.version >= 4 ? restored.exercise_versions.length : null,
       exerciseCount:
         source.version >= 3 ? restored.custom_exercises.length : null,
     };

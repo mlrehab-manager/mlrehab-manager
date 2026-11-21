@@ -198,6 +198,45 @@ async function mockAuth(
           appt.revision++;
         }
       }
+    } else if (path === "/rest/v1/rpc/clinical_patient_create_test") {
+      const a = request.postDataJSON();
+      let row = patients.find((p) => p.id === a.p_request_id);
+      const repeated = Boolean(row);
+      if (!row) {
+        row = {
+          id: a.p_request_id,
+          revision: 1,
+          archived_at: null,
+          payload: {
+            fixture: "patient-workflow-v1",
+            testOnly: true,
+            alias: a.p_alias,
+            name: "FICTICIO · " + a.p_alias,
+            history: "",
+            exam: "",
+            diagnosis: "",
+            goals: "",
+          },
+        };
+        patients.push(row);
+      }
+      body = { id: row.id, revision: row.revision, already_present: repeated };
+      if (patientMode === "lost-ack" && !conflictGiven) {
+        conflictGiven = true;
+        status = 503;
+        body = { message: "Lost acknowledgment" };
+      }
+    } else if (path === "/rest/v1/rpc/clinical_patient_archive_test") {
+      const a = request.postDataJSON(),
+        p = patients.find((p) => p.id === a.p_id);
+      if (patientMode === "scheduled") {
+        status = 400;
+        body = { code: "23514", message: "Scheduled appointment" };
+      } else {
+        p.archived_at = "2026-11-21T12:00:00.000000Z";
+        p.revision++;
+        body = { id: p.id, revision: p.revision };
+      }
     } else if (path === "/rest/v1/rpc/clinical_patient_list_test") {
       body = patients.map((p) => ({
         id: p.id,
@@ -221,6 +260,8 @@ async function mockAuth(
         body = { message: "Unavailable" };
       } else {
         Object.assign(p.payload, args.p_fields);
+        if (args.p_fields.alias !== undefined)
+          p.payload.name = "FICTICIO · " + args.p_fields.alias;
         p.revision++;
         body = { id: p.id, revision: p.revision };
       }
@@ -232,13 +273,19 @@ async function mockAuth(
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
       body =
-        backupMode === "revisions"
-          ? require("./backup-exercise-revisions-fixture.json")
-          : backupMode === "catalog"
-            ? require("./backup-catalog-fixture.json")
-            : backupMode === "agenda"
-              ? require("./backup-agenda-fixture.json")
-              : backupFixture;
+        backupMode === "workflow"
+          ? require("./backup-patient-workflow-fixture.json")
+          : backupMode === "revisions"
+            ? require("./backup-exercise-revisions-fixture.json")
+            : backupMode === "catalog"
+              ? require("./backup-catalog-fixture.json")
+              : backupMode === "agenda"
+                ? require("./backup-agenda-fixture.json")
+                : backupFixture;
+      if (backupMode === "refuse") {
+        status = 400;
+        body = { code: "22023", message: "Complete export refused" };
+      }
     } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
       body = { authorized: true };
@@ -662,7 +709,7 @@ test("mismatched encryption phrases never request a fixture or export", async ({
   await expect(page.getByRole("status")).toContainText("repítela exactamente");
   expect(calls.some((c) => c.path.includes("clinical_backup_"))).toBe(false);
 });
-test("a refused test fixture never downloads a partial backup", async ({
+test("a refused complete export never downloads a partial backup", async ({
   page,
 }) => {
   const calls = await mockAuth(page, { backupMode: "refuse" });
@@ -679,7 +726,10 @@ test("a refused test fixture never downloads a partial backup", async ({
   expect(downloads).toHaveLength(0);
   expect(
     calls.some((c) => c.path.endsWith("/clinical_backup_export_test")),
-  ).toBe(false);
+  ).toBe(true);
+  expect(calls.some((c) => c.path.endsWith("/clinical_backup_seed_test"))).toBe(
+    false,
+  );
 });
 test("wrong phrases and incomplete encrypted snapshots fail local verification", async ({
   page,
@@ -1524,4 +1574,119 @@ test("version-4 encrypted backups include exercise history and retain local veri
           c.path.endsWith("clinical_access_check") || c.path.endsWith("/user"),
       ),
   ).toBe(true);
+});
+
+async function newPatient(page, alias = "Caso tres") {
+  await page.locator("#patient-new").click();
+  await page.locator("#patient-create-alias").fill(alias);
+  await page.locator("#patient-create-form button[type=submit]").click();
+}
+test("new fictional patients can be created, renamed, searched and archived with retained history", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await newPatient(page);
+  await expect(page.locator("#patient-name")).toHaveText(
+    "FICTICIO · Caso tres",
+  );
+  await page.locator("#patient-alias").fill("Caso de rodilla");
+  await page.locator("#patient-history").fill("Historia ficticia nueva");
+  await page.locator("#patient-form button[type=submit]").click();
+  await expect(page.getByRole("status")).toContainText("guardada");
+  await page.locator("#patient-search").fill("RODILLA");
+  await expect(page.locator("#patient-list button")).toHaveCount(1);
+  await expect(page.locator("#patient-count")).toContainText("3 fichas");
+  page.once("dialog", (d) => d.accept());
+  await page.locator("#patient-archive").click();
+  await expect(page.getByRole("status")).toContainText("archivada");
+  await expect(page.locator("#patient-history")).toBeDisabled();
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Historia ficticia nueva",
+  );
+  await expect(page.locator("#patient-archive")).toBeHidden();
+  expect(calls.some((c) => c.path.endsWith("/clinical_backup_seed_test"))).toBe(
+    false,
+  );
+});
+test("retrying an uncertain patient creation reuses its request ID and does not duplicate the patient", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { patientMode: "lost-ack" });
+  await authorized(page);
+  await newPatient(page, "Caso con conexión inestable");
+  await expect(page.getByRole("status")).toContainText(
+    "No se ha podido confirmar",
+  );
+  await expect(page.locator("#patient-create-alias")).toHaveValue(
+    "Caso con conexión inestable",
+  );
+  await page.locator("#patient-create-form button[type=submit]").click();
+  await expect(page.locator("#patient-name")).toHaveText(
+    "FICTICIO · Caso con conexión inestable",
+  );
+  await expect(page.locator("#patient-count")).toContainText("3 fichas");
+  const ids = calls
+    .filter((c) => c.path.endsWith("/clinical_patient_create_test"))
+    .map((c) => JSON.parse(c.postBody).p_request_id);
+  expect(ids).toHaveLength(2);
+  expect(ids[0]).toBe(ids[1]);
+});
+test("a scheduled appointment prevents archiving without clearing the patient", async ({
+  page,
+}) => {
+  await mockAuth(page, { patientMode: "scheduled" });
+  await authorized(page);
+  await openPatient(page);
+  page.once("dialog", (d) => d.accept());
+  await page.locator("#patient-archive").click();
+  await expect(page.getByRole("status")).toContainText("citas programadas");
+  await expect(page.locator("#patient-history")).toBeEnabled();
+  await expect(page.locator("#patient-archive")).toBeVisible();
+});
+test("new patient drafts block incomplete backups and are cleared after logout", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await page.locator("#patient-new").click();
+  await page.locator("#patient-create-alias").fill("Alta ficticia pendiente");
+  await fillBackup(page);
+  await page
+    .getByRole("button", { name: "Crear copia cifrada de prueba" })
+    .click();
+  await expect(page.getByRole("status")).toContainText("Guarda o descarta");
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_backup_export_test")),
+  ).toBe(false);
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Salir", exact: true }).click();
+  await expect(page.locator("#patient-create-form")).toBeHidden();
+  await expect(page.locator("#patient-create-alias")).toHaveValue("");
+});
+test("version-5 downloads and locally verifies a complete copy with three fictional patients", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { backupMode: "workflow" });
+  await authorized(page);
+  await fillBackup(page);
+  const downloaded = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await downloaded,
+    encrypted = await readFile(await file.path(), "utf8"),
+    { decryptBackup } = await import("../backups/crypto.mjs");
+  const snapshot = await decryptBackup(encrypted, backupPhrase);
+  expect(snapshot.version).toBe(5);
+  expect(snapshot.patients).toHaveLength(3);
+  expect(calls.some((c) => c.path.endsWith("/clinical_backup_seed_test"))).toBe(
+    false,
+  );
+  await page.locator("#backup-file").setInputFiles({
+    name: "tres-fichas.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.locator("#status")).toContainText("Archivo verificado");
 });

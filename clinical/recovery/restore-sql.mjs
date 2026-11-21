@@ -138,7 +138,7 @@ export function snapshotQuery(snapshot) {
     "format",
     snapshot.format,
     "version",
-    4,
+    snapshot.version,
     "test_only",
     true,
     "clinician_id",
@@ -168,9 +168,9 @@ export function snapshotQuery(snapshot) {
 export async function recoveryDataSql(input, project) {
   ref(project);
   const snapshot = validateSnapshot(input);
-  if (snapshot.version !== 4)
+  if (![4, 5].includes(snapshot.version))
     throw new Error(
-      "Este procedimiento de servicio requiere una copia versión 4",
+      "Este procedimiento de servicio requiere una copia versión 4 o 5",
     );
   const hash = await snapshotDigest(snapshot),
     expected = JSON.stringify(snapshot),

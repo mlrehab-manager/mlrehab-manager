@@ -19,8 +19,21 @@ try {
       "select public.clinical_exercise_create_test('Ejercicio propio ficticio de ensayo','eccentric',array['knee']) as result",
     )
   ).rows[0].result;
-  const patient = (await source.rpc("clinical_patient_list_test")).find(
-    (p) => !p.archived,
+  const patient = (
+    await source.db.query(
+      "select public.clinical_patient_create_test('Caso de ensayo', $1) as result",
+      [crypto.randomUUID()],
+    )
+  ).rows[0].result;
+  await source.db.query(
+    "select public.clinical_patient_save_fields_test($1,1,$2::jsonb)",
+    [
+      patient.id,
+      JSON.stringify({
+        alias: "Caso de ensayo revisado",
+        history: "Historia ficticia nueva",
+      }),
+    ],
   );
   const appointment = (
     await source.db.query(
@@ -73,7 +86,7 @@ try {
       "select count(*)::int as n from patients where archived_at is not null",
     )
   ).rows[0].n;
-  if (sourceHash !== restored.restoredHash || active !== 1 || archived !== 1)
+  if (sourceHash !== restored.restoredHash || active !== 2 || archived !== 1)
     throw new Error("Ensayo de restauración fallido");
   const report = {
     tested_at: new Date().toISOString(),
@@ -92,7 +105,7 @@ try {
       active,
       archived,
     },
-    snapshot_version: 4,
+    snapshot_version: 5,
     source_hash: sourceHash,
     restored_hash: restored.restoredHash,
     passed: true,

@@ -99,9 +99,24 @@ try {
     throw new Error("AAL1 access was not denied");
   await enroll(c);
   await rpc(c, "clinical_backup_seed_test");
-  const patient = (await rpc(c, "clinical_patient_list_test")).find(
-    (p) => !p.archived,
-  );
+  const patient = await rpc(c, "clinical_patient_create_test", {
+    p_alias: "Caso de recuperación ampliada",
+    p_request_id: crypto.randomUUID(),
+  });
+  const duplicate = await rpc(c, "clinical_patient_create_test", {
+    p_alias: "Caso de recuperación ampliada",
+    p_request_id: patient.id,
+  });
+  if (!duplicate.already_present)
+    throw new Error("Repeated create was not idempotent");
+  await rpc(c, "clinical_patient_save_fields_test", {
+    p_id: patient.id,
+    p_expected_revision: 1,
+    p_fields: {
+      alias: "Caso de recuperación revisado",
+      history: "Historia ficticia",
+    },
+  });
   const appt = await rpc(c, "clinical_appointment_save_test", {
     p_id: null,
     p_expected_revision: null,
@@ -179,6 +194,16 @@ try {
     `update clinical_private.authorized_clinicians set enabled=true where user_id='${owner}'`,
   );
   await rpc(recovered, "clinical_access_check");
+  const restoredPatients = await rpc(recovered, "clinical_patient_list_test");
+  if (
+    restoredPatients.length !== 3 ||
+    !restoredPatients.some(
+      (p) =>
+        p.id === patient.id &&
+        p.name === "FICTICIO · Caso de recuperación revisado",
+    )
+  )
+    throw new Error("New patient workflow did not survive restoration");
   const day = await rpc(recovered, "clinical_agenda_list_test", {
     p_day: "2026-11-20",
   });
@@ -242,6 +267,8 @@ try {
     restored_hash: restoredHash,
     counts: restore.counts,
     security,
+    snapshot_version: 5,
+    patient_creation_idempotent: true,
     real_auth_and_rest: true,
     auth_created_via_admin_api: true,
     password_and_mfa_recreated: true,

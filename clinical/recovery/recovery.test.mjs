@@ -18,7 +18,7 @@ async function fixture() {
 test("recovery schema is deterministic and contains only application migrations, without Auth fixtures", async () => {
   const a = await recoverySchema(),
     b = await recoverySchema();
-  assert.equal(a.manifest.length, 9);
+  assert.equal(a.manifest.length, 10);
   assert.equal(a.sha256, b.sha256);
   assert.ok(!a.sql.includes("create table auth.users"));
   assert.ok(!a.sql.includes("create role anon"));

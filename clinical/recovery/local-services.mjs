@@ -88,7 +88,8 @@ export async function startServices(label) {
     );
     for (let i = 0; ; i++) {
       try {
-        docker(["exec", db, "pg_isready", "-U", "postgres"]);
+        // The image uses a temporary socket-only server during initdb. Wait for the final TCP listener.
+        docker(["exec", db, "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]);
         break;
       } catch {
         if (i >= 45) throw new Error("Postgres fixture did not start");

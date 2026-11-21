@@ -86,7 +86,7 @@ test("editing and archiving preserve historical session text and restore all exe
     const snapshot = validateSnapshot(
       await s.rpc("clinical_backup_export_test"),
     );
-    assert.equal(snapshot.version, 4);
+    assert.equal(snapshot.version, 5);
     assert.equal(snapshot.exercise_versions.length, 3);
     const restored = await restoreEncryptedToSandbox(
       await encryptBackup(snapshot, "Frase ficticia de copia de ejercicios"),
