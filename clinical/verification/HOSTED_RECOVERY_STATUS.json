@@ -18,10 +18,11 @@
   "data_restore_performed": true,
   "hosted_auth_roundtrip_verified": true,
   "stage": "data_restored",
-  "pending": ["Disable public signups on the recovery project"],
+  "pending": [],
   "limits": [
-    "Hosted fixture restoration, fresh MFA access and patient-list reading verified; public signups are still enabled",
+    "Hosted fictitious-data restoration, fresh MFA, patient-list reading and public-signup closure verified; this phase does not certify clinical readiness",
     "Fixture data generated for a deliberately created test identity; not recovery of a lost human identity",
+    "Offsite backup custody, full operational recovery, provider/legal review and clinical patient workflow remain pending",
     "No clinical data, billing upgrade, restoration to the working project or changes to its authentication"
   ],
   "test_identity_confirmed": true,
@@ -39,7 +40,7 @@
     "exercise_versions": 3,
     "audit_events": 12
   },
-  "public_signups_disabled": false,
+  "public_signups_disabled": true,
   "recovery_access_url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/",
   "site_version": 12,
   "hosting_source_commit": "51d582240e2c9bd00f93f8516f688aaecd6f4f67",
@@ -51,5 +52,10 @@
   "observed_verified_factors": 1,
   "observed_aal2_sessions": 1,
   "observed_audit_events_after_holder_read": 13,
-  "observed_patient_read_events": 2
+  "observed_patient_read_events": 2,
+  "signup_closure_verified_on": "2026-11-21",
+  "email_signin_enabled": true,
+  "anonymous_signin_enabled": false,
+  "recovery_test_phase_completed": true,
+  "clinical_ready": false
 }

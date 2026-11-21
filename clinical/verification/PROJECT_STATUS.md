@@ -92,3 +92,9 @@ La restauración alojada con acceso/lectura de la cuenta ficticia ya está verif
 El propietario confirmó «Lo veo» al consultar los dos pacientes restaurados en la entrada de recuperación. La comprobación administrativa confirma una identidad de prueba con correo confirmado, un factor verificado, una sesión AAL2 y 13 eventos de auditoría frente a los 12 de la copia; los eventos de listado/lectura de paciente pasan a dos (uno pertenecía al origen). No se han leído contraseñas, secretos de factores, JWT ni contenido clínico de las fichas. HOSTED_RECOVERY_STATUS.json registra la prueba como superada.
 
 La consulta pública de configuración sigue devolviendo `disable_signup=false`; cerrar las altas sigue pendiente. Se conserva el resto de bloqueos clínicos: identidad/proveedor, custodia externa de copias y frases, operación/automatización y condiciones contractuales. Esta aceptación del ensayo no habilita pacientes reales ni resuelve la reserva independiente del autenticador habitual, que sigue aplazada.
+
+## Cierre de altas del destino · 21 de noviembre de 2026
+
+La captura del propietario muestra el proyecto correcto, MLREHAB recovery test, con Allow new users to sign up apagado. La consulta pública sin caché confirma `disable_signup=true`, proveedor de correo habilitado y acceso anónimo desactivado. HOSTED_RECOVERY_STATUS.json marca completada esta fase de restauración ficticia, MFA, lectura y cierre de altas. Las consultas previas devolvían false; se registra la nueva verificación sin dar por incorrectos esos resultados anteriores.
+
+No quedan acciones pendientes del propietario en esa pantalla. Esto no habilita datos reales: siguen pendientes el circuito clínico fuera de los fixtures, custodia externa y operación de copias, recuperación de identidad/proveedor y evaluación contractual/jurídica. La reserva MFA independiente del acceso habitual continúa aplazada por su instrucción.
