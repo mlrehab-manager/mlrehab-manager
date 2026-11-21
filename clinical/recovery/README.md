@@ -7,7 +7,7 @@ npm run test:recovery
 npm run verify:service-recovery
 ```
 
-El primer comando ejecuta cuatro pruebas locales de las protecciones del importador. El segundo necesita Docker y las tres imágenes fijadas por digest en `local-services.mjs`. Crea únicamente contenedores/redes con prefijo `mlrehab-recovery-source` o `mlrehab-recovery-target`; los elimina al finalizar, incluidos sus volúmenes anónimos. Usa puertos de loopback asignados dinámicamente. Las credenciales locales son aleatorias, efímeras y no se solicitan al propietario. El ensayo no envía correos; crea y confirma usuarios ficticios mediante la API administrativa local.
+El primer comando ejecuta seis pruebas locales de las protecciones del importador. El segundo necesita Docker y las tres imágenes fijadas por digest en `local-services.mjs`. Crea únicamente contenedores/redes con prefijo `mlrehab-recovery-source` o `mlrehab-recovery-target`; los elimina al finalizar, incluidos sus volúmenes anónimos. Usa puertos de loopback asignados dinámicamente. Las credenciales locales son aleatorias, efímeras y no se solicitan al propietario. El ensayo no envía correos; crea y confirma usuarios ficticios mediante la API administrativa local.
 
 ## Prueba automática completada
 
@@ -24,21 +24,21 @@ El [informe](../verification/SERVICE_RECOVERY_REPORT.json) contiene hashes, recu
 
 El propietario autorizó la misma organización que MLREHAB y el coste consultado de **0/mes**. Se creó `MLREHAB recovery test`, ref `wtlwhokxgskktjcqqtzn`, en Frankfurt (`eu-central-1`). No se activaron pagos ni ramas con coste. Las nueve migraciones de aplicación se reconstruyeron en una transacción, con manifiesto, sin registros de aplicación. Otra migración instala el marcador privado `recovery_admin.destination`.
 
-El [estado alojado](../verification/HOSTED_RECOVERY_STATUS.json) distingue lo verificado de lo pendiente: diez tablas de aplicación, once con RLS contando el marcador, cero permisos cliente y diecisiete RPC anónimos rechazados por HTTPS; esquema privado no expuesto. **No hay todavía usuarios Auth ni datos restaurados en este destino. No se presenta como recuperación alojada superada.**
+El [estado alojado](../verification/HOSTED_RECOVERY_STATUS.json) distingue lo verificado de lo pendiente: diez tablas de aplicación, once con RLS contando el marcador, cero permisos cliente y diecisiete RPC anónimos rechazados por HTTPS; esquema privado no expuesto. **Actualización: la identidad ficticia ya está confirmada y las nueve colecciones se han restaurado y verificado en el destino. Falta la prueba manual de MFA/acceso y cerrar las altas públicas; no se presenta como recuperación alojada completa.**
 
 La conexión MCP disponible administra la base, pero no ofrece Auth Admin API ni secretos administrativos. No se intenta obtenerlos mediante SQL, se insertan usuarios directamente en Auth ni se solicitan contraseñas/claves por chat.
 
-### Paso manual pendiente
+### Comprobación alojada pendiente
 
-En el [panel de usuarios del destino](https://supabase.com/dashboard/project/wtlwhokxgskktjcqqtzn/auth/users), crear `recuperacion@example.invalid`, establecer/guardar allí una contraseña y marcar Auto Confirm User. Después cerrar las altas públicas en Authentication / Sign In–Providers, como en el proyecto habitual. Es una cuenta ficticia separada, no la cuenta habitual ni su autenticador de reserva.
+El propietario ya creó y confirmó la cuenta ficticia. Se generaron los datos del ensayo asociados a su UUID y se repitió la prueba con servicios reales antes de importar. La restauración alojada superó las guardas y la igualdad completa dentro de la transacción: dos pacientes/cuatro versiones, una cita/dos versiones, una sesión/una versión, un ejercicio/tres versiones y doce eventos. El hash del marcador coincide con el de la copia de ensayo. Solo después se habilitó la admisión para esa cuenta confirmada; cada RPC continúa exigiendo AAL2 y sesión vigente.
 
-Una vez exista esa identidad confirmada, el operador puede obtener **solo su UUID** mediante la administración y generar los fixtures con ese UUID:
+Entra en el [acceso privado de recuperación](https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/) con `recuperacion@example.invalid` y la contraseña guardada en tu gestor. La página está rotulada como recuperación y fija el correo ficticio. Si pide configurar MFA, corresponde únicamente a esa cuenta de ensayo; no cambia el factor habitual ni configura la reserva aplazada. Tras ver **Acceso de pruebas autorizado**, carga los pacientes y comprueba los dos registros ficticios recuperados. Esta prueba real del titular sigue pendiente.
 
-```sh
-node clinical/recovery/verify-services.mjs UUID_DEL_USUARIO_FICTICIO
-```
+Las altas públicas seguían activas en la comprobación de esta entrega. Desactivarlas en Authentication / Sign In–Providers del proyecto de recuperación. La lista de admisión y MFA bloquean el acceso de cuentas no admitidas, pero no sustituyen cerrar las altas del entorno de un solo usuario.
 
-El SQL desechable `work/service-recovery/synthetic-hosted-restore.sql` se dirige exclusivamente al destino aprobado. Debe ejecutarse administrativamente en ese proyecto y verificarse antes de admitir la cuenta; no es un endpoint público. Este ensayo vincula fixtures nuevos a una identidad ficticia conocida. No acredita recuperar una cuenta antigua perdida ni conocer la contraseña elegida por el propietario. La prueba real de MFA/acceso en el servicio alojado sigue pendiente y requerirá una pantalla de prueba conectada al destino, sin cambiar el acceso habitual.
+El acceso habitual `/` conserva exactamente sus tres archivos compilados y su CSP apuntando al proyecto habitual. `/recovery/` usa el backend recuperado y una CSP que solo permite esa conexión. Ambas rutas permanecen en el mismo Site privado para el propietario, con no-store, bloqueo de marcos y sin guardar tokens en el navegador. La herramienta `build-access.mjs` conserva y repone los archivos de la entrada habitual incluso si falla la compilación; dos pruebas nuevas verifican esa protección y el rechazo de un backend no aprobado. Los tests del Worker y las seis respuestas HTTPS verifican rutas, headers y correspondencia con los artefactos. No se ha realizado QA automatizada del navegador del alojamiento; la comprobación manual está pendiente.
+
+Este ensayo vincula fixtures generados a una identidad ficticia confirmada. No acredita recuperar una cuenta antigua perdida ni conocer la contraseña elegida por el propietario. El SQL de ensayo está bajo `work/` ignorado y el importador no permite repetir la carga sobre el destino ya ocupado.
 
 Para una pérdida real de cuenta se necesita verificar la identidad del titular fuera de la aplicación y un operador con acceso administrativo autorizado. Si se recrea una identidad con UUID original mediante Auth Admin API, deben documentarse ese vínculo y el restablecimiento de contraseña/MFA. Este ensayo no resuelve la recuperación del panel del proveedor, correo ni una frase de copia perdida.
 

@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-18T22:02:05.427Z",
+  "tested_at": "2026-11-21T08:11:45.051Z",
   "test_only": true,
   "passed": true,
   "services": {
@@ -47,8 +47,8 @@
   ],
   "schema_sha256": "a04566bcc9927db48186105fcb68f5e7769a4f707fb6991c3c8630329cf88353",
   "source_closed_before_restore": true,
-  "source_hash": "cb7205f2a141632d73ca7e8da6fab97b38d37970e352b47a415f8ee9aa5f214b",
-  "restored_hash": "cb7205f2a141632d73ca7e8da6fab97b38d37970e352b47a415f8ee9aa5f214b",
+  "source_hash": "e84f07da0de2b586f610acdbea36505aa23e378ae06fe3aad3e4019de7dc767b",
+  "restored_hash": "e84f07da0de2b586f610acdbea36505aa23e378ae06fe3aad3e4019de7dc767b",
   "counts": {
     "patients": 2,
     "patient_versions": 4,
@@ -72,7 +72,7 @@
   "admission_disabled_until_verified": true,
   "old_project_jwt_denied": true,
   "revoked_session_denied": true,
-  "elapsed_seconds": 17,
+  "elapsed_seconds": 13,
   "limits": [
     "Local core services, not hosted Supabase disaster recovery",
     "Synthetic account only; human identity verification and lost-provider-account recovery are not tested",

@@ -14,18 +14,39 @@
   "public_invoker_rpc": 17,
   "anonymous_rpc_http_denied": 17,
   "private_schema_http_status": 406,
-  "auth_users": 0,
-  "data_restore_performed": false,
+  "auth_users": 1,
+  "data_restore_performed": true,
   "hosted_auth_roundtrip_verified": false,
-  "stage": "schema_ready",
+  "stage": "data_restored",
   "pending": [
-    "Create and confirm a separate synthetic Auth user via the provider dashboard",
-    "Disable public signups on this recovery project",
-    "Bind generated fixtures to that confirmed test identity, restore and verify before admission",
-    "Verify fresh MFA and access against the hosted destination"
+    "Disable public signups on the recovery project",
+    "Verify fresh MFA, access and recovered fixture reads from the private recovery entry"
   ],
   "limits": [
-    "Not a hosted disaster recovery success report",
-    "No clinical data, payments, restoration to working project or changes to its authentication"
-  ]
+    "Hosted data restoration verified; live hosted MFA/access still awaits the test account holder",
+    "Fixture data generated for a deliberately created test identity; not recovery of a lost human identity",
+    "No clinical data, billing upgrade, restoration to the working project or changes to its authentication"
+  ],
+  "test_identity_confirmed": true,
+  "test_account_admitted": true,
+  "restore_exact_equality_checked_in_transaction": true,
+  "snapshot_hash": "e84f07da0de2b586f610acdbea36505aa23e378ae06fe3aad3e4019de7dc767b",
+  "restored_counts": {
+    "patients": 2,
+    "patient_versions": 4,
+    "appointments": 1,
+    "appointment_versions": 2,
+    "sessions": 1,
+    "session_versions": 1,
+    "custom_exercises": 1,
+    "exercise_versions": 3,
+    "audit_events": 12
+  },
+  "public_signups_disabled": false,
+  "recovery_access_url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/",
+  "site_version": 12,
+  "hosting_source_commit": "51d582240e2c9bd00f93f8516f688aaecd6f4f67",
+  "hosting_deployment_id": "appgdep_6b01537278648191b2b3f6881c9a4ad7",
+  "usual_entry_assets_unchanged": true,
+  "separate_csp_backends_verified": true
 }
