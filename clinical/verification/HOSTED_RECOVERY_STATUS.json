@@ -16,14 +16,11 @@
   "private_schema_http_status": 406,
   "auth_users": 1,
   "data_restore_performed": true,
-  "hosted_auth_roundtrip_verified": false,
+  "hosted_auth_roundtrip_verified": true,
   "stage": "data_restored",
-  "pending": [
-    "Disable public signups on the recovery project",
-    "Verify fresh MFA, access and recovered fixture reads from the private recovery entry"
-  ],
+  "pending": ["Disable public signups on the recovery project"],
   "limits": [
-    "Hosted data restoration verified; live hosted MFA/access still awaits the test account holder",
+    "Hosted fixture restoration, fresh MFA access and patient-list reading verified; public signups are still enabled",
     "Fixture data generated for a deliberately created test identity; not recovery of a lost human identity",
     "No clinical data, billing upgrade, restoration to the working project or changes to its authentication"
   ],
@@ -48,5 +45,11 @@
   "hosting_source_commit": "51d582240e2c9bd00f93f8516f688aaecd6f4f67",
   "hosting_deployment_id": "appgdep_6b01537278648191b2b3f6881c9a4ad7",
   "usual_entry_assets_unchanged": true,
-  "separate_csp_backends_verified": true
+  "separate_csp_backends_verified": true,
+  "holder_confirmed_recovered_patient_list": true,
+  "hosted_access_verified_on": "2026-11-21",
+  "observed_verified_factors": 1,
+  "observed_aal2_sessions": 1,
+  "observed_audit_events_after_holder_read": 13,
+  "observed_patient_read_events": 2
 }
