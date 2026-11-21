@@ -1,6 +1,6 @@
 # Preparación de la versión clínica · fase 1
 
-**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las nueve migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
+**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las diez migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
 
 Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comunitat Valenciana, España, preferencia por comenzar gratis. El propietario confirma que es autónomo y ejerce a título individual. Las obligaciones concretas como responsable y la adecuación de proveedores siguen pendientes de revisión.
 
