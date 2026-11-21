@@ -1,0 +1,35 @@
+{
+  "recorded_on": "2026-11-21",
+  "timezone": "Europe/Madrid",
+  "test_only": true,
+  "evidence_kind": "holder_report_in_conversation",
+  "private_site_version_under_test": 13,
+  "patient_workflow": {
+    "create_save_reopen": "holder_reported_completed",
+    "search": "not_confirmed_in_this_round",
+    "archive_with_and_without_scheduled_appointments": "not_confirmed_in_this_round",
+    "independently_observed_by_agent": false
+  },
+  "encrypted_backup": {
+    "ipad_export_and_file_verified": "holder_reported_completed",
+    "external_destination": "iCloud Drive",
+    "saved_outside_ipad": "holder_reported_completed",
+    "iphone_visible_and_downloadable": "holder_reported_completed",
+    "iphone_decryption_and_file_verification": "not_tested",
+    "restore_service_from_this_specific_file": "not_tested",
+    "file_hash_recorded": false,
+    "phrase_or_file_collected_by_agent": false,
+    "independent_copy_outside_same_sync_account": "not_confirmed",
+    "backup_phrase_recovery": "not_confirmed"
+  },
+  "provider_review": {
+    "public_documentation_reviewed_on": "2026-11-21",
+    "account_specific_contract_review": "pending",
+    "clinical_custody_destination_approved": false,
+    "vendors_contacted": false,
+    "new_terms_accepted_by_agent": false,
+    "billing_changed": false
+  },
+  "independent_mfa_reserve": "deferred_by_holder",
+  "clinical_ready": false
+}
