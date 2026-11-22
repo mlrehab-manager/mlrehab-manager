@@ -8,7 +8,8 @@
     "create_save_reopen": "holder_reported_completed",
     "search": "not_confirmed_in_this_round",
     "archive_with_and_without_scheduled_appointments": "not_confirmed_in_this_round",
-    "independently_observed_by_agent": false
+    "independently_observed_by_agent": false,
+    "optional_intake_fields_in_version_14": "not_yet_tested_by_holder"
   },
   "encrypted_backup": {
     "ipad_export_and_file_verified": "holder_reported_completed",
@@ -28,8 +29,14 @@
     "clinical_custody_destination_approved": false,
     "vendors_contacted": false,
     "new_terms_accepted_by_agent": false,
-    "billing_changed": false
+    "billing_changed": false,
+    "holder_planned_review_month": "2026-12",
+    "holder_planning_reported_on": "2026-11-22"
   },
   "independent_mfa_reserve": "deferred_by_holder",
-  "clinical_ready": false
+  "clinical_ready": false,
+  "updated_on": "2026-11-22",
+  "latest_site_version_available": 14,
+  "usage_scope": "single_practitioner",
+  "clinical_activation_automatic": false
 }

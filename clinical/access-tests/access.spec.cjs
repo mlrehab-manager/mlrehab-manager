@@ -273,15 +273,17 @@ async function mockAuth(
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
       body =
-        backupMode === "workflow"
-          ? require("./backup-patient-workflow-fixture.json")
-          : backupMode === "revisions"
-            ? require("./backup-exercise-revisions-fixture.json")
-            : backupMode === "catalog"
-              ? require("./backup-catalog-fixture.json")
-              : backupMode === "agenda"
-                ? require("./backup-agenda-fixture.json")
-                : backupFixture;
+        backupMode === "intake"
+          ? require("./backup-intake-fixture.json")
+          : backupMode === "workflow"
+            ? require("./backup-patient-workflow-fixture.json")
+            : backupMode === "revisions"
+              ? require("./backup-exercise-revisions-fixture.json")
+              : backupMode === "catalog"
+                ? require("./backup-catalog-fixture.json")
+                : backupMode === "agenda"
+                  ? require("./backup-agenda-fixture.json")
+                  : backupFixture;
       if (backupMode === "refuse") {
         status = 400;
         body = { code: "22023", message: "Complete export refused" };
@@ -1689,4 +1691,107 @@ test("version-5 downloads and locally verifies a complete copy with three fictio
   await page.locator("#restore-phrase").fill(backupPhrase);
   await page.locator("#backup-inspect button").click();
   await expect(page.locator("#status")).toContainText("Archivo verificado");
+});
+
+test("optional intake fields save separately, reopen, stay read-only when archived and clear at logout", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  const priorHistory = await page.locator("#patient-history").inputValue();
+  await page
+    .getByLabel("Motivo de consulta ficticio", { exact: true })
+    .fill("Motivo ficticio separado");
+  await page
+    .getByLabel("Antecedentes y precauciones ficticios", { exact: true })
+    .fill("Antecedente ficticio separado");
+  await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+  await expect(page.getByRole("status")).toContainText("guardada");
+  const saved = calls
+    .filter((c) => c.path.endsWith("/clinical_patient_save_fields_test"))
+    .at(-1);
+  expect(JSON.parse(saved.postBody).p_fields).toEqual({
+    reason: "Motivo ficticio separado",
+    precautions: "Antecedente ficticio separado",
+  });
+  await page.locator("#patient-refresh").click();
+  await expect(page.locator("#patient-reason")).toHaveValue(
+    "Motivo ficticio separado",
+  );
+  await expect(page.locator("#patient-precautions")).toHaveValue(
+    "Antecedente ficticio separado",
+  );
+  await expect(page.locator("#patient-history")).toHaveValue(priorHistory);
+  await page.locator("#patient-load").click();
+  await page
+    .locator("#patient-list button")
+    .filter({ hasText: "Archivado" })
+    .click();
+  await expect(page.locator("#patient-reason")).toBeDisabled();
+  await expect(page.locator("#patient-precautions")).toBeDisabled();
+  await page.getByRole("button", { name: "Salir", exact: true }).click();
+  await expect(page.locator("#patient-reason")).toHaveValue("");
+  await expect(page.locator("#patient-precautions")).toHaveValue("");
+});
+for (const mode of ["conflict", "unavailable"])
+  test(`intake ${mode} preserves its draft and blocks incomplete backups`, async ({
+    page,
+  }) => {
+    const calls = await mockAuth(page, { patientMode: mode });
+    await authorized(page);
+    await openPatient(page);
+    await page.locator("#patient-reason").fill("Motivo ficticio pendiente");
+    await page
+      .locator("#patient-precautions")
+      .fill("Precaución ficticia pendiente");
+    await page.getByRole("button", { name: "Guardar ficha ficticia" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      mode === "conflict"
+        ? "La ficha ha cambiado"
+        : "No se ha podido confirmar",
+    );
+    await expect(page.locator("#patient-reason")).toHaveValue(
+      "Motivo ficticio pendiente",
+    );
+    await expect(page.locator("#patient-precautions")).toHaveValue(
+      "Precaución ficticia pendiente",
+    );
+    await fillBackup(page);
+    await page.locator("#backup-export button").click();
+    await expect(page.getByRole("status")).toContainText("Guarda o descarta");
+    expect(
+      calls.some((c) => c.path.endsWith("/clinical_backup_export_test")),
+    ).toBe(false);
+  });
+test("v5 encrypted copies preserve optional intake fields and accept older records without them", async ({
+  page,
+}) => {
+  await mockAuth(page, { backupMode: "intake" });
+  await authorized(page);
+  await fillBackup(page);
+  const waiting = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await waiting,
+    encrypted = await readFile(await file.path(), "utf8"),
+    { decryptBackup } = await import("../backups/crypto.mjs");
+  const s = await decryptBackup(encrypted, backupPhrase);
+  expect(s.version).toBe(5);
+  const payloads = s.patients.map((p) => JSON.parse(p.payload_json));
+  expect(
+    payloads.some(
+      (p) =>
+        p.reason === "Motivo ficticio en copia" &&
+        p.precautions === "Precaución ficticia en copia",
+    ),
+  ).toBe(true);
+  expect(payloads.some((p) => p.reason === undefined)).toBe(true);
+  await page.locator("#backup-file").setInputFiles({
+    name: "anamnesis.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.getByRole("status")).toContainText("Archivo verificado");
 });

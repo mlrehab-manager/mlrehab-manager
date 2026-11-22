@@ -115,6 +115,8 @@ try {
     p_fields: {
       alias: "Caso de recuperación revisado",
       history: "Historia ficticia",
+      reason: "Motivo ficticio del ensayo",
+      precautions: "Precaución ficticia del ensayo",
     },
   });
   const appt = await rpc(c, "clinical_appointment_save_test", {
@@ -204,6 +206,14 @@ try {
     )
   )
     throw new Error("New patient workflow did not survive restoration");
+  const recoveredPatient = await rpc(recovered, "clinical_patient_get", {
+    p_id: patient.id,
+  });
+  if (
+    recoveredPatient.payload.reason !== "Motivo ficticio del ensayo" ||
+    recoveredPatient.payload.precautions !== "Precaución ficticia del ensayo"
+  )
+    throw new Error("Intake fields did not survive recovery");
   const day = await rpc(recovered, "clinical_agenda_list_test", {
     p_day: "2026-11-20",
   });
@@ -269,6 +279,7 @@ try {
     security,
     snapshot_version: 5,
     patient_creation_idempotent: true,
+    patient_intake_fields_restored: true,
     real_auth_and_rest: true,
     auth_created_via_admin_api: true,
     password_and_mfa_recreated: true,

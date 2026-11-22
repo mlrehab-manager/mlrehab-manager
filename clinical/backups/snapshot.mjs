@@ -67,6 +67,16 @@ function payload(value, version) {
       (parsed.fixture === "backup-roundtrip-v1" ||
         (version >= 5 && parsed.fixture === "patient-workflow-v1")),
   );
+  // Optional additions to v5: old files and histories may omit these keys.
+  if (version >= 5)
+    for (const [field, max] of [
+      ["reason", 2000],
+      ["precautions", 4000],
+    ])
+      if (Object.hasOwn(parsed, field))
+        requireValue(
+          typeof parsed[field] === "string" && [...parsed[field]].length <= max,
+        );
   if (parsed.fixture === "patient-workflow-v1") {
     requireValue(
       typeof parsed.alias === "string" &&

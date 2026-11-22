@@ -32,6 +32,8 @@ try {
       JSON.stringify({
         alias: "Caso de ensayo revisado",
         history: "Historia ficticia nueva",
+        reason: "Molestia ficticia de rodilla",
+        precautions: "Antecedente ficticio documentado",
       }),
     ],
   );
@@ -88,6 +90,17 @@ try {
   ).rows[0].n;
   if (sourceHash !== restored.restoredHash || active !== 2 || archived !== 1)
     throw new Error("Ensayo de restauración fallido");
+  const intake = (
+    await restored.db.query(
+      "select payload from patients where payload ? 'reason'",
+    )
+  ).rows;
+  if (
+    intake.length !== 1 ||
+    intake[0].payload.reason !== "Molestia ficticia de rodilla" ||
+    intake[0].payload.precautions !== "Antecedente ficticio documentado"
+  )
+    throw new Error("Campos de anamnesis no recuperados");
   const report = {
     tested_at: new Date().toISOString(),
     test_only: true,
@@ -106,6 +119,7 @@ try {
       archived,
     },
     snapshot_version: 5,
+    patient_intake_fields_restored: true,
     source_hash: sourceHash,
     restored_hash: restored.restoredHash,
     passed: true,

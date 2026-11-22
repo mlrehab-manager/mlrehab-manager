@@ -1,5 +1,13 @@
 const $ = (id) => document.getElementById(id);
-const fields = ["history", "exam", "diagnosis", "goals", "alias"];
+const fields = [
+  "reason",
+  "precautions",
+  "history",
+  "exam",
+  "diagnosis",
+  "goals",
+  "alias",
+];
 let selected = null,
   baseline = null,
   patients = [],

@@ -1,6 +1,6 @@
 # Fichas ficticias conectadas a la base privada
 
-La interfaz privada permite crear fichas mediante un alias de prueba, buscar por alias o identificador, editar historia, exploración, diagnóstico y objetivos y archivar conservando el historial. Se admiten hasta 500 fichas del propietario, incluidas las archivadas. Sigue prohibido introducir nombres, teléfonos u otros datos reales de pacientes. No se migra información de la demo.
+La interfaz privada permite crear fichas mediante un alias de prueba, buscar por alias o identificador, editar motivo de consulta, antecedentes y precauciones, historia, exploración, diagnóstico y objetivos y archivar conservando el historial. Se admiten hasta 500 fichas del propietario, incluidas las archivadas. Sigue prohibido introducir nombres, teléfonos u otros datos reales de pacientes. No se migra información de la demo.
 
 «Nueva ficha ficticia» envía un alias de hasta 80 caracteres; el servidor normaliza espacios y genera `FICTICIO · {alias}`. Los alias de prueba son únicos por propietario, ignorando acentos, mayúsculas y espacios; esta regla no se plantea como unicidad de nombres de personas. El identificador UUID de petición se conserva al reintentar un alta sin confirmación para evitar duplicados. Reutilizarlo con otro alias se rechaza y una colisión con otra cuenta no permite acceder a ella. Cada alta crea ficha, versión inicial y auditoría en la misma transacción.
 
@@ -17,3 +17,13 @@ Los borradores solo viven en memoria, sin localStorage/sessionStorage. Cambiar d
 La copia v5 incluye todas las fichas ficticias (también una colección vacía), sus versiones, citas, sesiones, catálogo propio y auditoría; mantiene lectura y restauración de los archivos v1–v4. Las pruebas cubren alta idempotente, aislamiento, edición, conflictos, archivo con citas, rollback de auditoría, más de 50 fichas, límite de 500 y copia/restauración de un conjunto ampliado.
 
 Este flujo prepara la gestión completa, pero continúa en modo ficticio. Faltan la identificación clínica definitiva, revisión de proveedores y obligaciones del responsable, custodia externa/operación de copias y validación final antes de permitir datos reales. La demo pública conserva sus funciones y sigue separada.
+
+## Motivo de consulta y precauciones · 22 de noviembre de 2026
+
+La migración `20261122090429_clinical_patient_intake_test.sql` amplía el mismo guardado privado con dos campos opcionales: `reason` (hasta 2 000 caracteres) y `precautions` (hasta 4 000). La interfaz los presenta como «Motivo de consulta ficticio» y «Antecedentes y precauciones ficticios», en texto libre. No genera pautas, diagnósticos ni supuestos de ausencia de antecedentes. No se mueve, resume o reemplaza lo ya escrito en historia/exploración. Los registros y versiones existentes no se reescriben al instalar la migración.
+
+El servidor admite únicamente texto dentro de los límites y conserva las mismas comprobaciones de admisión, AAL2, sesión, propietario, ficha activa y revisión. Cada guardado combina los cambios en PostgreSQL y conserva versión/auditoría atómicas. Los campos vacíos pueden guardarse explícitamente; al cargar una versión que no los tenga se muestran vacíos sin provocar un guardado automático. Las fichas archivadas siguen en lectura.
+
+Ambos campos participan en la detección de borradores, bloqueo de copias incompletas y limpieza al salir; los errores/conflictos conservan el texto. La copia continúa en v5: los campos son opcionales para admitir archivos/historiales anteriores, y se validan tipo/límite si están presentes. Los ensayos verifican su restauración en datos y servicios nuevos, incluida su lectura tras autenticar.
+
+El titular prevé disponer del servicio de protección de datos en diciembre de 2026. El desarrollo individual continúa con datos ficticios; esa previsión no activa pacientes reales ni da por revisados contratos, operación o seguridad. La revisión manual de los dos campos nuevos en iPad queda pendiente.

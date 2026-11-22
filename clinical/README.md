@@ -1,6 +1,6 @@
 # Preparación de la versión clínica · fase 1
 
-**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las diez migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
+**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las once migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
 
 Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comunitat Valenciana, España, preferencia por comenzar gratis. El propietario confirma que es autónomo y ejerce a título individual. Las obligaciones concretas como responsable y la adecuación de proveedores siguen pendientes de revisión.
 
@@ -39,7 +39,7 @@ Se prueban anonimato, cuenta no admitida, ausencia de doble factor, separación 
 No ejecutar la migración contra un proyecto con datos ni copiar historias reales a este repositorio. Es una migración inicial, deliberadamente no idempotente: ante un error se revierte la transacción y se investiga; no se eliminan tablas para repetirla.
 
 1. Crear un proyecto de pruebas vacío en una región UE y guardar fuera del repositorio sus datos administrativos y credenciales. Verificar la región concreta, las condiciones y el DPA disponibles para la cuenta.
-2. Aplicar las diez migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
+2. Aplicar las once migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
 3. Desactivar altas públicas, crear/invitar únicamente la cuenta del profesional por el procedimiento del proveedor y configurar MFA. Las invitaciones y el correo requieren configuración y prueba; este trabajo no envía mensajes.
 4. Admitir manualmente el UUID de esa cuenta en `clinical_private.authorized_clinicians` desde la administración. No hay UUID real ni usuario autorizado en la migración. Mantener también MFA y acceso mínimo en la cuenta administradora del proveedor.
 5. Ejecutar pruebas reales con dos cuentas ficticias, anonimato, MFA incompleto, cuenta revocada y peticiones HTTP manipuladas. Verificar privilegios efectivos y configuración de esquemas en el proyecto, no solo el SQL local.
@@ -60,3 +60,5 @@ Los ejercicios propios ya admiten edición y archivo con revisión esperada, ver
 La [recuperación de servicios](recovery/README.md) ya supera un ensayo con PostgreSQL, Auth y API reales, además de las pruebas previas de datos. Hay un destino alojado gratuito independiente, con esquema/permisos reconstruidos, cuenta ficticia, copia restaurada y acceso/lectura MFA verificados. Las altas públicas están cerradas. Sigue pendiente la recuperación operativa completa y no se habilitan pacientes reales.
 
 La copia vigente v5 incluye de cero a 500 fichas ficticias, sin depender de los dos ejemplos iniciales. El nuevo [flujo de pacientes](access/PATIENTS.md) conserva revisiones/auditoría y bloquea el archivo mientras haya citas programadas. Continúa pendiente la identidad clínica definitiva y la activación deliberada tras cerrar los bloqueos del plan.
+
+La undécima migración añade motivo de consulta y antecedentes/precauciones opcionales al guardado de la ficha ficticia, con límites, revisión y auditoría. Las copias v5 los conservan y siguen admitiendo archivos sin esos campos. La revisión de protección de datos está prevista por el titular para diciembre de 2026; el desarrollo continúa para un solo profesional con datos ficticios y sin activación clínica automática.
