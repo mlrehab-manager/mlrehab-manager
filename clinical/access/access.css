@@ -136,21 +136,6 @@ textarea {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
-#agenda-week {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-}
-#agenda-week button {
-  padding: 8px 2px;
-  font-size: 0.8rem;
-  background: transparent;
-  color: #222;
-}
-#agenda-week button[aria-pressed="true"] {
-  background: #222;
-  color: #fff;
-}
 #agenda-panel {
   margin: 32px 0;
   border-top: 1px solid #bbb;
@@ -677,28 +662,6 @@ body.is-authorized #auth-logout {
   font-size: 0.9375rem;
   margin-top: 0;
 }
-#agenda-week {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-  margin: 20px 0 0;
-  padding: 14px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 12px;
-}
-#agenda-week button {
-  margin: 0;
-  padding: 12px 5px;
-  font-size: 0.875rem;
-  min-width: 0;
-  white-space: normal;
-}
-#agenda-week button[aria-pressed="true"] {
-  background: var(--sidebar);
-  color: #fff;
-  border-color: var(--sidebar);
-}
 #agenda-list {
   display: grid;
   gap: 10px;
@@ -941,14 +904,6 @@ body.is-authorized #auth-logout {
   .editor-card {
     padding: 16px;
   }
-  #agenda-week {
-    padding: 8px;
-    gap: 3px;
-  }
-  #agenda-week button {
-    font-size: 0.875rem;
-    padding: 10px 1px;
-  }
   #app-feedback #status {
     left: 16px;
     right: 16px;
@@ -1018,4 +973,152 @@ body.is-authorized #auth-logout {
   display: inline;
   margin: 0;
   font-size: 1em;
+}
+
+/* Weekly clinic agenda: five columns, with its own scroll area on small screens. */
+#agenda-week {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 72dvh;
+  overflow: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overscroll-behavior: contain;
+}
+#agenda-calendar {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+#agenda-calendar th,
+#agenda-calendar td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 5px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+#agenda-calendar tr > :last-child {
+  border-right: 0;
+}
+#agenda-calendar tbody tr:last-child > * {
+  border-bottom: 0;
+}
+#agenda-calendar thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--surface-soft);
+  text-align: center;
+  padding: 14px 4px;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+#agenda-calendar thead strong,
+#agenda-calendar thead span {
+  display: block;
+}
+#agenda-calendar thead span {
+  margin-top: 5px;
+  font-weight: 400;
+}
+#agenda-calendar tr > :first-child {
+  width: 54px;
+}
+#agenda-calendar thead th:first-child {
+  left: 0;
+  z-index: 4;
+}
+#agenda-calendar tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--surface-soft);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 20px 4px;
+}
+#agenda-calendar tbody td {
+  height: 96px;
+}
+#agenda-week .agenda-slot-add {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 84px;
+  margin: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #5c5953;
+  font-size: 1.6rem;
+  padding: 10px 4px;
+}
+#agenda-week .agenda-slot-add:hover,
+#agenda-week .agenda-slot-add:focus-visible {
+  background: #e9e0d4;
+  border-color: #b5a897;
+}
+#agenda-week .agenda-event {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-height: 84px;
+  margin: 0 0 4px;
+  padding: 10px 7px;
+  border: 1px solid var(--sidebar);
+  border-radius: 8px;
+  background: var(--sidebar);
+  color: #faf6ef;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+#agenda-week .agenda-event span,
+#agenda-week .agenda-event small {
+  font-size: 0.875rem;
+}
+#agenda-week .agenda-event.is-cancelled {
+  background: transparent;
+  color: #5c5953;
+  border-color: var(--border);
+}
+#agenda-week td:has(.agenda-event) .agenda-slot-add {
+  height: auto;
+  min-height: 48px;
+}
+#agenda-view-state,
+#agenda-outside-note {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+#agenda-outside-note {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+#agenda-saved-list {
+  margin-top: 20px;
+}
+#agenda-saved-list summary {
+  min-height: 48px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+#agenda-editor {
+  scroll-margin-top: 20px;
+}
+.agenda-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 560px;
+}
+.agenda-navigation button {
+  width: auto;
+  flex: 1 1 135px;
 }

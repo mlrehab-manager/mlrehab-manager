@@ -17,7 +17,7 @@ export async function recoverySchema() {
       sql.replace(/^begin;\s*$/gim, "").replace(/^commit;\s*$/gim, ""),
     );
   }
-  if (names.length !== 13)
+  if (names.length !== 14)
     throw new Error(
       "Revisar el manifiesto de recuperación antes de usar nuevas migraciones.",
     );

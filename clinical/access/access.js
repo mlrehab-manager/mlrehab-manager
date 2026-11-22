@@ -121,7 +121,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     const current = epoch;
     document
       .querySelectorAll(
-        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button, #backup-status-load",
+        "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button, #backup-status-load, #agenda-date",
       )
       .forEach((el) => {
         el.disabled = true;
@@ -137,7 +137,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       busy = false;
       document
         .querySelectorAll(
-          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button, #backup-status-load",
+          "form button, select, #enroll, #test-revoke, #add-reserve, #patients-panel button, #agenda-panel button, #custom-exercises-panel button, #backup-status-load, #agenda-date",
         )
         .forEach((el) => {
           el.disabled = false;

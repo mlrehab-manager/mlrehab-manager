@@ -40,10 +40,11 @@ export function installAppShell({ isAuthorized }) {
     $("home-patients").textContent = count ? count[1] : "Sin cargar";
     const loaded = $("agenda-loaded-day").textContent.trim();
     $("home-appointments").textContent = loaded
-      ? String($("agenda-list").children.length)
+      ? ($("agenda-list").dataset.weekdayCount ??
+        String($("agenda-list").children.length))
       : "Sin cargar";
     $("home-agenda-day").textContent =
-      loaded || "Abre la agenda y elige un día.";
+      loaded || "Abre la agenda y elige una semana.";
   }
   function updateLayout() {
     const open = isAuthorized();

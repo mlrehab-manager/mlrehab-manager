@@ -1,4 +1,15 @@
 import {
+  dayShift,
+  mondayOf,
+  localInput,
+  shortDate,
+  slotAppointments,
+  intersectsWeekdays,
+  hasVisibleSlot,
+  appointmentLabel,
+  renderWeeklyCalendar,
+} from "./weekly-calendar.js";
+import {
   clearExercisePicker,
   refreshExercisePicker,
   installExercisePicker,
@@ -11,8 +22,11 @@ let appointment = null,
   sessionBaseline = null,
   patients = [],
   appointments = [],
-  loadedDay = null,
+  loadedAnchor = null,
+  loadedWeek = null,
+  displayedDay = null,
   newMode = false;
+let repaintCalendar = () => {};
 const appointmentValues = () => ({
   patient_id: $("appointment-patient").value,
   start: $("appointment-start").value,
@@ -39,7 +53,11 @@ export function clearAgendaData() {
   patients = [];
   appointments = [];
   newMode = false;
-  loadedDay = null;
+  loadedAnchor = loadedWeek = null;
+  $("agenda-date").value = clinicToday();
+  $("agenda-list").removeAttribute("data-weekday-count");
+  $("agenda-week").removeAttribute("aria-busy");
+  $("agenda-outside-note").hidden = true;
   $("agenda-list").replaceChildren();
   $("agenda-editor").hidden = true;
   $("session-form").hidden = true;
@@ -52,27 +70,7 @@ export function clearAgendaData() {
   $("appointment-status").value = "scheduled";
   sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
   clearExercisePicker();
-}
-function dayShift(day, amount) {
-  const d = new Date(day + "T12:00:00Z");
-  d.setUTCDate(d.getUTCDate() + amount);
-  return d.toISOString().slice(0, 10);
-}
-function localInput(utc) {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("sv-SE", {
-      timeZone: "Europe/Madrid",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(new Date(utc))
-      .map((p) => [p.type, p.value]),
-  );
-  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+  repaintCalendar();
 }
 const clinicToday = () =>
   new Intl.DateTimeFormat("sv-SE", {
@@ -81,6 +79,11 @@ const clinicToday = () =>
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
+const validDay = (day) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(day) &&
+  day >= "2020-01-01" &&
+  day <= "2100-12-31" &&
+  Number.isFinite(Date.parse(day));
 export function installAgendaTools({ client, run, isAuthorized, message }) {
   $("agenda-date").value = clinicToday();
   installExercisePicker({
@@ -131,24 +134,19 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     $("session-fields").disabled = true;
   }
   function renderWeek(day) {
-    const date = new Date(day + "T12:00:00Z"),
-      monday = dayShift(day, -((date.getUTCDay() + 6) % 7));
-    const fragment = document.createDocumentFragment();
-    for (let i = 0; i < 7; i++) {
-      const value = dayShift(monday, i),
-        button = document.createElement("button");
-      button.type = "button";
-      button.textContent = new Intl.DateTimeFormat("es-ES", {
-        timeZone: "UTC",
-        weekday: "short",
-        day: "numeric",
-      }).format(new Date(value + "T12:00:00Z"));
-      button.setAttribute("aria-pressed", String(value === day));
-      button.addEventListener("click", () => requestDay(value));
-      fragment.append(button);
-    }
-    $("agenda-week").replaceChildren(fragment);
+    displayedDay = day;
+    renderWeeklyCalendar({
+      anchor: day,
+      appointments,
+      loaded: loadedWeek === mondayOf(day),
+      onSlot: (date, hour) => prepareNew(date, hour),
+      onAppointment: (id) =>
+        run(async (current) => {
+          if (isAuthorized() && confirmDiscard()) await open(id, current);
+        }),
+    });
   }
+  repaintCalendar = () => renderWeek($("agenda-date").value || clinicToday());
   function renderPatients() {
     const previous = $("appointment-patient").value,
       options = [...patients];
@@ -157,7 +155,10 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
         id: appointment.patient_id,
         name: appointment.patient_name,
       });
-    $("appointment-patient").replaceChildren();
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Selecciona un paciente";
+    $("appointment-patient").replaceChildren(placeholder);
     for (const p of options) {
       const option = document.createElement("option");
       option.value = p.id;
@@ -167,50 +168,70 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     if (options.some((p) => p.id === previous))
       $("appointment-patient").value = previous;
   }
-  async function loadDay(day, isCurrent) {
-    const { data, error } = await client.rpc("clinical_agenda_list_test", {
-      p_day: day,
-    });
-    if (!isCurrent()) return false;
-    if (error) {
-      fail(error);
-      return false;
-    }
-    if (
-      !data ||
-      !Array.isArray(data.appointments) ||
-      !Array.isArray(data.patients)
-    )
-      throw new Error();
-    loadedDay = day;
-    patients = data.patients;
-    appointments = data.appointments;
-    $("agenda-date").value = day;
-    $("agenda-loaded-day").textContent =
-      `Agenda del ${day.split("-").reverse().join("/")} · hora de la clínica (Europe/Madrid)`;
-    renderWeek(day);
-    renderPatients();
-    const fragment = document.createDocumentFragment();
-    for (const row of appointments) {
-      const item = document.createElement("li"),
-        button = document.createElement("button");
-      button.type = "button";
-      const status = {
-        scheduled: "Programada",
-        cancelled: "Cancelada",
-        completed: "Realizada",
-      }[row.status];
-      button.textContent = `${localInput(row.starts_at).slice(11)}–${localInput(row.ends_at).slice(11)} · ${row.patient_name} · ${status}`;
-      button.addEventListener("click", () =>
-        run(async (current) => {
-          if (isAuthorized() && confirmDiscard()) await open(row.id, current);
-        }),
+  async function loadWeek(day, isCurrent) {
+    let committed = false;
+    $("agenda-week").setAttribute("aria-busy", "true");
+    try {
+      const { data, error } = await client.rpc("clinical_agenda_week", {
+        p_day: day,
+      });
+      if (!isCurrent()) return false;
+      if (error) {
+        fail(error);
+        return false;
+      }
+      const monday = mondayOf(day);
+      if (
+        !data ||
+        data.week_start !== monday ||
+        data.week_end !== dayShift(monday, 4) ||
+        !Array.isArray(data.appointments) ||
+        !Array.isArray(data.patients)
+      )
+        throw new Error();
+      loadedAnchor = day;
+      loadedWeek = monday;
+      patients = data.patients;
+      appointments = data.appointments;
+      $("agenda-date").value = day;
+      $("agenda-loaded-day").textContent =
+        `Semana del ${shortDate(monday)} al ${shortDate(dayShift(monday, 4))} · hora de la clínica (Europe/Madrid)`;
+      renderWeek(day);
+      renderPatients();
+      const fragment = document.createDocumentFragment();
+      for (const row of appointments) {
+        const item = document.createElement("li"),
+          button = document.createElement("button");
+        button.type = "button";
+        button.textContent = appointmentLabel(row, true);
+        button.addEventListener("click", () =>
+          run(async (current) => {
+            if (isAuthorized() && confirmDiscard()) await open(row.id, current);
+          }),
+        );
+        item.append(button);
+        fragment.append(item);
+      }
+      $("agenda-list").dataset.weekdayCount = String(
+        appointments.filter((row) => intersectsWeekdays(row, monday)).length,
       );
-      item.append(button);
-      fragment.append(item);
+      $("agenda-list").replaceChildren(fragment);
+      const outside = appointments.filter(
+        (row) => !hasVisibleSlot(row, monday),
+      ).length;
+      $("agenda-outside-note").textContent =
+        `${outside} citas guardadas fuera de la cuadrícula. Puedes abrirlas en «Listado de citas guardadas».`;
+      $("agenda-outside-note").hidden = outside === 0;
+      committed = true;
+      return true;
+    } finally {
+      if (isCurrent()) {
+        $("agenda-week").removeAttribute("aria-busy");
+        if (!committed)
+          $("agenda-date").value =
+            loadedAnchor ?? displayedDay ?? clinicToday();
+      }
     }
-    $("agenda-list").replaceChildren(fragment);
-    return true;
   }
   function resetEditor() {
     appointment = session = appointmentBaseline = sessionBaseline = null;
@@ -220,26 +241,33 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
     clearExercisePicker();
   }
-  function requestDay(day) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+  function requestWeek(day) {
+    if (!validDay(day)) {
+      $("agenda-date").value = loadedAnchor ?? displayedDay ?? clinicToday();
+      message("Elige una fecha entre 2020 y 2100.");
+      return;
+    }
     run(async (isCurrent) => {
       if (!isAuthorized()) return;
       if (!confirmDiscard()) {
-        $("agenda-date").value = loadedDay ?? clinicToday();
+        $("agenda-date").value = loadedAnchor ?? displayedDay ?? clinicToday();
         return;
       }
       lockEditors();
       try {
-        if (await loadDay(day, isCurrent)) {
+        if (await loadWeek(day, isCurrent)) {
           resetEditor();
           message(
             appointments.length
-              ? "Agenda ficticia cargada. Elige una cita o prepara una nueva."
-              : "No hay citas ficticias en este día.",
+              ? "Semana cargada. Toca un hueco para añadir una cita o abre una cita guardada."
+              : "No hay citas guardadas en esta semana.",
           );
         }
       } finally {
-        if (isCurrent()) restoreLocks();
+        if (isCurrent()) {
+          if (loadedAnchor) $("agenda-date").value = loadedAnchor;
+          restoreLocks();
+        }
       }
     });
   }
@@ -260,14 +288,18 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     $("agenda-editor").hidden = false;
     restoreLocks();
   }
-  async function open(id, isCurrent) {
+  async function open(id, isCurrent, reload = true) {
     lockEditors();
     try {
-      if (!(await loadDay($("agenda-date").value, isCurrent))) return;
+      if (
+        reload &&
+        !(await loadWeek(loadedAnchor ?? $("agenda-date").value, isCurrent))
+      )
+        return;
       const row = appointments.find((a) => a.id === id);
       if (!row) {
         message(
-          "La cita ya no está en este día. Revisa la agenda actualizada.",
+          "La cita ya no está en esta semana. Revisa la agenda actualizada.",
         );
         return;
       }
@@ -304,47 +336,82 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
     }
   }
   $("agenda-load").addEventListener("click", () =>
-    requestDay($("agenda-date").value),
+    requestWeek($("agenda-date").value),
   );
   $("agenda-date").addEventListener("change", () =>
-    requestDay($("agenda-date").value),
+    requestWeek($("agenda-date").value),
   );
   $("agenda-prev").addEventListener("click", () =>
-    requestDay(dayShift($("agenda-date").value, -1)),
+    requestWeek(dayShift($("agenda-date").value, -7)),
   );
   $("agenda-next").addEventListener("click", () =>
-    requestDay(dayShift($("agenda-date").value, 1)),
+    requestWeek(dayShift($("agenda-date").value, 7)),
   );
+  $("agenda-today").addEventListener("click", () => requestWeek(clinicToday()));
   renderWeek($("agenda-date").value);
-  $("agenda-new").addEventListener("click", () =>
-    run(async (isCurrent) => {
+  function prepareNew(day, hour = 9) {
+    if (!validDay(day)) {
+      message("Elige una fecha entre 2020 y 2100.");
+      return;
+    }
+    let focusPatient = false;
+    const completed = run(async (isCurrent) => {
       if (!isAuthorized() || !confirmDiscard()) return;
       lockEditors();
       try {
-        if (!(await loadDay($("agenda-date").value, isCurrent))) return;
+        if (!(await loadWeek(day, isCurrent))) return;
+        const occupied = slotAppointments(appointments, day, hour).find(
+          (row) => row.status !== "cancelled",
+        );
+        if (occupied) {
+          await open(occupied.id, isCurrent, false);
+          if (isCurrent())
+            message(
+              "Ese hueco ya tiene una cita. Se ha abierto la cita guardada.",
+            );
+          return;
+        }
         if (!patients.length) {
-          message(
-            "Prepara primero los dos pacientes ficticios; solo se cita al que está activo.",
-          );
+          message("Crea primero una ficha de paciente activa en Pacientes.");
           return;
         }
         resetEditor();
         newMode = true;
         renderPatients();
-        $("appointment-patient").value = patients[0].id;
-        $("appointment-start").value = $("agenda-date").value + "T09:00";
+        $("appointment-patient").value = "";
+        $("appointment-start").value =
+          `${day}T${String(hour).padStart(2, "0")}:00`;
         $("appointment-minutes").value = "45";
         $("appointment-status").value = "scheduled";
         appointmentBaseline = appointmentValues();
         $("agenda-editor-title").textContent = "Nueva cita ficticia";
         $("agenda-editor").hidden = false;
         restoreLocks();
-        message("Prepara la fecha, hora y duración de la cita ficticia.");
+        message(
+          "Elige el paciente y confirma la cita. La fecha y la hora ya están preparadas.",
+        );
+        focusPatient = true;
       } finally {
         if (isCurrent()) restoreLocks();
       }
-    }),
-  );
+    });
+    return Promise.resolve(completed).then(() => {
+      if (
+        focusPatient &&
+        isAuthorized() &&
+        newMode &&
+        !$("agenda-panel").hidden
+      ) {
+        $("agenda-editor").scrollIntoView({ block: "start" });
+        $("appointment-patient").focus({ preventScroll: true });
+      }
+    });
+  }
+  $("agenda-new").addEventListener("click", () => {
+    const day = $("agenda-date").value || loadedAnchor || clinicToday(),
+      monday = mondayOf(day);
+    prepareNew(day > dayShift(monday, 4) ? monday : day);
+  });
   $("appointment-form").addEventListener("submit", (event) => {
     event.preventDefault();
     run(async (isCurrent) => {
@@ -404,7 +471,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
           data.status === "cancelled"
             ? "Cita cancelada: no admite registrar sesión."
             : "Cita preparada para registrar una sesión ficticia.";
-        if (await loadDay(localInput(data.starts_at).slice(0, 10), isCurrent))
+        if (await loadWeek(localInput(data.starts_at).slice(0, 10), isCurrent))
           message("Cita ficticia guardada en la agenda privada.");
       } finally {
         if (isCurrent()) restoreLocks();
@@ -465,7 +532,10 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
         `Sesión guardada · versión ${data.revision}`;
       restoreLocks();
       if (
-        await loadDay(localInput(appointment.starts_at).slice(0, 10), isCurrent)
+        await loadWeek(
+          localInput(appointment.starts_at).slice(0, 10),
+          isCurrent,
+        )
       )
         message(
           sessionDirty()

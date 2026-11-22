@@ -271,6 +271,16 @@ try {
   });
   if (day.appointments.length !== 1)
     throw new Error("Recovered agenda read failed");
+  const weekly = await rpc(recovered, "clinical_agenda_week", {
+    p_day: "2026-11-18",
+  });
+  if (
+    weekly.week_start !== "2026-11-16" ||
+    weekly.week_end !== "2026-11-20" ||
+    weekly.appointments.length !== 1 ||
+    weekly.appointments[0].id !== appt.id
+  )
+    throw new Error("Recovered weekly agenda differs");
   const session = await rpc(recovered, "clinical_session_get_test", {
     p_appointment_id: appt.id,
   });
@@ -350,6 +360,7 @@ try {
     patient_intake_fields_restored: true,
     backup_receipt_metadata_roundtrip: true,
     recovered_custody_requires_fresh_check: true,
+    weekly_agenda_restored_and_readable: true,
     real_auth_and_rest: true,
     auth_created_via_admin_api: true,
     password_and_mfa_recreated: true,
@@ -379,6 +390,7 @@ try {
       passed: true,
       source_closed_before_restore: true,
       data_collections: Object.keys(restore.counts).length,
+      weekly_agenda_restored_and_readable: true,
       real_auth_and_rest: true,
       elapsed_seconds: report.elapsed_seconds,
     }),

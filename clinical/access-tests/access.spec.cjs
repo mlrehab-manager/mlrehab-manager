@@ -140,14 +140,32 @@ async function mockAuth(
         });
         body = row;
       }
-    } else if (path === "/rest/v1/rpc/clinical_agenda_list_test") {
+    } else if (
+      [
+        "/rest/v1/rpc/clinical_agenda_list_test",
+        "/rest/v1/rpc/clinical_agenda_week",
+      ].includes(path)
+    ) {
       const day = request.postDataJSON().p_day;
+      const week = path.endsWith("clinical_agenda_week");
+      const date = new Date(day + "T12:00:00Z");
+      date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+      const start = date.toISOString().slice(0, 10);
+      date.setUTCDate(date.getUTCDate() + 4);
+      const end = date.toISOString().slice(0, 10);
+      date.setUTCDate(date.getUTCDate() + 3);
+      const next = date.toISOString().slice(0, 10);
       body = {
+        ...(week ? { week_start: start, week_end: end } : {}),
         patients: patients
           .filter((p) => !p.archived_at)
           .map((p) => ({ id: p.id, name: p.payload.name })),
         appointments: appointments
-          .filter((a) => a.local.slice(0, 10) === day)
+          .filter((a) =>
+            week
+              ? a.local.slice(0, 10) >= start && a.local.slice(0, 10) < next
+              : a.local.slice(0, 10) === day,
+          )
           .map((a) => ({
             ...a,
             patient_name: patients.find((p) => p.id === a.patient_id).payload
@@ -168,7 +186,9 @@ async function mockAuth(
           start = new Date(a.p_start_local + "Z");
         start.setUTCHours(start.getUTCHours() - 1);
         body = {
-          id: old?.id ?? "77777777-7777-4777-8777-777777777777",
+          id:
+            old?.id ??
+            `77777777-7777-4777-8777-${String(777777777777 + appointments.length)}`,
           clinician_id: userId,
           patient_id: a.p_patient_id,
           starts_at: start.toISOString(),
@@ -1033,6 +1053,7 @@ async function authorizeAgenda(page, options = {}) {
 async function bookAppointment(page) {
   await navigate(page, "agenda");
   await page.locator("#agenda-new").click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
   await expect(page.locator("#agenda-editor")).toBeVisible();
   await navigate(page, "agenda");
   await page.locator("#appointment-start").fill("2026-11-20T09:00");
@@ -1056,7 +1077,7 @@ test("private agenda books, reopens, reschedules and cancels a fictional appoint
   expect(args.p_start_local).toBe("2026-11-20T09:00");
   expect(args.p_expected_revision).toBeNull();
   await navigate(page, "agenda");
-  await page.locator("#agenda-list button").click();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
   await expect(page.locator("#appointment-start")).toHaveValue(
     "2026-11-20T09:00",
   );
@@ -1083,6 +1104,7 @@ test("an overlap refusal retains appointment values for correction", async ({
   await authorizeAgenda(page, { agendaMode: "overlap" });
   await navigate(page, "agenda");
   await page.locator("#agenda-new").click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
   await navigate(page, "agenda");
   await page.locator("#appointment-form button").click();
   await expect(page.getByRole("status")).toContainText("solapa");
@@ -1112,7 +1134,7 @@ test("sessions persist evolution, passive treatment and exercise and complete th
   await expect(page.locator("#appointment-start")).toBeDisabled();
   await expect(page.locator("#session-exercise")).toBeEnabled();
   await navigate(page, "agenda");
-  await page.locator("#agenda-list button").click();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
   await expect(page.locator("#session-passive")).toHaveValue(
     "Tratamiento pasivo de prueba",
   );
@@ -1191,7 +1213,7 @@ test("pending session response cannot restore private text after automatic logou
   await expect(page.locator("#agenda-editor")).toBeHidden();
   await expect(page.locator("#session-evolution")).toHaveValue("");
 });
-test("changing agenda day asks before discarding session drafts", async ({
+test("changing agenda week asks before discarding session drafts", async ({
   page,
 }) => {
   await authorizeAgenda(page);
@@ -1208,7 +1230,7 @@ test("changing agenda day asks before discarding session drafts", async ({
   page.once("dialog", (dialog) => dialog.accept());
   await navigate(page, "agenda");
   await page.locator("#agenda-next").click();
-  await expect(page.locator("#agenda-loaded-day")).toContainText("21/11/2026");
+  await expect(page.locator("#agenda-loaded-day")).toContainText("27/11/2026");
   await expect(page.locator("#agenda-editor")).toBeHidden();
 });
 
@@ -1322,7 +1344,7 @@ test("adding exercise names preserves manual notes, avoids duplicates and persis
   await page.locator("#session-form button[type=submit]").click();
   await expect(page.locator("#status")).toContainText("queda realizada");
   await navigate(page, "agenda");
-  await page.locator("#agenda-list button").click();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
   await expect(page.locator("#session-exercise")).toHaveValue(
     "Nota ficticia manual para esta sesión\n- Sentadilla española isométrica",
   );
@@ -1441,6 +1463,7 @@ test("a personal exercise is classified, reloaded and reusable after a fresh log
   await page.locator("#agenda-date").fill("2026-11-20");
   await navigate(page, "agenda");
   await page.locator("#agenda-new").click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
   await expect(page.locator("#appointment-start")).toHaveValue(
     "2026-11-20T09:00",
   );
@@ -1465,7 +1488,7 @@ test("a personal exercise is classified, reloaded and reusable after a fresh log
   await page.locator("#session-form button[type=submit]").click();
   await expect(page.locator("#status")).toContainText("queda realizada");
   await navigate(page, "agenda");
-  await page.locator("#agenda-list button").click();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
   await expect(page.locator("#session-exercise")).toHaveValue(
     "- Ejercicio propio ficticio de rodilla",
   );
@@ -1555,6 +1578,7 @@ test("built-in names are reused and a failed personal catalogue load keeps the b
   await page.locator("#agenda-date").fill("2026-11-20");
   await navigate(page, "agenda");
   await page.locator("#agenda-new").click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
   await navigate(page, "agenda");
   await page.locator("#appointment-form button[type=submit]").click();
   await expect(page.locator("#session-form")).toBeVisible();
@@ -1663,7 +1687,7 @@ test("personal exercises can be revised and archived without altering saved sess
   await page.locator("#exercise-show-archived").check();
   await expect(page.locator("#exercise-own-list")).toContainText("Archivado");
   await navigate(page, "agenda");
-  await page.locator("#agenda-list button").click();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
   await expect(page.locator("#session-exercise")).toHaveValue(
     "- Ejercicio ficticio original",
   );
@@ -2028,7 +2052,7 @@ test("verified clinical mode registers identities, supports namesakes and includ
   await expect(page.locator("#patient-list")).toContainText("2000-01-02");
   await navigate(page, "agenda");
   await page.locator("#agenda-load").click();
-  await expect(page.locator("#appointment-patient option")).toHaveCount(2);
+  await expect(page.locator("#appointment-patient option")).toHaveCount(3);
   expect(
     calls.some((c) => c.path.endsWith("/clinical_patient_create_test")),
   ).toBe(false);
@@ -2367,4 +2391,315 @@ test("changing the selected backup cancels an older verification and preserves t
     "No se pudo verificar el archivo",
   );
   await expect(page.locator("#backup-custody")).toBeHidden();
+});
+
+test("weekly calendar has five weekdays, omits 14:00 and directly books the tapped day and hour", async ({
+  page,
+}) => {
+  const calls = await authorizeAgenda(page);
+  await expect(
+    page.locator("#agenda-calendar thead th[data-date]"),
+  ).toHaveCount(5);
+  expect(
+    await page.locator("#agenda-calendar thead th strong").allTextContents(),
+  ).toEqual(["lunes", "martes", "miércoles", "jueves", "viernes"]);
+  await expect(page.locator("#agenda-calendar tbody tr")).toHaveCount(11);
+  await expect(page.locator('#agenda-calendar [data-hour="14"]')).toHaveCount(
+    0,
+  );
+  const slot = page.locator(
+    '[data-slot-date="2026-11-18"][data-slot-hour="11"]',
+  );
+  await slot.click();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-18T11:00",
+  );
+  await expect(page.locator("#appointment-patient")).toHaveValue("");
+  await page.locator("#appointment-form button").click();
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_appointment_save_test")),
+  ).toBe(false);
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#status")).toContainText("Cita ficticia guardada");
+  const saved = JSON.parse(
+    calls.find((c) => c.path.endsWith("/clinical_appointment_save_test"))
+      .postBody,
+  );
+  expect(saved.p_start_local).toBe("2026-11-18T11:00");
+  const cell = page.locator(
+    '#agenda-calendar td[data-date="2026-11-18"][data-hour="11"]',
+  );
+  await expect(cell.locator(".agenda-event")).toContainText("11:00–11:45");
+  await expect(cell.locator(".agenda-slot-add")).toHaveCount(0);
+  await cell.locator(".agenda-event").click();
+  await expect(page.locator("#session-form")).toBeVisible();
+  await page.locator("#agenda-next").click();
+  await expect(page.locator("#agenda-loaded-day")).toContainText(
+    "23/11/2026 al 27/11/2026",
+  );
+  await expect(page.locator("#agenda-calendar .agenda-event")).toHaveCount(0);
+  await page.locator("#agenda-prev").click();
+  await expect(page.locator("#agenda-calendar .agenda-event")).toHaveCount(1);
+  await navigate(page, "home");
+  await expect(page.locator("#home-appointments")).toHaveText("1");
+  expect(calls.some((c) => c.path.endsWith("/clinical_agenda_list_test"))).toBe(
+    false,
+  );
+});
+
+test("long and half-hour appointments occupy every overlapping slot and cancellation frees them", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await page
+    .locator('[data-slot-date="2026-11-20"][data-slot-hour="9"]')
+    .click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
+  await page.locator("#appointment-start").fill("2026-11-20T09:30");
+  await page.locator("#appointment-minutes").fill("90");
+  await page.locator("#appointment-form button").click();
+  for (const hour of ["9", "10"]) {
+    const cell = page.locator(
+      `#agenda-calendar td[data-date="2026-11-20"][data-hour="${hour}"]`,
+    );
+    await expect(cell.locator(".agenda-event")).toHaveCount(1);
+    await expect(cell.locator(".agenda-slot-add")).toHaveCount(0);
+  }
+  await expect(
+    page.locator('[data-slot-date="2026-11-20"][data-slot-hour="11"]'),
+  ).toBeVisible();
+  await page.locator("#agenda-calendar .agenda-event").first().click();
+  await page.locator("#appointment-status").selectOption("cancelled");
+  await page.locator("#appointment-form button").click();
+  await expect(
+    page.locator('[data-slot-date="2026-11-20"][data-slot-hour="9"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator("#agenda-calendar .agenda-event.is-cancelled"),
+  ).toHaveCount(2);
+});
+
+test("stored appointments at 14:00 or on weekends stay reachable without adding those grid rows or columns", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await page
+    .locator('[data-slot-date="2026-11-18"][data-slot-hour="9"]')
+    .click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
+  await page.locator("#appointment-start").fill("2026-11-18T14:00");
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#agenda-outside-note")).toContainText(
+    "1 citas guardadas fuera",
+  );
+  await expect(page.locator("#agenda-calendar .agenda-event")).toHaveCount(0);
+  await page.locator("#agenda-saved-list summary").click();
+  await page.locator("#agenda-list button").click();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-18T14:00",
+  );
+  await page.locator("#agenda-new").click();
+  await page.locator("#appointment-patient").selectOption({ index: 1 });
+  await page.locator("#appointment-start").fill("2026-11-21T10:00");
+  await page.locator("#appointment-form button").click();
+  await expect(page.locator("#agenda-list button")).toHaveCount(2);
+  await expect(
+    page.locator("#agenda-calendar thead th[data-date]"),
+  ).toHaveCount(5);
+  await expect(
+    page.locator('#agenda-calendar [data-date="2026-11-21"]'),
+  ).toHaveCount(0);
+  await page
+    .locator("#agenda-list button")
+    .filter({ hasText: "21/11/2026" })
+    .click();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-21T10:00",
+  );
+});
+
+test("slot changes respect unsaved sessions, keyboard activation and iPad/phone layout", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page
+    .locator("#session-evolution")
+    .fill("Borrador ficticio que conservar");
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page
+    .locator('[data-slot-date="2026-11-16"][data-slot-hour="8"]')
+    .click();
+  await expect(page.locator("#session-evolution")).toHaveValue(
+    "Borrador ficticio que conservar",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  const slot = page.locator(
+    '[data-slot-date="2026-11-16"][data-slot-hour="8"]',
+  );
+  await slot.focus();
+  await slot.press("Enter");
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-16T08:00",
+  );
+  await expect(page.locator("#appointment-patient")).toBeFocused();
+  await expect(page.locator("#session-evolution")).toHaveValue("");
+  for (const size of [
+    { width: 820, height: 1180 },
+    { width: 1180, height: 820 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(size);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await expect(
+      page.locator("#agenda-calendar thead th[data-date]"),
+    ).toHaveCount(5);
+    const height = await slot.evaluate(
+      (el) => el.getBoundingClientRect().height,
+    );
+    expect(height).toBeGreaterThanOrEqual(48);
+  }
+});
+
+test("a failed week refresh preserves the loaded dates and appointments and a late reply cannot repopulate after logout", async ({
+  page,
+}) => {
+  await authorizeAgenda(page);
+  await bookAppointment(page);
+  await page.route(
+    "**/rpc/clinical_agenda_week",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: '{"message":"Synthetic unavailable"}',
+      }),
+    { times: 1 },
+  );
+  await page.locator("#agenda-next").click();
+  await expect(page.locator("#status")).toContainText(
+    "No se pudo cargar la agenda",
+  );
+  await expect(page.locator("#agenda-date")).toHaveValue("2026-11-20");
+  await expect(page.locator("#agenda-calendar .agenda-event")).toHaveCount(1);
+  let release;
+  const held = new Promise((resolve) => {
+    release = resolve;
+  });
+  let started;
+  const requested = new Promise((resolve) => {
+    started = resolve;
+  });
+  await page.route(
+    "**/rpc/clinical_agenda_week",
+    async (route) => {
+      started();
+      await held;
+      await route.fallback();
+    },
+    { times: 1 },
+  );
+  await page.locator("#agenda-load").click();
+  await requested;
+  await page.evaluate(() => {
+    const now = Date.now();
+    Date.now = () => now + 6 * 60 * 1000;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  release();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#agenda-calendar .agenda-event")).toHaveCount(0);
+  await expect(page.locator("#agenda-week")).not.toContainText("FICTICIO");
+  await expect(page.locator("#session-evolution")).toHaveValue("");
+});
+
+test("the first failed weekly load keeps the calendar and date aligned without claiming availability", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await navigate(page, "agenda");
+  const original = await page.locator("#agenda-date").inputValue();
+  const headings = await page
+    .locator("#agenda-calendar thead th[data-date]")
+    .evaluateAll((nodes) => nodes.map((node) => node.dataset.date));
+  await page.route(
+    "**/rpc/clinical_agenda_week",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: '{"message":"Synthetic unavailable"}',
+      }),
+    { times: 1 },
+  );
+  await page.locator("#agenda-date").fill("2027-02-10");
+  await expect(page.locator("#status")).toContainText(
+    "No se pudo cargar la agenda",
+  );
+  await expect(page.locator("#agenda-date")).toHaveValue(original);
+  expect(
+    await page
+      .locator("#agenda-calendar thead th[data-date]")
+      .evaluateAll((nodes) => nodes.map((node) => node.dataset.date)),
+  ).toEqual(headings);
+  await expect(page.locator("#agenda-view-state")).toContainText(
+    "Semana sin cargar",
+  );
+  await expect(page.locator("#agenda-loaded-day")).toHaveText("");
+});
+
+test("tapping a stale empty slot opens a newly occupied appointment instead of preparing a duplicate", async ({
+  page,
+}) => {
+  const calls = await authorizeAgenda(page);
+  const patient = backupFixture.patients.find((p) => !p.archived_at),
+    name = JSON.parse(patient.payload_json).name;
+  await page.route(
+    "**/rpc/clinical_agenda_week",
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          week_start: "2026-11-16",
+          week_end: "2026-11-20",
+          patients: [{ id: patient.id, name }],
+          appointments: [
+            {
+              id: "77777777-7777-4777-8777-777777777777",
+              clinician_id: userId,
+              patient_id: patient.id,
+              starts_at: "2026-11-18T10:00:00.000000Z",
+              ends_at: "2026-11-18T10:45:00.000000Z",
+              status: "scheduled",
+              revision: 1,
+              patient_name: name,
+              patient_archived: false,
+              session_id: null,
+            },
+          ],
+        }),
+      }),
+    { times: 1 },
+  );
+  await page
+    .locator('[data-slot-date="2026-11-18"][data-slot-hour="11"]')
+    .click();
+  await expect(page.locator("#status")).toContainText(
+    "Ese hueco ya tiene una cita",
+  );
+  await expect(page.locator("#appointment-patient")).toBeDisabled();
+  await expect(page.locator("#appointment-start")).toHaveValue(
+    "2026-11-18T11:00",
+  );
+  await expect(page.locator("#session-form")).toBeVisible();
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_appointment_save_test")),
+  ).toBe(false);
 });

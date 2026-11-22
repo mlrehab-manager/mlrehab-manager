@@ -1,12 +1,16 @@
 # Estado verificado · 22 de noviembre de 2026
 
-La versión privada 17 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
+La versión privada 18 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
 
 ## Interfaz privada
 
 Navegación lateral en iPad/ordenador y navegación inferior en pantallas estrechas, colores del diseño tostado claro/negro/gris, campos legibles y controles táctiles. Cambiar de sección conserva los borradores montados y no dispara lecturas automáticas. Inicio indica «Sin cargar» hasta obtener datos y distingue el día de agenda consultado. La salida/denegación limpia datos y restablece la vista inicial.
 
 Manifest con `display: standalone`, icono y metadatos para añadir a la pantalla de inicio desde Safari. Las rutas habitual y recuperada tienen alcance relativo y nombres distintos. No se añade service worker, caché de fichas, analítica ni persistencia de sesiones. La instalación real en Safari/iPad queda pendiente de comprobación del titular; las pruebas locales usan respuestas sintéticas.
+
+La agenda muestra cinco columnas lunes/viernes y once franjas 08:00–20:00 sin 14:00. Un toque consulta disponibilidad y abre una cita con fecha/hora preparadas; exige elegir el paciente. Las citas largas ocupan todas sus casillas; las canceladas liberan el hueco. Las guardadas fuera del horario o en fines de semana permanecen accesibles en el listado, sin borrados. Semana anterior/siguiente y selector de fecha conservan el control de borradores. El resumen de Inicio corresponde a los cinco días consultados.
+
+El nuevo RPC `clinical_agenda_week` realiza una sola lectura coherente y un evento de auditoría, conservando las escrituras existentes. Una ocupación aparecida desde la primera carga abre la cita existente. Los fallos de carga mantienen la semana previa y no presentan disponibilidad falsa; la selección de paciente recibe foco después de habilitarse. Véase [agenda semanal](../access/AGENDA.md).
 
 ## Copias y custodia
 
@@ -18,15 +22,15 @@ Tras comprobar localmente un archivo v5/v6 del modo actual, el titular puede reg
 
 ## Instalación y permisos
 
-El esquema fuente contiene trece migraciones. Se ha aplicado `20261122123320_backup_custody_receipts.sql` a los dos proyectos existentes, sin modificar Auth, factores, fichas o facturación. La cuenta clínica continúa sin activar y no se ha repetido la restauración del destino ocupado.
+El esquema fuente contiene catorce migraciones. Se ha aplicado `20261122143127_weekly_agenda.sql` a los dos proyectos existentes, sin modificar Auth, factores, fichas o facturación. La cuenta clínica continúa sin activar y no se ha repetido la restauración del destino ocupado.
 
-Comprobación administrativa por proyecto: doce tablas de aplicación, todas con RLS, cero permisos cliente de tabla, veintidós RPC públicos invoker y cero definer públicos. Una cuenta test, cero cuentas fuera de test, cero eventos de cambio de modo y cero comprobaciones reales creadas por el agente. El historial de migraciones del proyecto habitual tiene trece entradas; el recuperado, seis, porque su esquema inicial se reconstruyó agrupado. El número de entradas de ese historial no equivale al de archivos fuente.
+Comprobación administrativa por proyecto: doce tablas de aplicación, todas con RLS, cero permisos cliente de tabla, veintitrés RPC públicos invoker y cero definer públicos. Una cuenta test, cero cuentas fuera de test, cero eventos de cambio de modo y cero comprobaciones reales creadas por el agente. El historial de migraciones del proyecto habitual tiene catorce entradas; el recuperado, siete, porque su esquema inicial se reconstruyó agrupado. El número de entradas de ese historial no equivale al de archivos fuente.
 
-Las veintidós llamadas RPC anónimas por proyecto se rechazan por HTTPS con 401/42501; el esquema privado devuelve 406/PGRST106. El asesor conserva únicamente el aviso conocido de [protección contra contraseñas filtradas desactivada](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), cuya disponibilidad/decisión sigue en la revisión de proveedores. No se activa facturación.
+Las veintitrés llamadas RPC anónimas por proyecto se rechazan por HTTPS con 401/42501; el esquema privado devuelve 406/PGRST106. El asesor conserva únicamente el aviso conocido de [protección contra contraseñas filtradas desactivada](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), cuya disponibilidad/decisión sigue en la revisión de proveedores. No se activa facturación.
 
 ## Verificación
 
-68 pruebas SQL/identidad/permisos, 69 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
+73 pruebas SQL/identidad/permisos/utilidades, 76 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
 
 Una regresión adicional comprueba que cambiar el archivo durante una verificación anula el resultado anterior, conserva el nuevo archivo y exige comprobarlo de nuevo. Las cuatro pruebas afectadas de comprobación/custodia se repiten tras ese ajuste.
 
@@ -34,7 +38,7 @@ Los ensayos [clínico v6](CLINICAL_SERVICE_RECOVERY_REPORT.json) y [legado v5](S
 
 ## Publicación
 
-Site propietario privado, versión 17, commit `5c4770461ad47ec0a6e59d6d80910f350191c38a`, despliegue `appgdep_6b02e64c4cb08191a07ac4bde1f4c29d`, completado. Una cuenta propietaria, sin grupos/editores.
+Site propietario privado, versión 18, commit `7cbfa150da9ded867459a2a0cc4493cb68a34126`, despliegue `appgdep_6b03004cd2b4819186f2c6bdfcfc1027`, completado. Una cuenta propietaria, sin grupos/editores.
 
 - Habitual: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site
 - Recuperación: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/

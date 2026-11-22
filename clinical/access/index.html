@@ -256,9 +256,9 @@
                   <p>Las fichas que has consultado en esta sesión.</p>
                 </article>
                 <article class="overview-card">
-                  <span>Citas del día consultado</span
+                  <span>Citas de la semana consultada</span
                   ><strong id="home-appointments">Sin cargar</strong>
-                  <p id="home-agenda-day">Abre la agenda y elige un día.</p>
+                  <p id="home-agenda-day">Abre la agenda y elige una semana.</p>
                 </article>
               </div>
               <div class="quick-actions">
@@ -343,12 +343,12 @@
               data-app-view="agenda"
               class="workspace-page"
             >
-              <h2 id="agenda-title">Agenda y sesiones ficticias</h2>
+              <h2 id="agenda-title">Agenda semanal y sesiones ficticias</h2>
               <p>
                 Horario de la clínica: Europe/Madrid. Solo puedes citar a los
                 pacientes ficticios activos de esta base privada.
               </p>
-              <label for="agenda-date">Día de la agenda</label>
+              <label for="agenda-date">Fecha de la semana</label>
               <input
                 id="agenda-date"
                 type="date"
@@ -357,10 +357,17 @@
                 required
               />
               <div class="agenda-navigation">
-                <button id="agenda-prev" type="button">Día anterior</button
-                ><button id="agenda-next" type="button">Día siguiente</button>
+                <button id="agenda-prev" type="button">Semana anterior</button
+                ><button id="agenda-next" type="button">Semana siguiente</button
+                ><button id="agenda-today" type="button">Esta semana</button>
               </div>
-              <div id="agenda-week" aria-label="Días de la semana"></div>
+              <p id="agenda-view-state"></p>
+              <div
+                id="agenda-week"
+                role="region"
+                tabindex="0"
+                aria-label="Calendario semanal de lunes a viernes"
+              ></div>
               <div class="view-toolbar">
                 <button id="agenda-load" type="button">Cargar agenda</button>
                 <button id="agenda-new" type="button" class="primary">
@@ -368,7 +375,14 @@
                 </button>
               </div>
               <p id="agenda-loaded-day"></p>
-              <ul id="agenda-list" aria-label="Citas ficticias"></ul>
+              <p id="agenda-outside-note" hidden></p>
+              <details id="agenda-saved-list">
+                <summary>Listado de citas guardadas</summary>
+                <ul
+                  id="agenda-list"
+                  aria-label="Citas guardadas de la semana"
+                ></ul>
+              </details>
               <section id="agenda-editor" hidden class="editor-card">
                 <h3 id="agenda-editor-title"></h3>
                 <form id="appointment-form" autocomplete="off">

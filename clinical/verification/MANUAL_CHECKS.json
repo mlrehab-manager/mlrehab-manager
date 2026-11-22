@@ -38,12 +38,13 @@
     "holder_planning_reported_on": "2026-11-22",
     "previously_planned_review_month": "2026-12",
     "holder_current_plan": "Llamará el 23 de noviembre de 2026; la revisión de proveedores sigue pendiente.",
-    "holder_confirmation_received": false
+    "holder_confirmation_received": false,
+    "holder_latest_statement": "Solicita comenzar con pacientes reales el 23 de noviembre y prevé disponer de protección de datos en un par de días; aún no confirma revisión/custodia/activación."
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
   "updated_on": "2026-11-22",
-  "latest_site_version_available": 17,
+  "latest_site_version_available": 18,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
   "existing_agenda": "iPhone Calendar (holder clarification)",
@@ -51,5 +52,6 @@
   "requested_start_date": "2026-11-23",
   "clinical_profile_activated": false,
   "private_workspace_and_backup_registry": "not_yet_tested_by_holder",
-  "standalone_installation_on_ipad": "not_yet_tested_by_holder"
+  "standalone_installation_on_ipad": "not_yet_tested_by_holder",
+  "weekly_agenda_on_ipad": "not_yet_tested_by_holder"
 }

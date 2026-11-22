@@ -2,7 +2,7 @@
 
 22 de noviembre de 2026. El titular necesita empezar cuanto antes, será el único usuario y lleva la agenda actual en Calendario del iPhone. No se ha consultado ni importado ese calendario ni se presume dónde guarda historias anteriores.
 
-**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 17, con navegación de aplicación y registro de comprobaciones de copias.
+**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 18, con navegación de aplicación y registro de comprobaciones de copias.
 
 ## Trabajo técnico completado
 
