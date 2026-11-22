@@ -45,7 +45,10 @@
     "holder_confirmation_received": false,
     "holder_latest_statement": "Solicita comenzar con pacientes reales el 23 de noviembre y prevé disponer de protección de datos en un par de días; aún no confirma revisión/custodia/activación.",
     "sites_account_category": "individual_plus_or_pro_holder_confirmed",
-    "sites_applicable_dpa_identified": true
+    "sites_applicable_dpa_identified": true,
+    "account_and_plan_identification": "completed_holder_report_and_native_metadata",
+    "supabase_plan_observed": "free",
+    "specific_sensitive_data_contract_question": "section_4d_adequacy_to_healthcare_use_unresolved"
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
@@ -60,5 +63,15 @@
   "private_workspace_and_backup_registry": "not_yet_tested_by_holder",
   "standalone_installation_on_ipad": "not_yet_tested_by_holder",
   "weekly_agenda_on_ipad": "not_yet_tested_by_holder",
-  "compact_week_and_visit_colours": "not_yet_tested_by_holder"
+  "compact_week_and_visit_colours": "not_yet_tested_by_holder",
+  "closing_review": {
+    "requested_on": "2026-11-22",
+    "evidence": "CLOSING_REVIEW.json",
+    "live_metadata_rechecked_on": "2026-11-22",
+    "all_current_contents_invented": "awaiting_holder_confirmation",
+    "separate_phrase_recoverable_without_ipad": "awaiting_holder_confirmation",
+    "proposed_removal_scope_reviewed": false,
+    "destructive_operation_executed": false,
+    "clinical_activation_authorized": false
+  }
 }

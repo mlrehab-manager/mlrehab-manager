@@ -1,0 +1,243 @@
+{
+  "observed_on": "2026-11-22",
+  "purpose": "Read-only closing review; not clinical authorization, a file-custody receipt or a certification",
+  "reviewed_application_commit": "e9db7dc4dd80b23921f48f43f006ee3ea7152566",
+  "live_site": {
+    "version": 19,
+    "url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site",
+    "audience": "owner_only",
+    "owners": 1,
+    "editors": 0,
+    "groups": 0
+  },
+  "providers": {
+    "supabase": {
+      "organization_plan": "free",
+      "region": "eu-central-1",
+      "projects_active_healthy": 2,
+      "standard_dpa_identified": true,
+      "sensitive_data_clause_review": "open_section_4d",
+      "billing_changed": false
+    },
+    "sites": {
+      "account_category": "personal_plus_or_pro_holder_confirmed",
+      "applicable_dpa_identified": true,
+      "eea_contracting_party": "OpenAI Ireland Ltd",
+      "creation_chat_excluded_from_hosting_dpa": true
+    },
+    "clinical_backup_destination": {
+      "proposal": "Encrypted file in protected local storage outside cloud synchronization; Windows is the proposed device, not the only possible device",
+      "icloud_clinical_use_approved": false,
+      "physical_verification_completed": false
+    }
+  },
+  "working": {
+    "project_id": "jrrnvjrwrphmconrkayc",
+    "counts": {
+      "patients": 3,
+      "mode_events": 0,
+      "appointments": 3,
+      "audit_events": 64,
+      "backup_checks": 0,
+      "custom_exercises": 0,
+      "patient_versions": 8,
+      "session_versions": 1,
+      "clinical_sessions": 1,
+      "exercise_versions": 0,
+      "appointment_versions": 6
+    },
+    "tables": [
+      {
+        "rls": true,
+        "name": "patients"
+      },
+      {
+        "rls": true,
+        "name": "patient_versions"
+      },
+      {
+        "rls": true,
+        "name": "exercise_versions"
+      },
+      {
+        "rls": true,
+        "name": "authorized_clinicians"
+      },
+      {
+        "rls": true,
+        "name": "appointments"
+      },
+      {
+        "rls": true,
+        "name": "appointment_versions"
+      },
+      {
+        "rls": true,
+        "name": "clinical_sessions"
+      },
+      {
+        "rls": true,
+        "name": "session_versions"
+      },
+      {
+        "rls": true,
+        "name": "audit_events"
+      },
+      {
+        "rls": true,
+        "name": "mode_events"
+      },
+      {
+        "rls": true,
+        "name": "custom_exercises"
+      },
+      {
+        "rls": true,
+        "name": "backup_checks"
+      }
+    ],
+    "profiles": [
+      {
+        "enabled": true,
+        "data_mode": "test",
+        "has_approval_reference": false
+      }
+    ],
+    "observed_at": "2026-11-22T15:52:41.824641+00:00",
+    "latest_export_at": "2026-11-21T11:04:21.520835+00:00",
+    "public_rpc_count": 24,
+    "client_table_grants": 0,
+    "latest_backup_check": null,
+    "public_definer_count": 0,
+    "non_fixture_patient_count": 0
+  },
+  "recovery": {
+    "project_id": "wtlwhokxgskktjcqqtzn",
+    "counts": {
+      "patients": 2,
+      "mode_events": 0,
+      "appointments": 1,
+      "audit_events": 13,
+      "backup_checks": 0,
+      "custom_exercises": 1,
+      "patient_versions": 4,
+      "session_versions": 1,
+      "clinical_sessions": 1,
+      "exercise_versions": 3,
+      "appointment_versions": 2
+    },
+    "tables": [
+      {
+        "rls": true,
+        "name": "authorized_clinicians"
+      },
+      {
+        "rls": true,
+        "name": "patients"
+      },
+      {
+        "rls": true,
+        "name": "patient_versions"
+      },
+      {
+        "rls": true,
+        "name": "appointments"
+      },
+      {
+        "rls": true,
+        "name": "appointment_versions"
+      },
+      {
+        "rls": true,
+        "name": "clinical_sessions"
+      },
+      {
+        "rls": true,
+        "name": "session_versions"
+      },
+      {
+        "rls": true,
+        "name": "mode_events"
+      },
+      {
+        "rls": true,
+        "name": "custom_exercises"
+      },
+      {
+        "rls": true,
+        "name": "exercise_versions"
+      },
+      {
+        "rls": true,
+        "name": "audit_events"
+      },
+      {
+        "rls": true,
+        "name": "backup_checks"
+      }
+    ],
+    "profiles": [
+      {
+        "enabled": true,
+        "data_mode": "test",
+        "has_approval_reference": false
+      }
+    ],
+    "observed_at": "2026-11-22T15:52:38.479324+00:00",
+    "latest_export_at": "2026-11-21T08:11:38.932423+00:00",
+    "public_rpc_count": 24,
+    "client_table_grants": 0,
+    "latest_backup_check": null,
+    "public_definer_count": 0,
+    "non_fixture_patient_count": 0
+  },
+  "completed_checks": [
+    "both_projects_active_healthy_in_frankfurt",
+    "current_account_plan_and_applicable_hosting_dpa_identified",
+    "both_projects_12_tables_all_rls_zero_client_table_grants_24_public_invoker_rpc",
+    "private_site_owner_only_version_19",
+    "existing_v5_v6_restore_reports_pass_with_nine_collections_equal_hashes",
+    "application_ci_45039800878_passed"
+  ],
+  "open_findings": [
+    {
+      "id": "provider_case_review",
+      "status": "requires_resolution",
+      "detail": "Supabase DPA section 4(d), applicable healthcare basis/information, transfer safeguards and chosen custody arrangement need a documented responsible-party decision. No particular consultancy purchase or vendor reply is a universal requirement."
+    },
+    {
+      "id": "physical_custody",
+      "status": "requires_holder_action",
+      "detail": "No registered custody checks. Prior iPad verification and iPhone download are holder reports, not evidence of independent file verification or separate phrase recovery."
+    },
+    {
+      "id": "test_set_transition",
+      "status": "prepared_scope_only",
+      "detail": "The current nine collections contain three patients, three appointments and one session with their versions and audit. Fixture markers do not prove that all entered text is invented; holder confirmation and a current checked backup are required before any proposed removal."
+    },
+    {
+      "id": "leaked_password_protection",
+      "status": "known_warning_unchanged",
+      "detail": "Only security-advisor warning on each project. No billing change or claim that it has been enabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+    }
+  ],
+  "changes_made_to_live_data": false,
+  "profile_activated": false,
+  "destructive_operation_executed": false,
+  "new_contracts_accepted": false,
+  "vendor_messages_sent": false,
+  "limits": [
+    "Aggregate read-only metadata only; no patient content, auth secrets, phrases or backup files collected",
+    "Fixture markers cannot establish that no real information was typed",
+    "Current Safari rendering and physical custody are not independently observed",
+    "No availability, recovery-time or legal-compliance certification"
+  ],
+  "sources": [
+    "https://supabase.com/legal/customer-resources/data-processing-addendum",
+    "https://supabase.com/legal/privacy-resources/data-residency-and-transfers-faq",
+    "https://supabase.com/docs/guides/platform/backups",
+    "https://openai.com/policies/chatgpt-sites-data-processing-addendum/",
+    "https://www.aepd.es/preguntas-frecuentes/16-salud/2-profesionales-sanitarios/FAQ-1635-es-necesario-que-el-medico-o-el-centro-sanitario-solicite-el-consentimiento-a-los-pacientes-para-tratar-sus-datos-personales"
+  ]
+}

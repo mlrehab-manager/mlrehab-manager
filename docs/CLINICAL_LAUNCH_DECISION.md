@@ -1,32 +1,55 @@
-# Puesta en marcha · estado tras preparar el modelo clínico
+# Puesta en marcha · revisión de cierre
 
-22 de noviembre de 2026. El titular necesita empezar cuanto antes, será el único usuario y lleva la agenda actual en Calendario del iPhone. No se ha consultado ni importado ese calendario ni se presume dónde guarda historias anteriores.
+22 de noviembre de 2026. Solicitud del titular: cerrar los pendientes para trabajar con MLREHAB. Alcance: fisioterapeuta autónomo individual en España, actualmente desde iPad. La aplicación privada publicada sigue en versión 19 y el perfil habitual permanece en modo de prueba.
 
-**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 19, con navegación de aplicación y registro de comprobaciones de copias.
+## Comprobado y cerrado en esta revisión
 
-## Trabajo técnico completado
+Se han consultado de nuevo ambos proyectos, su configuración de permisos y el acceso del Site. La [evidencia agregada](../clinical/verification/CLOSING_REVIEW.json) contiene fecha, recuentos y límites, sin contenido de fichas, archivos o secretos.
 
-- Identificación validada en servidor/cliente, nombre derivado, UUID e idempotencia; homónimos admitidos.
-- Historia, notas, agenda/sesiones, archivo, revisiones y auditoría para el modelo clínico, sin marcadores de fixture.
-- Copia clínica v6, cifrado, integridad y recuperación de las nueve colecciones; compatibilidad de archivos de prueba anteriores.
-- Activación y suspensión administradas en servidor, sin selector cliente. Restauración clínica inicialmente suspendida y sin admisión; no importa permisos o secretos del origen.
-- Pruebas SQL/interfaz y ensayos de servicios reales locales con datos sintéticos. Las cuentas actuales y sus datos de prueba se conservan.
+- Ambos proyectos están operativos en Frankfurt. La organización mantiene Free; no hay cambio de facturación.
+- Cada proyecto tiene doce tablas de aplicación con RLS, cero permisos cliente de tabla, veinticuatro RPC públicos invoker y cero definer públicos.
+- El Site conserva un solo propietario, sin editores o grupos, y la versión 19. La demo pública continúa separada.
+- El código de aplicación revisado tiene CI correcta y ensayos v5/v6 de recuperación de nueve colecciones con hashes coincidentes. Esto no verifica el archivo concreto del titular.
+- Se ha identificado el contrato de alojamiento correspondiente a su cuenta personal Plus/Pro. La [revisión documental](CLINICAL_PROVIDER_REVIEW.md) distingue este contrato del chat de desarrollo.
 
-Los detalles y las evidencias están en [PROJECT_STATUS.md](../clinical/verification/PROJECT_STATUS.md) y el [procedimiento de activación](../clinical/CLINICAL_ACTIVATION.md). El punto de reanudación de la interrupción quedó resuelto.
+El único aviso del asesor de seguridad continúa siendo [protección contra contraseñas filtradas desactivada](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). Se registra como limitación conocida; no se presenta como habilitada ni se cambia de plan.
 
-## Pendiente antes de activar
+## Proveedores: la decisión concreta pendiente
 
-| Prioridad | Decisión/operación | Criterio de cierre |
-| --- | --- | --- |
-| P0 | Condiciones y tratamiento sanitario | Resolver la revisión específica de proveedores, encargos/transferencias, información y obligaciones aplicables. El titular llamará sobre proveedores el 23 de noviembre; todavía no ha confirmado el cierre. |
-| P0 | Custodia y continuidad | Frecuencia, rotación y contingencia ya definidas; ejecutar y confirmar copia local independiente en Windows y frase recuperable por separado. Revisar el destino para uso clínico y límites/pausas de Free. Descargar el archivo en otro dispositivo no acredita todo esto. |
-| P0 | Conjunto clínico limpio | Preparar una operación explícita y revisada sobre los ejemplos, conservando antes su copia y confirmando que no son historias reales. No convierte ni borra automáticamente fixtures, cuentas o factores. |
-| P1 | Validación y decisión de salida | Revisar el recorrido final, límites e incidencias críticas y registrar versión/configuración y referencia de decisión. Un operador habilita el perfil solo después; esta entrega no lo hace. |
+Los textos aplicables y los flujos ya están identificados. El DPA estándar de Supabase se incorpora a su acuerdo de servicio y existe un DPA de Sites para planes personales; no se deja pendiente una compra genérica de «protección» ni se exige Business por defecto.
 
-No se exige contratar una asesoría concreta o esperar a diciembre. Se puede continuar desarrollando y cerrar las decisiones antes si se resuelven. La contratación prevista no equivale a contratos revisados o a activación automática.
+Falta documentar la adecuación al caso sanitario: encaje del apartado 4(d) de Supabase, información/base aplicable al paciente, salvaguardas de transferencias y destino de custodia. La [AEPD](https://www.aepd.es/preguntas-frecuentes/16-salud/2-profesionales-sanitarios/FAQ-1635-es-necesario-que-el-medico-o-el-centro-sanitario-solicite-el-consentimiento-a-los-pacientes-para-tratar-sus-datos-personales) distingue asistencia sanitaria, consentimiento e información; añadir una casilla no resuelve por sí solo la cláusula contractual. La duda acotada está redactada en [las consultas preparadas](CLINICAL_VENDOR_QUESTIONS.md), sin enviar.
 
-## Confirmaciones que no se repiten
+La decisión puede apoyarse en una aclaración del proveedor o una revisión competente del responsable; no se exige una respuesta comercial o contratar una asesoría concreta como trámite universal. Las obligaciones del tratamiento y las dudas materiales siguen pendientes de resolver, sin certificarlas desde el código.
 
-El titular ya confirmó alta/guardado/reapertura, motivo/precauciones y archivo cifrado verificado en iPad, guardado en iCloud y descargable desde iPhone. El [registro manual](../clinical/verification/MANUAL_CHECKS.json) distingue esas declaraciones de descifrado/restauración en el segundo dispositivo o recuperación de cuenta, que no se han confirmado.
+## Copias: procedimiento definido, prueba material pendiente
 
-Quedan para otras iteraciones los informes, ampliaciones de catálogo, equipos/roles/invitaciones e importación de calendarios. La interfaz de aplicación ya está implementada. La agenda existente puede mantenerse durante la transición. No se propone introducir pacientes reales bajo aliases ficticios ni subir historias al chat para probarlas.
+La [rutina](CLINICAL_BACKUP_OPERATIONS.md) ya fija copia manual tras jornadas con cambios, verificación, rotación y restauración aislada. La propuesta para datos clínicos es un archivo cifrado en almacenamiento local protegido fuera de sincronización y una frase separada recuperable. Windows es el dispositivo propuesto, no una exigencia ligada a ese sistema operativo. Otro dispositivo protegido o soporte externo independiente puede servir si se comprueban sus condiciones y recuperación.
+
+Está confirmada por el titular una comprobación anterior en iPad y una descarga desde iPhone. Hoy hay cero comprobaciones registradas y la última exportación observada es del 21 de noviembre. Ninguno de esos datos acredita por sí solo independencia o recuperación de la frase.
+
+Paso realizable ahora: en **Copias**, crear un archivo actual, guardarlo, abrirlo desde Archivos con **Comprobar archivo** y usar **Guardar comprobación** con las declaraciones que sean ciertas. No enviar archivo o frase al chat. La copia independiente y apertura desde otro dispositivo siguen pendientes mientras solo esté disponible el iPad. iCloud se conserva como destino del ensayo; su uso clínico no se da por aprobado.
+
+## Operación de transición preparada para revisar
+
+La operación propuesta conservaría cuenta, contraseña y autenticador actuales, así como el catálogo general incluido en el código. Retiraría exclusivamente el conjunto de pruebas del titular del proyecto habitual después de conservar y comprobar su copia. El destino de recuperación y la demo pública quedarían fuera de esa operación.
+
+Recuentos observados a las 15:52 UTC del 22 de noviembre; deberán coincidir de nuevo antes de cualquier ejecución:
+
+| Colección del conjunto habitual      | Registros actuales | Resultado propuesto |
+| ------------------------------------ | -----------------: | ------------------: |
+| Pacientes                            |                  3 |                   0 |
+| Versiones de pacientes               |                  8 |                   0 |
+| Citas                                |                  3 |                   0 |
+| Versiones de citas                   |                  6 |                   0 |
+| Sesiones                             |                  1 |                   0 |
+| Versiones de sesiones                |                  1 |                   0 |
+| Ejercicios propios                   |                  0 |                   0 |
+| Versiones de ejercicios              |                  0 |                   0 |
+| Auditoría de ese conjunto de pruebas |                 64 |                   0 |
+
+Los marcadores de fixture son compatibles con pruebas, pero no demuestran que todo el texto introducido sea inventado. La confirmación del titular está solicitada y aún no se sustituye por una inferencia del agente. Cualquier cambio de recuentos, confirmación de datos reales o falta de copia comprobada obliga a revisar esta propuesta antes de retirar registros.
+
+La propuesta de retirada no se ha ejecutado ni se considera autorizada por pedir una revisión de cierre. Una vez resueltas las condiciones y la custodia, el titular revisará el alcance destructivo concreto. La operación administrativa deberá bloquear la admisión durante la transacción, revalidar el conjunto y registrar la decisión de activación. El perfil solo pasará a modo clínico con conjunto vacío y referencia de decisión; el código no lo activa automáticamente.
+
+La reserva MFA independiente continúa aplazada por el titular. No se ha accedido al Calendario del iPhone, enviado mensajes a proveedores o aceptado nuevos contratos. La versión de aplicación no cambia por esta revisión documental.
