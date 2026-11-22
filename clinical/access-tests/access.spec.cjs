@@ -2314,3 +2314,57 @@ test("failed custody acknowledgement keeps the local check and reuses its reques
   await expect(page.locator("#backup-custody")).toBeHidden();
   await expect(page.locator("#restore-phrase")).toHaveValue("");
 });
+
+test("changing the selected backup cancels an older verification and preserves the new file", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await navigate(page, "backups");
+  const { encryptBackup } = await import("../backups/crypto.mjs");
+  const encrypted = await encryptBackup(
+    require("./backup-patient-workflow-fixture.json"),
+    backupPhrase,
+  );
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    "**/rest/v1/rpc/clinical_access_check",
+    async (route) => {
+      await gate;
+      await route.fallback();
+    },
+    { times: 1 },
+  );
+  await page.locator("#backup-file").setInputFiles({
+    name: "primera.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  const requested = page.waitForRequest("**/rest/v1/rpc/clinical_access_check");
+  await page.locator("#backup-inspect button").click();
+  await requested;
+  await page.locator("#backup-file").setInputFiles({
+    name: "segunda.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from("archivo sintético incompleto"),
+  });
+  release();
+  await expect(page.locator("#backup-inspect button")).toBeEnabled();
+  await expect(page.locator("#status")).toHaveText(
+    "Archivo seleccionado. Introduce su frase y compruébalo.",
+  );
+  await expect(page.locator("#backup-custody")).toBeHidden();
+  expect(
+    await page.locator("#backup-file").evaluate((el) => el.files[0]?.name),
+  ).toBe("segunda.mlrehab");
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.locator("#status")).toContainText(
+    "No se pudo verificar el archivo",
+  );
+  await expect(page.locator("#backup-custody")).toBeHidden();
+});

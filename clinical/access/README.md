@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta y ocho pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta y nueve pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 

@@ -1,6 +1,6 @@
 # Estado verificado · 22 de noviembre de 2026
 
-La versión privada 16 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
+La versión privada 17 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
 
 ## Interfaz privada
 
@@ -26,13 +26,15 @@ Las veintidós llamadas RPC anónimas por proyecto se rechazan por HTTPS con 401
 
 ## Verificación
 
-68 pruebas SQL/identidad/permisos, 68 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
+68 pruebas SQL/identidad/permisos, 69 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
+
+Una regresión adicional comprueba que cambiar el archivo durante una verificación anula el resultado anterior, conserva el nuevo archivo y exige comprobarlo de nuevo. Las cuatro pruebas afectadas de comprobación/custodia se repiten tras ese ajuste.
 
 Los ensayos [clínico v6](CLINICAL_SERVICE_RECOVERY_REPORT.json) y [legado v5](SERVICE_RECOVERY_REPORT.json) reconstruyen PostgreSQL, GoTrue y PostgREST con imágenes fijadas, origen cerrado antes de recuperar, cuenta/contraseña/MFA recreados y nueve colecciones con hashes coincidentes. Comprueban admisión inicial cerrada, suspensión cuando procede, tokens de origen/sesión cerrada rechazados y registro de metadatos accesible solo al origen y sin heredar falsa confirmación de custodia tras recuperar. Todo es sintético. No certifican identidad humana/proveedor, custodia del archivo del titular o plazos de recuperación.
 
 ## Publicación
 
-Site propietario privado, versión 16, commit `2a384569690a7c9343b9f55d09adea38f62afe17`, despliegue `appgdep_6b02e4a3522c81919c076ad65476b00f`, completado. Una cuenta propietaria, sin grupos/editores.
+Site propietario privado, versión 17, commit `5c4770461ad47ec0a6e59d6d80910f350191c38a`, despliegue `appgdep_6b02e64c4cb08191a07ac4bde1f4c29d`, completado. Una cuenta propietaria, sin grupos/editores.
 
 - Habitual: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site
 - Recuperación: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/

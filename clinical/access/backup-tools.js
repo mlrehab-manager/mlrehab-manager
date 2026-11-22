@@ -7,7 +7,9 @@ import {
 import { validateSnapshot } from "../backups/snapshot.mjs";
 const $ = (id) => document.getElementById(id);
 let pendingCheck = null;
+let checkEpoch = 0;
 function clearCheck() {
+  checkEpoch++;
   pendingCheck = null;
   $("backup-custody").reset();
   $("backup-custody").hidden = true;
@@ -140,17 +142,18 @@ export function installBackupTools({
       if (!isAuthorized()) return;
       const file = $("backup-file").files[0];
       clearCheck();
+      const attempt = checkEpoch;
       let phrase = $("restore-phrase").value;
       $("restore-phrase").value = "";
       try {
         if (!file || file.size > MAX_BACKUP_FILE_BYTES) throw new Error();
         const owner = await currentOwner(isCurrent);
-        if (!owner) return;
+        if (!owner || attempt !== checkEpoch) return;
         const encrypted = await file.text();
         const snapshot = validateSnapshot(
           await decryptBackup(encrypted, phrase),
         );
-        if (!isCurrent()) return;
+        if (!isCurrent() || attempt !== checkEpoch) return;
         if (snapshot.clinician_id !== owner) throw new Error();
         const exportEvent = snapshot.audit_events
           .filter((e) => e.action === "backup.export")
@@ -160,7 +163,7 @@ export function installBackupTools({
             "SHA-256",
             new TextEncoder().encode(encrypted),
           );
-          if (!isCurrent()) return;
+          if (!isCurrent() || attempt !== checkEpoch) return;
           pendingCheck = {
             version: snapshot.version,
             export_event_id: exportEvent.id,
@@ -178,17 +181,20 @@ export function installBackupTools({
           `Archivo verificado: ${snapshot.patients.length} pacientes ficticios, ${snapshot.patient_versions.length} versiones y ${snapshot.audit_events.length} eventos.${snapshot.version >= 2 ? ` Incluye ${snapshot.appointments.length} citas y ${snapshot.sessions.length} sesiones.` : ""}${snapshot.version >= 3 ? ` Incluye ${snapshot.custom_exercises.length} ejercicios propios.` : ""} No se han cambiado datos de la base.`,
         );
       } catch {
-        if (isCurrent())
+        if (isCurrent() && attempt === checkEpoch)
           message(
             "No se pudo verificar el archivo. Revisa la frase y que sea una copia de prueba completa de esta cuenta.",
           );
       } finally {
         phrase = null;
-        $("backup-file").value = "";
+        if (attempt === checkEpoch) $("backup-file").value = "";
       }
     });
   });
-  $("backup-file").addEventListener("change", clearCheck);
+  $("backup-file").addEventListener("change", () => {
+    clearCheck();
+    message("Archivo seleccionado. Introduce su frase y compruébalo.");
+  });
   $("backup-status-load").addEventListener("click", () =>
     run(async (isCurrent) => {
       if (!isAuthorized()) return;
