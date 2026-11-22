@@ -139,8 +139,8 @@ export function snapshotQuery(snapshot) {
     snapshot.format,
     "version",
     snapshot.version,
-    "test_only",
-    true,
+    snapshot.version === 6 ? "data_mode" : "test_only",
+    snapshot.version === 6 ? "clinical" : true,
     "clinician_id",
     snapshot.clinician_id,
     "created_at",
@@ -165,12 +165,20 @@ export function snapshotQuery(snapshot) {
   });
   return `select jsonb_build_object(${root},${lists.join(",")}) as snapshot`;
 }
-export async function recoveryDataSql(input, project) {
+export async function recoveryDataSql(
+  input,
+  project,
+  { allowClinical = false } = {},
+) {
   ref(project);
   const snapshot = validateSnapshot(input);
-  if (![4, 5].includes(snapshot.version))
+  if (snapshot.version === 6 && allowClinical !== true)
     throw new Error(
-      "Este procedimiento de servicio requiere una copia versión 4 o 5",
+      "La restauración clínica requiere una decisión administrativa explícita",
+    );
+  if (![4, 5, 6].includes(snapshot.version))
+    throw new Error(
+      "Este procedimiento de servicio requiere una copia versión 4, 5 o 6",
     );
   const hash = await snapshotDigest(snapshot),
     expected = JSON.stringify(snapshot),
@@ -182,7 +190,7 @@ export async function recoveryDataSql(input, project) {
     `insert into recovery_checks select count(*)=1 from recovery_admin.destination where project_ref=${literal(project)} and stage='schema_ready';`,
     `insert into recovery_checks select count(*)=1 from auth.users where id=${identity}::uuid and email_confirmed_at is not null and banned_until is null;`,
     `insert into recovery_checks select not exists(select 1 from clinical_private.authorized_clinicians) ${collections.map(([, t]) => `and not exists(select 1 from clinical_private.${t})`).join(" ")};`,
-    `insert into clinical_private.authorized_clinicians(user_id,enabled) values(${identity},false);`,
+    `insert into clinical_private.authorized_clinicians(user_id,enabled,data_mode) values(${identity},false,${literal(snapshot.version === 6 ? "suspended" : "test")});`,
   ];
   for (const [name, table, fields] of collections)
     for (const row of snapshot[name]) {

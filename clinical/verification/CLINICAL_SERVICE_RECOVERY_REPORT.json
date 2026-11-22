@@ -1,0 +1,98 @@
+{
+  "tested_at": "2026-11-22T10:02:21.690Z",
+  "test_only": true,
+  "passed": true,
+  "services": {
+    "postgres": "postgres@sha256:a77aa70e641402a21411b92b721c58d10f23b50ae5fdd2333efd22d166e1e5f7",
+    "auth": "public.ecr.aws/supabase/gotrue@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+    "rest": "public.ecr.aws/supabase/postgrest@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+  },
+  "migration_manifest": [
+    {
+      "name": "001_private_patients.sql",
+      "sha256": "014ab7862765adfa47ccc057bad1928b3dcfa5603afcf63eb78c509f9e61c6bc"
+    },
+    {
+      "name": "002_private_rpc_boundary.sql",
+      "sha256": "390336157f56b14070cebef25761aa12dbbaabbd8d780d697b5e9a0af8bc2e00"
+    },
+    {
+      "name": "20261111181241_clinical_session_guard.sql",
+      "sha256": "4af63c435ebab26a74a08585aebdc3820162b9ba07536ea2625e125f5d70eae7"
+    },
+    {
+      "name": "20261115164119_clinical_test_backups.sql",
+      "sha256": "127a2793462f68028c21dd547f180441cf804c22bfcbf5997ad04dfa38e8a88b"
+    },
+    {
+      "name": "20261118183217_clinical_patient_fields_test.sql",
+      "sha256": "20664cba6a5af47842c35ecefce5d1610605a83fffd1ddc50365c6d56c6d1a40"
+    },
+    {
+      "name": "20261118190042_clinical_agenda_sessions_test.sql",
+      "sha256": "651997980e909b2ed5505663894a5884651efd7c9a397af9419318fdd6576e9b"
+    },
+    {
+      "name": "20261118191839_clinical_agenda_reference_indexes.sql",
+      "sha256": "981723cd24428eb5c34e502c99871d2ea5b0a6b49634f361d0f4e5fe6d1ea1fb"
+    },
+    {
+      "name": "20261118194017_clinical_custom_exercises_test.sql",
+      "sha256": "cd5d0d77351921695516808819597d168cd8ba5d95f5cfd0f98ec176bc7cabb1"
+    },
+    {
+      "name": "20261118212542_clinical_exercise_revisions_test.sql",
+      "sha256": "9754fad3585c554cd8a224fea2c1a345eb934d105ab94eb6778460f1aa0c6c60"
+    },
+    {
+      "name": "20261121095456_clinical_patient_workflow_test.sql",
+      "sha256": "2eb06e1c078f232169fcfc88f92ca41996886e067ea36a5b09c18988750b8a3f"
+    },
+    {
+      "name": "20261122090429_clinical_patient_intake_test.sql",
+      "sha256": "58f109f41f23573b1c51d6d210d2ae1ee5899184d26749c2aafb4b428b5b2122"
+    },
+    {
+      "name": "20261122093236_clinical_patient_model.sql",
+      "sha256": "6edfeb32b53c431d6078713d9c503ef5e39479233e755f204012d6a7c7bdcdff"
+    }
+  ],
+  "schema_sha256": "6ecb68f16573527d9dfaa4b0511428fc517cf94466117b08055f36264dd285e5",
+  "source_closed_before_restore": true,
+  "source_hash": "4b23c39d561e751c42f0124dd6653d3d4cbf0a7e8f0aefe0f8d9f099293bdfa0",
+  "restored_hash": "4b23c39d561e751c42f0124dd6653d3d4cbf0a7e8f0aefe0f8d9f099293bdfa0",
+  "counts": {
+    "patients": 2,
+    "patient_versions": 3,
+    "appointments": 1,
+    "appointment_versions": 2,
+    "sessions": 1,
+    "session_versions": 1,
+    "custom_exercises": 1,
+    "exercise_versions": 3,
+    "audit_events": 10
+  },
+  "security": {
+    "rls_tables": 11,
+    "client_table_grants": 0
+  },
+  "snapshot_version": 6,
+  "clinical_data_mode": true,
+  "clinical_suspension_verified": true,
+  "patient_creation_idempotent": true,
+  "patient_intake_fields_restored": true,
+  "real_auth_and_rest": true,
+  "auth_created_via_admin_api": true,
+  "password_and_mfa_recreated": true,
+  "no_managed_auth_sql_writes": true,
+  "aal1_denied": true,
+  "admission_disabled_until_verified": true,
+  "old_project_jwt_denied": true,
+  "revoked_session_denied": true,
+  "elapsed_seconds": 16,
+  "limits": [
+    "Local core services, not hosted Supabase disaster recovery",
+    "Synthetic account only; human identity verification and lost-provider-account recovery are not tested",
+    "No SMTP, Storage, hosting, offsite custody, automatic backups or RPO/RTO guarantee"
+  ]
+}

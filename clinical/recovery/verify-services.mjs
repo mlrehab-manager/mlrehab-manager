@@ -11,11 +11,18 @@ import {
 } from "./restore-sql.mjs";
 import { encryptBackup, decryptBackup } from "../backups/crypto.mjs";
 import { validateSnapshot, snapshotDigest } from "../backups/snapshot.mjs";
+const clinical = process.argv.includes("--clinical");
 const started = Date.now(),
-  owner = process.argv[2] ?? randomUUID();
+  owner =
+    process.argv.slice(2).find((a) => !a.startsWith("--")) ?? randomUUID();
 if (!/^[0-9a-f-]{36}$/.test(owner))
   throw new Error("Invalid synthetic identity");
-const directory = new URL("../../work/service-recovery/", import.meta.url);
+const directory = new URL(
+  clinical
+    ? "../../work/clinical-service-recovery/"
+    : "../../work/service-recovery/",
+  import.meta.url,
+);
 await mkdir(directory, { recursive: true });
 const client = (service, admin = false) =>
   createClient(service.url, admin ? service.serviceKey : service.anonKey, {
@@ -98,22 +105,42 @@ try {
   if (denied.error?.code !== "42501")
     throw new Error("AAL1 access was not denied");
   await enroll(c);
-  await rpc(c, "clinical_backup_seed_test");
-  const patient = await rpc(c, "clinical_patient_create_test", {
-    p_alias: "Caso de recuperación ampliada",
-    p_request_id: crypto.randomUUID(),
-  });
-  const duplicate = await rpc(c, "clinical_patient_create_test", {
-    p_alias: "Caso de recuperación ampliada",
-    p_request_id: patient.id,
-  });
+  if (clinical)
+    source.psql(
+      `update clinical_private.authorized_clinicians set data_mode='clinical',approval_reference='synthetic-local-approval' where user_id='${owner}'`,
+    );
+  else await rpc(c, "clinical_backup_seed_test");
+  const identity = {
+    given_name: "Persona",
+    family_name: "Sintética",
+    birth_date: "1990-01-02",
+    phone: "",
+    email: "synthetic@example.invalid",
+  };
+  const createName = clinical
+    ? "clinical_patient_register"
+    : "clinical_patient_create_test";
+  const creation = clinical
+    ? { p_identity: identity, p_request_id: randomUUID() }
+    : { p_alias: "Caso de recuperación ampliada", p_request_id: randomUUID() };
+  const patient = await rpc(c, createName, creation);
+  const duplicate = await rpc(c, createName, creation);
   if (!duplicate.already_present)
     throw new Error("Repeated create was not idempotent");
+  if (clinical) {
+    const namesake = await rpc(c, createName, {
+      p_identity: identity,
+      p_request_id: randomUUID(),
+    });
+    if (namesake.id === patient.id) throw new Error("Namesakes were collapsed");
+  }
   await rpc(c, "clinical_patient_save_fields_test", {
     p_id: patient.id,
     p_expected_revision: 1,
     p_fields: {
-      alias: "Caso de recuperación revisado",
+      ...(clinical
+        ? { family_name: "Sintética revisada" }
+        : { alias: "Caso de recuperación revisado" }),
       history: "Historia ficticia",
       reason: "Motivo ficticio del ensayo",
       precautions: "Precaución ficticia del ensayo",
@@ -177,13 +204,16 @@ try {
     ),
   );
   phrase = null;
-  const restore = await recoveryDataSql(snapshot, "local-recovery-target");
+  const restore = await recoveryDataSql(snapshot, "local-recovery-target", {
+    allowClinical: clinical,
+  });
   target.psql(restore.sql);
-  await writeFile(
-    new URL("synthetic-hosted-restore.sql", directory),
-    (await recoveryDataSql(snapshot, "wtlwhokxgskktjcqqtzn")).sql,
-    { mode: 0o600 },
-  );
+  if (!clinical)
+    await writeFile(
+      new URL("synthetic-hosted-restore.sql", directory),
+      (await recoveryDataSql(snapshot, "wtlwhokxgskktjcqqtzn")).sql,
+      { mode: 0o600 },
+    );
   const readback = validateSnapshot(
       JSON.parse(target.psql(snapshotQuery(snapshot))),
     ),
@@ -193,16 +223,19 @@ try {
   if ((await recovered.rpc("clinical_access_check")).error?.code !== "42501")
     throw new Error("Restored account was enabled too early");
   target.psql(
-    `update clinical_private.authorized_clinicians set enabled=true where user_id='${owner}'`,
+    `update clinical_private.authorized_clinicians set enabled=true${clinical ? ",data_mode='clinical',approval_reference='synthetic-local-recovery'" : ""} where user_id='${owner}'`,
   );
   await rpc(recovered, "clinical_access_check");
   const restoredPatients = await rpc(recovered, "clinical_patient_list_test");
   if (
-    restoredPatients.length !== 3 ||
+    restoredPatients.length !== (clinical ? 2 : 3) ||
     !restoredPatients.some(
       (p) =>
         p.id === patient.id &&
-        p.name === "FICTICIO · Caso de recuperación revisado",
+        p.name ===
+          (clinical
+            ? "Persona Sintética revisada"
+            : "FICTICIO · Caso de recuperación revisado"),
     )
   )
     throw new Error("New patient workflow did not survive restoration");
@@ -241,6 +274,20 @@ try {
   );
   sourceToken = null;
   if (foreign.status !== 401) throw new Error("Old-project JWT accepted");
+  if (clinical) {
+    target.psql(
+      `update clinical_private.authorized_clinicians set data_mode='suspended' where user_id='${owner}'`,
+    );
+    if (
+      (await recovered.rpc("clinical_patient_list_test")).error?.code !==
+      "42501"
+    )
+      throw new Error("Suspended clinical access was accepted");
+    target.psql(
+      `update clinical_private.authorized_clinicians set data_mode='clinical' where user_id='${owner}'`,
+    );
+    await rpc(recovered, "clinical_access_check");
+  }
   const token = (await recovered.auth.getSession()).data.session.access_token;
   await recovered.auth.signOut({ scope: "local" });
   const revoked = await fetch(
@@ -263,7 +310,7 @@ try {
       `select json_build_object('rls_tables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='clinical_private' and c.relkind='r' and c.relrowsecurity),'client_table_grants',(select count(*) from information_schema.role_table_grants where table_schema='clinical_private' and grantee in ('anon','authenticated','PUBLIC'))) `,
     ),
   );
-  if (security.rls_tables !== 10 || security.client_table_grants !== 0)
+  if (security.rls_tables !== 11 || security.client_table_grants !== 0)
     throw new Error("Restored security boundary differs");
   const report = {
     tested_at: new Date().toISOString(),
@@ -277,7 +324,9 @@ try {
     restored_hash: restoredHash,
     counts: restore.counts,
     security,
-    snapshot_version: 5,
+    snapshot_version: clinical ? 6 : 5,
+    clinical_data_mode: clinical,
+    clinical_suspension_verified: clinical,
     patient_creation_idempotent: true,
     patient_intake_fields_restored: true,
     real_auth_and_rest: true,
@@ -296,7 +345,12 @@ try {
     ],
   };
   await writeFile(
-    new URL("../verification/SERVICE_RECOVERY_REPORT.json", import.meta.url),
+    new URL(
+      clinical
+        ? "../verification/CLINICAL_SERVICE_RECOVERY_REPORT.json"
+        : "../verification/SERVICE_RECOVERY_REPORT.json",
+      import.meta.url,
+    ),
     JSON.stringify(report, null, 2) + "\n",
   );
   console.log(

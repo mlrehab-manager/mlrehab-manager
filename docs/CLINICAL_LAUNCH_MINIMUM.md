@@ -32,3 +32,7 @@ Pruebas manuales confirmadas el 21 de noviembre: alta/guardado/reapertura en el 
 ## Priorización para el arranque solicitado mañana
 
 El 22 de noviembre el titular solicita trabajar el día 23 y aclara que ya usa Calendario del iPhone. La [decisión de puesta en marcha](CLINICAL_LAUNCH_DECISION.md) identifica los bloqueos técnicos concretos del modo ficticio y las tareas de custodia/condiciones, congela mejoras accesorias y evita repetir pruebas superadas. El circuito clínico y sus copias deben completarse y validarse antes de activarse; no se confirma que la versión actual sea apta para mañana.
+
+## Estado actual tras recuperar el desarrollo
+
+La versión privada 15 implementa identidad, modelo clínico y copias v6 con activación/suspensión administradas en servidor. Las cuentas actuales siguen en prueba y conservan sus datos. Se ha completado el trabajo de modelo/copia identificado como bloqueo técnico en la revisión anterior; la [decisión actual](CLINICAL_LAUNCH_DECISION.md) deja pendientes las condiciones del tratamiento, custodia/continuidad, conjunto clínico limpio y activación deliberada. El titular puede adelantar el servicio de protección de datos a esta semana y confirmará estos días: diciembre ya no es una espera del desarrollo ni existe activación programada. Véase [CLINICAL_ACTIVATION.md](../clinical/CLINICAL_ACTIVATION.md).

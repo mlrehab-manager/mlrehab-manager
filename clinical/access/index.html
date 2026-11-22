@@ -13,7 +13,7 @@
     <main>
       <p class="brand">MLREHAB MANAGER</p>
       <h1>Acceso de pruebas</h1>
-      <p>
+      <p data-test-only>
         Configuración de seguridad. Todavía no introduzcas datos de pacientes.
       </p>
       <p id="status" role="status" aria-live="polite">Preparando acceso…</p>
@@ -78,7 +78,7 @@
       </form>
       <section id="complete" hidden>
         <h2>Acceso de pruebas autorizado</h2>
-        <p>
+        <p id="environment-notice">
           El servidor ha comprobado tu cuenta admitida, el segundo factor y la
           vigencia de esta sesión. Este entorno solo admite datos ficticios;
           todavía no está listo para pacientes reales.
@@ -100,19 +100,62 @@
           <form id="patient-create-form" autocomplete="off" hidden>
             <fieldset id="patient-create-fields">
               <legend>Alta ficticia</legend>
-              <label for="patient-create-alias"
-                >Alias para la nueva ficha ficticia</label
-              ><input
-                id="patient-create-alias"
-                type="text"
-                maxlength="80"
-                required
-              />
-              <p>
-                Usa un alias de prueba, por ejemplo Caso 3. El servidor añade
-                FICTICIO al nombre. No introduzcas nombres, teléfonos ni otros
-                datos reales de pacientes.
-              </p>
+              <div data-test-only>
+                <label for="patient-create-alias"
+                  >Alias para la nueva ficha ficticia</label
+                ><input
+                  id="patient-create-alias"
+                  type="text"
+                  maxlength="80"
+                  required
+                />
+                <p>
+                  Usa un alias de prueba, por ejemplo Caso 3. El servidor añade
+                  FICTICIO al nombre. No introduzcas nombres, teléfonos ni otros
+                  datos reales de pacientes.
+                </p>
+              </div>
+              <div id="patient-create-identity" hidden>
+                <label for="patient-create-given_name">Nombre ficticio</label
+                ><input
+                  id="patient-create-given_name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                />
+                <label for="patient-create-family_name"
+                  >Apellidos ficticios</label
+                ><input
+                  id="patient-create-family_name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                />
+                <label for="patient-create-birth_date"
+                  >Fecha de nacimiento ficticia (opcional)</label
+                ><input
+                  id="patient-create-birth_date"
+                  type="date"
+                  maxlength="10"
+                  autocomplete="off"
+                />
+                <label for="patient-create-phone"
+                  >Teléfono ficticio (opcional)</label
+                ><input
+                  id="patient-create-phone"
+                  type="tel"
+                  maxlength="32"
+                  autocomplete="off"
+                />
+                <label for="patient-create-email"
+                  >Correo ficticio de contacto (opcional)</label
+                ><input
+                  id="patient-create-email"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="off"
+                />
+              </div>
               <button type="submit">Crear ficha ficticia</button>
             </fieldset>
             <button id="patient-create-cancel" type="button">
@@ -139,6 +182,43 @@
                 <label id="patient-alias-label" for="patient-alias" hidden
                   >Alias de la ficha ficticia</label
                 ><input id="patient-alias" type="text" maxlength="80" hidden />
+                <label for="patient-given_name">Nombre ficticio</label
+                ><input
+                  id="patient-given_name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                />
+                <label for="patient-family_name">Apellidos ficticios</label
+                ><input
+                  id="patient-family_name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                />
+                <label for="patient-birth_date"
+                  >Fecha de nacimiento ficticia (opcional)</label
+                ><input
+                  id="patient-birth_date"
+                  type="date"
+                  maxlength="10"
+                  autocomplete="off"
+                />
+                <label for="patient-phone">Teléfono ficticio (opcional)</label
+                ><input
+                  id="patient-phone"
+                  type="tel"
+                  maxlength="32"
+                  autocomplete="off"
+                />
+                <label for="patient-email"
+                  >Correo ficticio de contacto (opcional)</label
+                ><input
+                  id="patient-email"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="off"
+                />
                 <label for="patient-reason">Motivo de consulta ficticio</label>
                 <textarea
                   id="patient-reason"
@@ -153,7 +233,7 @@
                   rows="4"
                   maxlength="4000"
                 ></textarea>
-                <p>
+                <p data-test-only>
                   Texto libre opcional. Usa solo ejemplos inventados durante las
                   pruebas.
                 </p>
@@ -365,7 +445,7 @@
           </section>
         </section>
         <h2>Copias cifradas · prueba</h2>
-        <p>
+        <p id="backup-scope">
           La copia recoge las fichas ficticias actuales, incluidas las
           archivadas. Preparar los dos ejemplos iniciales es opcional. Incluye
           fichas, citas, sesiones y ejercicios propios de esta base privada con

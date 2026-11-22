@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta y cinco pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 
@@ -50,3 +50,5 @@ Los ejercicios propios se pueden editar y archivar desde su lista, con revisión
 El [flujo de fichas](PATIENTS.md) permite crear por alias ficticio, buscar, editar y archivar con historial conservado. Exportar ya no prepara pacientes automáticamente y la copia v5 mantiene los archivos v1–v4. Las funciones se prueban con datos sintéticos; el uso clínico sigue pendiente del plan de puesta en marcha.
 
 La ficha añade «Motivo de consulta ficticio» y «Antecedentes y precauciones ficticios», opcionales y separados de los textos anteriores. Se guardan con revisión, se incluyen en v5 y conservan las protecciones de borrador/cierre. No se añaden usuarios, roles o invitaciones; sigue siendo la aplicación individual de pruebas.
+
+El código de la versión 15 admite un modo clínico asignado por el servidor, identificación validada y copias v6. La cuenta actual sigue en prueba y permite ensayar identidad con ejemplos inventados. No hay botón de activación en la pantalla; la [activación clínica](../CLINICAL_ACTIVATION.md) se prepara por separado. Una denegación explícita de datos limpia todos los paneles y devuelve al acceso.

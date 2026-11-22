@@ -45,7 +45,7 @@ Para una pérdida real de cuenta se necesita verificar la identidad del titular 
 ## Protecciones de restauración
 
 - `schema.mjs` solo construye el esquema de aplicación; no copia roles o tablas ficticias de los tests. Rechaza un esquema existente y registra hashes de las migraciones.
-- `restore-sql.mjs` acepta exclusivamente snapshots ficticios v4 o v5 validados. Las copias antiguas siguen abriéndose en la herramienta de datos, pero no se importan automáticamente por este procedimiento de servicio.
+- `restore-sql.mjs` acepta exclusivamente snapshots ficticios v4/v5 validados; v6 clínico requiere opción booleana administrativa explícita. Las copias antiguas siguen abriéndose en la herramienta de datos, pero no se importan automáticamente por este procedimiento de servicio.
 - Rechaza explícitamente el ref del proyecto habitual. Exige un marcador de destino concordante en fase `schema_ready`, aplicación vacía e identidad Auth confirmada. Todo se comprueba dentro de la transacción.
 - Nombres/tablas/columnas son constantes; todos los valores se convierten en literales SQL escapados, incluidos backslashes, comillas, JSON y arrays. Una prueba inserta texto con apariencia de SQL y demuestra que sigue siendo texto.
 - No concede admisión automáticamente. Solo marca `data_restored` cuando la comparación completa de las nueve colecciones ha pasado. Un destino ocupado o un reintento se rechaza; no mezcla ni sobrescribe datos.
@@ -54,8 +54,14 @@ La restauración alojada de los fixtures, el acceso con MFA y la lectura por el 
 
 ## Ampliación de fichas ficticias · copia v5
 
-El esquema reconstruible actual contiene once migraciones de aplicación. El nuevo ensayo local con Auth/PostgREST reales crea una tercera ficha mediante el alta idempotente, edita su alias, le vincula una cita/sesión y recupera las nueve colecciones v5 con hashes coincidentes y autorización comprobada. La espera de PostgreSQL utiliza el listener TCP final, para no confundir el servidor temporal de initdb con el servicio listo.
+El esquema reconstruible actual contiene doce migraciones de aplicación. El nuevo ensayo local con Auth/PostgREST reales crea una tercera ficha mediante el alta idempotente, edita su alias, le vincula una cita/sesión y recupera las nueve colecciones v5 con hashes coincidentes y autorización comprobada. La espera de PostgreSQL utiliza el listener TCP final, para no confundir el servidor temporal de initdb con el servicio listo.
 
 La restauración alojada inicial sigue siendo el ensayo v4 de dos pacientes: se conservan su hash, recuentos y evidencia de acceso. La nueva migración amplía el esquema de ambos proyectos sin repetir la importación, crear usuarios ni cambiar Auth. Las dos rutas privadas reciben la misma interfaz actualizada, con sus backends/CSP separados. El constructor de recuperación preserva los archivos recién compilados de la ruta habitual; esto no significa que una actualización funcional mantenga los bytes de una versión anterior del Site.
 
 La ampliación de anamnesis añade dos textos opcionales a la ficha y la undécima migración actualiza únicamente la función de guardado. Se aplicó a ambos proyectos sin reimportar datos o cambiar Auth. El ensayo local actual verifica el motivo y las precauciones mediante lectura autenticada tras la restauración. El primer hash/recuentos de la restauración alojada v4 siguen siendo evidencia histórica y no se sustituyen por los del ensayo local vigente.
+
+## Ensayo del modelo clínico
+
+`npm run verify:clinical-service-recovery` utiliza los mismos servicios locales reales con un perfil clínico sintético y snapshot v6, sin marcadores de fixture. Prueba dos pacientes con el mismo nombre, alta idempotente, identidad/notas, agenda/sesión, copia cifrada, cierre del origen, reconstrucción de identidad/MFA y recuperación suspendida hasta verificar hash/admisión. Comprueba también suspensión con sesión vigente. El [informe separado](../verification/CLINICAL_SERVICE_RECOVERY_REPORT.json) distingue este ensayo del legado v5 y del primer ensayo alojado v4.
+
+La restauración clínica requiere `allowClinical: true` y no permite el proyecto habitual ni un destino ocupado. La nueva tabla privada `mode_events` registra el control de admisión y no se copia como dato clínico. El esquema tiene once tablas de aplicación, doce con RLS contando el marcador del destino. Las cuentas alojadas siguen en test; no se ha repetido allí ninguna importación ni se ha habilitado el modelo clínico.

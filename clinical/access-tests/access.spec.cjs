@@ -28,6 +28,7 @@ async function mockAuth(
     patientMode = "ok",
     agendaMode = "ok",
     catalogMode = "ok",
+    dataMode = "test",
   } = {},
 ) {
   let verified = enrolled;
@@ -35,7 +36,9 @@ async function mockAuth(
   let pendingReserve = false;
   let loggedOut = false;
   let accessCalls = 0;
-  const patients = structuredClone(backupFixture.patients).map((p) => ({
+  const patients = structuredClone(
+    dataMode === "clinical" ? [] : backupFixture.patients,
+  ).map((p) => ({
     id: p.id,
     revision: p.revision,
     payload: JSON.parse(p.payload_json),
@@ -198,6 +201,35 @@ async function mockAuth(
           appt.revision++;
         }
       }
+    } else if (path === "/rest/v1/rpc/clinical_patient_register") {
+      const a = request.postDataJSON();
+      let row = patients.find((p) => p.id === a.p_request_id);
+      const repeated = Boolean(row);
+      if (!row) {
+        row = {
+          id: a.p_request_id,
+          revision: 1,
+          archived_at: null,
+          payload: {
+            record_type: "clinical-patient-v1",
+            ...a.p_identity,
+            name: a.p_identity.given_name + " " + a.p_identity.family_name,
+            reason: "",
+            precautions: "",
+            history: "",
+            exam: "",
+            diagnosis: "",
+            goals: "",
+          },
+        };
+        patients.push(row);
+      }
+      body = { id: row.id, revision: row.revision, already_present: repeated };
+      if (patientMode === "lost-ack" && !conflictGiven) {
+        conflictGiven = true;
+        status = 503;
+        body = { message: "Lost acknowledgment" };
+      }
     } else if (path === "/rest/v1/rpc/clinical_patient_create_test") {
       const a = request.postDataJSON();
       let row = patients.find((p) => p.id === a.p_request_id);
@@ -234,6 +266,8 @@ async function mockAuth(
         body = { code: "23514", message: "Scheduled appointment" };
       } else {
         p.archived_at = "2026-11-21T12:00:00.000000Z";
+        if (p.payload.record_type === "clinical-patient-v1")
+          p.payload.name = p.payload.given_name + " " + p.payload.family_name;
         p.revision++;
         body = { id: p.id, revision: p.revision };
       }
@@ -241,6 +275,7 @@ async function mockAuth(
       body = patients.map((p) => ({
         id: p.id,
         name: p.payload.name,
+        birth_date: p.payload.birth_date,
         revision: p.revision,
         archived: p.archived_at !== null,
       }));
@@ -273,24 +308,26 @@ async function mockAuth(
       }
     } else if (path === "/rest/v1/rpc/clinical_backup_export_test") {
       body =
-        backupMode === "intake"
-          ? require("./backup-intake-fixture.json")
-          : backupMode === "workflow"
-            ? require("./backup-patient-workflow-fixture.json")
-            : backupMode === "revisions"
-              ? require("./backup-exercise-revisions-fixture.json")
-              : backupMode === "catalog"
-                ? require("./backup-catalog-fixture.json")
-                : backupMode === "agenda"
-                  ? require("./backup-agenda-fixture.json")
-                  : backupFixture;
+        dataMode === "clinical"
+          ? require("./backup-clinical-model-fixture.json")
+          : backupMode === "intake"
+            ? require("./backup-intake-fixture.json")
+            : backupMode === "workflow"
+              ? require("./backup-patient-workflow-fixture.json")
+              : backupMode === "revisions"
+                ? require("./backup-exercise-revisions-fixture.json")
+                : backupMode === "catalog"
+                  ? require("./backup-catalog-fixture.json")
+                  : backupMode === "agenda"
+                    ? require("./backup-agenda-fixture.json")
+                    : backupFixture;
       if (backupMode === "refuse") {
         status = 400;
         body = { code: "22023", message: "Complete export refused" };
       }
     } else if (path === "/rest/v1/rpc/clinical_access_check") {
       accessCalls++;
-      body = { authorized: true };
+      body = { authorized: true, data_mode: dataMode };
       if (access === "denied") {
         status = 401;
         body = { code: "42501", message: "Acceso no autorizado" };
@@ -1794,4 +1831,131 @@ test("v5 encrypted copies preserve optional intake fields and accept older recor
   await page.locator("#restore-phrase").fill(backupPhrase);
   await page.locator("#backup-inspect button").click();
   await expect(page.getByRole("status")).toContainText("Archivo verificado");
+});
+async function createClinicalPatient(page, birth = "1990-01-02") {
+  await page.locator("#patient-new").click();
+  for (const [field, value] of Object.entries({
+    given_name: "Persona",
+    family_name: "Sintética",
+    birth_date: birth,
+    phone: "",
+    email: "synthetic@example.invalid",
+  }))
+    await page.locator("#patient-create-" + field).fill(value);
+  await page.locator("#patient-create-form button[type=submit]").click();
+}
+test("verified clinical mode registers identities, supports namesakes and includes clinical records in agenda", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, { dataMode: "clinical" });
+  await authorized(page);
+  await expect(page.locator("#patient-prepare")).toBeHidden();
+  await createClinicalPatient(page);
+  await expect(page.locator("#patient-name")).toHaveText("Persona Sintética");
+  await page
+    .locator("#patient-history")
+    .fill("Historia sintética del circuito clínico");
+  await page.locator("#patient-family_name").fill("Sintética revisada");
+  await page.locator("#patient-form button[type=submit]").click();
+  await expect(page.locator("#patient-name")).toHaveText(
+    "Persona Sintética revisada",
+  );
+  await createClinicalPatient(page, "2000-01-02");
+  await expect(page.locator("#patient-list button")).toHaveCount(2);
+  await expect(page.locator("#patient-list")).toContainText("1990-01-02");
+  await expect(page.locator("#patient-list")).toContainText("2000-01-02");
+  await page.locator("#agenda-load").click();
+  await expect(page.locator("#appointment-patient option")).toHaveCount(2);
+  expect(
+    calls.some((c) => c.path.endsWith("/clinical_patient_create_test")),
+  ).toBe(false);
+  expect(
+    calls.filter((c) => c.path.endsWith("/clinical_patient_register")),
+  ).toHaveLength(2);
+});
+test("uncertain clinical registration retries the same request without duplicating the chart", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page, {
+    dataMode: "clinical",
+    patientMode: "lost-ack",
+  });
+  await authorized(page);
+  await createClinicalPatient(page);
+  await expect(page.getByRole("status")).toContainText(
+    "No se ha podido confirmar",
+  );
+  await page.locator("#patient-create-form button[type=submit]").click();
+  await expect(page.locator("#patient-name")).toHaveText("Persona Sintética");
+  await expect(page.locator("#patient-list button")).toHaveCount(1);
+  const ids = calls
+    .filter((c) => c.path.endsWith("/clinical_patient_register"))
+    .map((c) => JSON.parse(c.postBody).p_request_id);
+  expect(ids).toHaveLength(2);
+  expect(ids[0]).toBe(ids[1]);
+});
+test("clinical v6 files download encrypted and are verified locally without fixture markers", async ({
+  page,
+}) => {
+  await mockAuth(page, { dataMode: "clinical" });
+  await authorized(page);
+  await fillBackup(page);
+  const waiting = page.waitForEvent("download");
+  await page.locator("#backup-export button").click();
+  const file = await waiting,
+    encrypted = await readFile(await file.path(), "utf8"),
+    { decryptBackup } = await import("../backups/crypto.mjs");
+  const snap = await decryptBackup(encrypted, backupPhrase);
+  expect(snap.version).toBe(6);
+  expect(snap.data_mode).toBe("clinical");
+  expect(snap.test_only).toBeUndefined();
+  expect(JSON.parse(snap.patients[0].payload_json).testOnly).toBeUndefined();
+  await page.locator("#backup-file").setInputFiles({
+    name: "clinical.mlrehab",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(encrypted),
+  });
+  await page.locator("#restore-phrase").fill(backupPhrase);
+  await page.locator("#backup-inspect button").click();
+  await expect(page.getByRole("status")).toContainText("Archivo verificado");
+});
+test("suspended access clears identities and clinical drafts and returns to login", async ({
+  page,
+}) => {
+  await mockAuth(page, { dataMode: "clinical" });
+  await authorized(page);
+  await createClinicalPatient(page);
+  await page.locator("#patient-history").fill("Borrador clínico sintético");
+  await page.route("**/rest/v1/rpc/clinical_patient_save_fields_test", (r) =>
+    r.fulfill({
+      status: 403,
+      contentType: "application/json",
+      body: JSON.stringify({ code: "42501", message: "Suspended" }),
+    }),
+  );
+  await page.locator("#patient-form button[type=submit]").click();
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#complete")).toBeHidden();
+  await expect(page.locator("#patient-given_name")).toHaveValue("");
+  await expect(page.locator("#patient-history")).toHaveValue("");
+  await expect(page.locator("#patient-list button")).toHaveCount(0);
+});
+test("test mode can rehearse identity fields without becoming clinical or changing the fictitious alias", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  const original = await page.locator("#patient-name").textContent();
+  await page.locator("#patient-given_name").fill("Persona");
+  await page.locator("#patient-family_name").fill("Sintética");
+  await page.locator("#patient-form button[type=submit]").click();
+  await expect(page.getByRole("status")).toContainText("guardada");
+  await page.locator("#patient-refresh").click();
+  await expect(page.locator("#patient-given_name")).toHaveValue("Persona");
+  await expect(page.locator("#patient-name")).toHaveText(original);
+  expect(calls.some((c) => c.path.endsWith("/clinical_patient_register"))).toBe(
+    false,
+  );
+  await expect(page.locator("#patient-create-identity")).toBeHidden();
 });

@@ -36,3 +36,9 @@ La versión 4 incorpora el historial `exercise_versions`, revisión y estado de 
 La versión 5 elimina la restricción de dos fichas, con un máximo de 500 incluidas las archivadas, sin truncar. Valida también los alias, nombres ficticios derivados y campos de las altas nuevas en sus versiones históricas. Las nueve colecciones no cambian y se siguen admitiendo los archivos v1–v4. El ensayo actual crea y edita una tercera ficha, registra una sesión vinculada a ella y recupera todo después de cerrar el origen. El reporte local vigente es v5; el primer ensayo alojado usó una copia v4 y sus recuentos/hash históricos se conservan por separado.
 
 Los campos opcionales de la ficha `reason` y `precautions` se incluyen en los payloads actuales y sus versiones históricas. La validación v5 comprueba texto y límites (2 000/4 000) cuando existen; no exige añadirlos a archivos previos. No cambian las nueve colecciones, el cifrado ni la versión del archivo. Los ensayos actualizados verifican ambos valores después de restaurar.
+
+## Copia clínica v6
+
+El formato `mlrehab-clinical-snapshot`, versión 6, declara `data_mode: clinical` y valida el modelo de identidad/notas sin `testOnly` o `fixture`. Las nueve colecciones y el cifrado no cambian; v1–v5 siguen admitidas. Se conservan los límites, sin truncamiento, y la propiedad de la cuenta. El entorno actual continúa exportando v5 porque sus perfiles siguen en prueba.
+
+El [ensayo clínico de servicios](../verification/CLINICAL_SERVICE_RECOVERY_REPORT.json) restaura v6 con datos sintéticos y verifica su lectura tras reconstruir Auth/MFA. El generador administrativo exige `allowClinical: true` exactamente, no valores por coerción, y restaura la admisión suspendida/deshabilitada. La aprobación y los eventos de modo se reconstruyen aparte y no forman parte de las nueve colecciones. No se han restaurado historias reales ni se ha habilitado producción por estas pruebas.

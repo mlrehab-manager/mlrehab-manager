@@ -1,3 +1,4 @@
+import { setDataMode, modeText } from "./data-mode.js";
 import {
   clearCustomExerciseData,
   installCustomExercises,
@@ -25,7 +26,7 @@ const confirmAllDiscard = () =>
   );
 const $ = (id) => document.getElementById(id);
 const message = (value) => {
-  $("status").textContent = value;
+  $("status").textContent = modeText(value);
 };
 let epoch = 0;
 let factorId = null;
@@ -44,6 +45,7 @@ function clearSetup() {
 function reset() {
   epoch++;
   active = false;
+  setDataMode("test");
   factorId = null;
   clearSetup();
   clearReserve();
@@ -83,13 +85,31 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     "Acceso bloqueado: abre la dirección de pruebas autorizada en una ventana propia.",
   );
 } else {
-  const client = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  const service = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
       persistSession: false,
       autoRefreshToken: true,
       detectSessionInUrl: false,
     },
   });
+  const client = {
+    auth: service.auth,
+    rpc: async (name, args) => {
+      const result = await service.rpc(name, args);
+      if (
+        active &&
+        !$("complete").hidden &&
+        ["42501", "PGRST301", "PGRST303"].includes(result.error?.code)
+      ) {
+        reset();
+        void service.auth.signOut({ scope: "local" });
+        message(
+          "El acceso ha caducado o se ha retirado. Vuelve a entrar para continuar.",
+        );
+      }
+      return result;
+    },
+  };
   reset();
   message("Introduce la cuenta que has creado para la aplicación.");
 
@@ -314,6 +334,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       if (!isCurrent()) return;
       $("enrollment").hidden = true;
       $("verify").hidden = true;
+      setDataMode(access.data_mode ?? "test");
       $("complete").hidden = false;
       message("Acceso de pruebas autorizado por el servidor.");
     });
@@ -400,6 +421,7 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       }
       await updateFactors(isCurrent);
       if (!isCurrent()) return;
+      setDataMode(access.data_mode ?? "test");
       $("complete").hidden = false;
       message(
         "Autenticador de reserva verificado. En el próximo acceso podrás elegirlo.",

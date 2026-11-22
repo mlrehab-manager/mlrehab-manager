@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-22T09:08:17.517Z",
+  "tested_at": "2026-11-22T10:04:10.069Z",
   "test_only": true,
   "passed": true,
   "services": {
@@ -51,12 +51,16 @@
     {
       "name": "20261122090429_clinical_patient_intake_test.sql",
       "sha256": "58f109f41f23573b1c51d6d210d2ae1ee5899184d26749c2aafb4b428b5b2122"
+    },
+    {
+      "name": "20261122093236_clinical_patient_model.sql",
+      "sha256": "6edfeb32b53c431d6078713d9c503ef5e39479233e755f204012d6a7c7bdcdff"
     }
   ],
-  "schema_sha256": "ab33c8a3068adb2a5d5447b6ad537054d5a323799e523843dc19b2be47fe4f6f",
+  "schema_sha256": "6ecb68f16573527d9dfaa4b0511428fc517cf94466117b08055f36264dd285e5",
   "source_closed_before_restore": true,
-  "source_hash": "5de1d1f90aceb8b76d3dc817c65c05919e99e641345d45f214269747947a0e3a",
-  "restored_hash": "5de1d1f90aceb8b76d3dc817c65c05919e99e641345d45f214269747947a0e3a",
+  "source_hash": "a5eb3c2b13e718a9ca14a941f78b1ef6b0a206bedd99de027b3569eed1a1cb62",
+  "restored_hash": "a5eb3c2b13e718a9ca14a941f78b1ef6b0a206bedd99de027b3569eed1a1cb62",
   "counts": {
     "patients": 3,
     "patient_versions": 6,
@@ -69,10 +73,12 @@
     "audit_events": 13
   },
   "security": {
-    "rls_tables": 10,
+    "rls_tables": 11,
     "client_table_grants": 0
   },
   "snapshot_version": 5,
+  "clinical_data_mode": false,
+  "clinical_suspension_verified": false,
   "patient_creation_idempotent": true,
   "patient_intake_fields_restored": true,
   "real_auth_and_rest": true,
@@ -83,7 +89,7 @@
   "admission_disabled_until_verified": true,
   "old_project_jwt_denied": true,
   "revoked_session_denied": true,
-  "elapsed_seconds": 44,
+  "elapsed_seconds": 22,
   "limits": [
     "Local core services, not hosted Supabase disaster recovery",
     "Synthetic account only; human identity verification and lost-provider-account recovery are not tested",

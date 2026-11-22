@@ -140,7 +140,9 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
     const restored = {
       format: source.format,
       version: source.version,
-      test_only: source.test_only,
+      ...(source.version === 6
+        ? { data_mode: source.data_mode }
+        : { test_only: source.test_only }),
       clinician_id: source.clinician_id,
       created_at: source.created_at,
       patients: await rows(

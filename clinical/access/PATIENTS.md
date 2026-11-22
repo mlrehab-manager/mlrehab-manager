@@ -26,4 +26,10 @@ El servidor admite únicamente texto dentro de los límites y conserva las misma
 
 Ambos campos participan en la detección de borradores, bloqueo de copias incompletas y limpieza al salir; los errores/conflictos conservan el texto. La copia continúa en v5: los campos son opcionales para admitir archivos/historiales anteriores, y se validan tipo/límite si están presentes. Los ensayos verifican su restauración en datos y servicios nuevos, incluida su lectura tras autenticar.
 
-El titular prevé disponer del servicio de protección de datos en diciembre de 2026. El desarrollo individual continúa con datos ficticios; esa previsión no activa pacientes reales ni da por revisados contratos, operación o seguridad. La revisión manual de los dos campos nuevos en iPad queda pendiente.
+En esa entrega el titular había previsto disponer del servicio de protección de datos en diciembre de 2026; posteriormente indicó que puede adelantarlo a esta semana. El desarrollo individual continúa con datos ficticios; esa previsión no activa pacientes reales ni da por revisados contratos, operación o seguridad. La revisión manual de los dos campos nuevos en iPad queda pendiente.
+
+## Identidad y modelo clínico · versión privada 15
+
+El editor de prueba añade nombre, apellidos y nacimiento/teléfono/correo opcionales para ensayar con valores inventados; conserva el alias y su prefijo FICTICIO. Si la cuenta estuviera activada administrativamente, el alta usa identidad validada y un UUID estable, sin alias ni marcadores de prueba. Se permiten homónimos, con fecha/identificador en el listado. El nombre mostrado se deriva en servidor. No se han activado las cuentas alojadas; los datos anteriores se conservan.
+
+El modo clínico integra los mismos circuitos de agenda/sesiones, archivo y auditoría, con copia v6. El código de nacimiento usa el día Europe/Madrid de la clínica. Los campos se limpian al salir y ante una denegación de acceso; errores de red y conflictos conservan borradores. El [procedimiento de activación](../CLINICAL_ACTIVATION.md) requiere decisiones pendientes y un conjunto limpio; la migración no convierte automáticamente el ejemplo en paciente real.

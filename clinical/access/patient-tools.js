@@ -1,5 +1,8 @@
+import { isClinicalMode } from "./data-mode.js";
+import { IDENTITY_FIELDS, normalizeIdentity } from "../records/identity.mjs";
 const $ = (id) => document.getElementById(id);
 const fields = [
+  ...IDENTITY_FIELDS,
   "reason",
   "precautions",
   "history",
@@ -23,7 +26,8 @@ const normalized = (value) =>
 export function hasPatientChanges() {
   return Boolean(
     (!$("patient-create-form").hidden &&
-      $("patient-create-alias").value !== "") ||
+      ($("patient-create-alias").value !== "" ||
+        IDENTITY_FIELDS.some((k) => $("patient-create-" + k).value !== ""))) ||
     (selected &&
       baseline &&
       JSON.stringify(values()) !== JSON.stringify(baseline)),
@@ -38,6 +42,7 @@ function clearCreation() {
   requestId = null;
   $("patient-create-form").hidden = true;
   $("patient-create-alias").value = "";
+  IDENTITY_FIELDS.forEach((k) => ($("patient-create-" + k).value = ""));
   $("patient-create-fields").disabled = false;
 }
 function clearEditor() {
@@ -107,7 +112,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       const item = document.createElement("li"),
         button = document.createElement("button");
       button.type = "button";
-      button.textContent = `${row.name} · ${row.archived ? "Archivado (solo lectura)" : "Activo"}`;
+      button.textContent = `${row.name}${isClinicalMode() ? ` · ${row.birth_date || "Sin fecha de nacimiento"} · Nº ${row.id}` : ""} · ${row.archived ? "Archivado (solo lectura)" : "Activo"}`;
       button.addEventListener("click", () =>
         run(async (current) => {
           if (!isAuthorized() || !confirmPatientDiscard()) return;
@@ -120,7 +125,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
     }
     $("patient-list").replaceChildren(fragment);
     $("patient-count").textContent =
-      `${patients.length} fichas ficticias · ${rows.length} coincidencias.`;
+      `${patients.length} ${isClinicalMode() ? "fichas" : "fichas ficticias"} · ${rows.length} coincidencias.`;
   }
   async function loadList(isCurrent) {
     $("patient-fields").disabled = true;
@@ -154,12 +159,14 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       if (
         !data ||
         data.id !== id ||
-        data.payload?.testOnly !== true ||
-        !["backup-roundtrip-v1", "patient-workflow-v1"].includes(
-          data.payload?.fixture,
-        )
+        (isClinicalMode()
+          ? data.payload?.record_type !== "clinical-patient-v1"
+          : data.payload?.testOnly !== true ||
+            !["backup-roundtrip-v1", "patient-workflow-v1"].includes(
+              data.payload?.fixture,
+            ))
       ) {
-        message("Esta pantalla solo admite fichas ficticias.");
+        message("El registro no corresponde al entorno autorizado.");
         return false;
       }
       selected = {
@@ -207,7 +214,9 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       requestId = crypto.randomUUID();
       $("patient-create-form").hidden = false;
       message(
-        "Prepara un alias ficticio. La ficha se crea solo al pulsar Crear ficha ficticia.",
+        isClinicalMode()
+          ? "Introduce la identificación. La ficha se crea al pulsar Crear ficha."
+          : "Prepara un alias ficticio. La ficha se crea solo al pulsar Crear ficha ficticia.",
       );
     }),
   );
@@ -226,15 +235,31 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
         return;
       const alias = $("patient-create-alias").value.trim().replace(/\s+/g, " "),
         id = requestId;
-      if (!alias || alias.length > 80) {
+      if (!isClinicalMode() && (!alias || alias.length > 80)) {
         message("Escribe un alias ficticio de hasta 80 caracteres.");
         return;
       }
       $("patient-create-fields").disabled = true;
       try {
+        let identity;
+        try {
+          if (isClinicalMode())
+            identity = normalizeIdentity(
+              Object.fromEntries(
+                IDENTITY_FIELDS.map((k) => [k, $("patient-create-" + k).value]),
+              ),
+            );
+        } catch (error) {
+          message(error.message);
+          return;
+        }
         const { data, error } = await client.rpc(
-          "clinical_patient_create_test",
-          { p_alias: alias, p_request_id: id },
+          isClinicalMode()
+            ? "clinical_patient_register"
+            : "clinical_patient_create_test",
+          isClinicalMode()
+            ? { p_identity: identity, p_request_id: id }
+            : { p_alias: alias, p_request_id: id },
         );
         if (!isCurrent()) return;
         if (error) {
@@ -318,6 +343,19 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
         message("No hay cambios pendientes en la ficha.");
         return;
       }
+      if (IDENTITY_FIELDS.some((k) => Object.hasOwn(patch, k))) {
+        try {
+          const identity = normalizeIdentity(
+            Object.fromEntries(IDENTITY_FIELDS.map((k) => [k, sent[k]])),
+            isClinicalMode(),
+          );
+          for (const k of IDENTITY_FIELDS)
+            if (Object.hasOwn(patch, k)) patch[k] = identity[k];
+        } catch (error) {
+          message(error.message);
+          return;
+        }
+      }
       const { data, error } = await client.rpc(
         "clinical_patient_save_fields_test",
         {
@@ -338,9 +376,14 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       selected.revision = data.revision;
       baseline = sent;
       $("patient-revision").textContent = `Versión ${data.revision}`;
-      if (patch.alias !== undefined) {
-        $("patient-name").textContent =
-          "FICTICIO · " + sent.alias.trim().replace(/\s+/g, " ");
+      if (
+        patch.alias !== undefined ||
+        (isClinicalMode() &&
+          IDENTITY_FIELDS.some((k) => Object.hasOwn(patch, k)))
+      ) {
+        $("patient-name").textContent = isClinicalMode()
+          ? `${sent.given_name.trim().replace(/\s+/g, " ")} ${sent.family_name.trim().replace(/\s+/g, " ")}`
+          : "FICTICIO · " + sent.alias.trim().replace(/\s+/g, " ");
         const row = patients.find((p) => p.id === selected.id);
         if (row) row.name = $("patient-name").textContent;
         renderList();

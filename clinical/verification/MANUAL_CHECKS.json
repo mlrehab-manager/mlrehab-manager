@@ -10,7 +10,8 @@
     "archive_with_and_without_scheduled_appointments": "not_confirmed_in_this_round",
     "independently_observed_by_agent": false,
     "optional_intake_fields_in_version_14": "holder_reported_completed",
-    "optional_intake_fields_reported_on": "2026-11-22"
+    "optional_intake_fields_reported_on": "2026-11-22",
+    "identity_fields_in_version_15": "not_yet_tested_by_holder"
   },
   "encrypted_backup": {
     "ipad_export_and_file_verified": "holder_reported_completed",
@@ -31,16 +32,19 @@
     "vendors_contacted": false,
     "new_terms_accepted_by_agent": false,
     "billing_changed": false,
-    "holder_planned_review_month": "2026-12",
-    "holder_planning_reported_on": "2026-11-22"
+    "holder_planning_reported_on": "2026-11-22",
+    "previously_planned_review_month": "2026-12",
+    "holder_current_plan": "Puede contratar el servicio esta semana; confirmar\u00e1 estos d\u00edas",
+    "holder_confirmation_received": false
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
   "updated_on": "2026-11-22",
-  "latest_site_version_available": 14,
+  "latest_site_version_available": 15,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
   "existing_agenda": "iPhone Calendar (holder clarification)",
   "existing_clinical_record_system": "not_confirmed",
-  "requested_start_date": "2026-11-23"
+  "requested_start_date": "2026-11-23",
+  "clinical_profile_activated": false
 }

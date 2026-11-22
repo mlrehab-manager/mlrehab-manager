@@ -1,3 +1,4 @@
+import { isClinicalMode } from "./data-mode.js";
 import {
   encryptBackup,
   decryptBackup,
@@ -20,7 +21,7 @@ function download(encrypted) {
   );
   const link = document.createElement("a");
   link.href = url;
-  link.download = `mlrehab-prueba-${new Date().toISOString().slice(0, 10)}.mlrehab`;
+  link.download = `mlrehab-${isClinicalMode() ? "copia" : "prueba"}-${new Date().toISOString().slice(0, 10)}.mlrehab`;
   document.body.append(link);
   link.click();
   link.remove();
@@ -71,7 +72,11 @@ export function installBackupTools({
         if (!isCurrent()) return;
         if (error) throw new Error();
         const snapshot = validateSnapshot(data);
-        if (snapshot.clinician_id !== owner) throw new Error();
+        if (
+          snapshot.clinician_id !== owner ||
+          isClinicalMode() !== (snapshot.version === 6)
+        )
+          throw new Error();
         const encrypted = await encryptBackup(snapshot, phrase);
         if (!isCurrent()) return;
         download(encrypted);

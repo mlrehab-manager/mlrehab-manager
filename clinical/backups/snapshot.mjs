@@ -1,3 +1,4 @@
+import { validateClinicalPatient } from "../records/identity.mjs";
 import { MAX_PLAINTEXT_BYTES } from "./crypto.mjs";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const actions = new Set([
@@ -56,6 +57,10 @@ function payload(value, version) {
   } catch {
     requireValue(false);
   }
+  if (version === 6) {
+    validateClinicalPatient(parsed);
+    return;
+  }
   requireValue(
     parsed &&
       typeof parsed === "object" &&
@@ -103,7 +108,7 @@ export function validateSnapshot(value) {
     keys(value, [
       "format",
       "version",
-      "test_only",
+      ...(value.version === 6 ? ["data_mode"] : ["test_only"]),
       "clinician_id",
       "created_at",
       "patients",
@@ -122,9 +127,12 @@ export function validateSnapshot(value) {
     ]),
   );
   requireValue(
-    value.format === "mlrehab-clinical-test-snapshot" &&
-      [1, 2, 3, 4, 5].includes(value.version) &&
-      value.test_only === true &&
+    (value.version === 6
+      ? value.format === "mlrehab-clinical-snapshot" &&
+        value.data_mode === "clinical"
+      : value.format === "mlrehab-clinical-test-snapshot" &&
+        value.test_only === true) &&
+      [1, 2, 3, 4, 5, 6].includes(value.version) &&
       uuid.test(value.clinician_id) &&
       timestamp(value.created_at),
   );

@@ -1,38 +1,32 @@
-# Puesta en marcha solicitada para el 23 de noviembre de 2026
+# Puesta en marcha · estado tras preparar el modelo clínico
 
-Revisión: 22 de noviembre de 2026. El titular quiere empezar mañana, será el único usuario y aclara que lleva actualmente la agenda en Calendario del iPhone. No se ha consultado ni importado ese calendario. No se ha confirmado dónde conserva historias anteriores; no se presupone que existan o que no existan.
+22 de noviembre de 2026. El titular necesita empezar cuanto antes, será el único usuario y lleva la agenda actual en Calendario del iPhone. No se ha consultado ni importado ese calendario ni se presume dónde guarda historias anteriores.
 
-**Resultado actual: la versión privada 14 sigue siendo de pruebas y no está habilitada para historias reales.** Esta es una evaluación documental, no un interruptor de configuración. No se aprueba una fecha de activación ni se cambian etiquetas para presentar los fixtures como datos clínicos.
+**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 15.
 
-## Comprobado y cerrado
+## Trabajo técnico completado
 
-El titular confirmó el alta/guardado/reapertura y ahora los campos opcionales de motivo y precauciones. También confirmó archivo cifrado verificado en iPad y descarga desde iPhone a través de iCloud. No se repiten esas pruebas como condición para el siguiente trabajo.
+- Identificación validada en servidor/cliente, nombre derivado, UUID e idempotencia; homónimos admitidos.
+- Historia, notas, agenda/sesiones, archivo, revisiones y auditoría para el modelo clínico, sin marcadores de fixture.
+- Copia clínica v6, cifrado, integridad y recuperación de las nueve colecciones; compatibilidad de archivos de prueba anteriores.
+- Activación y suspensión administradas en servidor, sin selector cliente. Restauración clínica inicialmente suspendida y sin admisión; no importa permisos o secretos del origen.
+- Pruebas SQL/interfaz y ensayos de servicios reales locales con datos sintéticos. Las cuentas actuales y sus datos de prueba se conservan.
 
-El commit `be752dbf2f9ffbb6499cd1be4b59b3204a250e6e` pasó las comprobaciones de GitHub Actions (ejecución `45006382993`): demo, SQL, interfaz privada, cifrado y recuperación. Hay evidencias de MFA/sesión, autorización por propietario, revisiones/auditoría y restauración sintética con servicios reales. El éxito de las pruebas no amplía su alcance a datos reales.
+Los detalles y las evidencias están en [PROJECT_STATUS.md](../clinical/verification/PROJECT_STATUS.md) y el [procedimiento de activación](../clinical/CLINICAL_ACTIVATION.md). El punto de reanudación de la interrupción quedó resuelto.
 
-## Bloqueos de salida y orden de trabajo
+## Pendiente antes de activar
 
-| Prioridad                     | Trabajo concreto                                             | Criterio de cierre                                                                                                                                                                                                                                                                                                                                   |
-| ----------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0 · técnico                  | Identificación y alta clínica fuera de los aliases de prueba | Identificación mínima definida y validada en servidor, homónimos permitidos, estado clínico separado y pruebas completas de alta/edición/archivo/sesión. La interfaz actual añade FICTICIO y solo abre registros con marcadores de prueba.                                                                                                           |
-| P0 · técnico                  | Copia y restauración para registros clínicos                 | Exportador, validador y recuperación compatibles con el modelo clínico sin exigir `testOnly`/`fixture`. Ensayar primero con datos sintéticos equivalentes, con integridad y acceso recuperados. La copia actual solo admite conjuntos ficticios, también cuando los textos parecen clínicos.                                                         |
-| P0 · operación                | Custodia y recuperación acordadas                            | Destino y frase recuperables por separado, copia que no dependa solo de una misma sincronización, frecuencia/retención/contingencia verificadas y recuperación de acceso acordada. Descargar un archivo desde otro dispositivo no demuestra esos puntos. La reserva TOTP independiente sigue aplazada; no se exige configurarla como única solución. |
-| P0 · condiciones del servicio | Resolver la revisión específica del tratamiento              | Dejar documentadas condiciones/encargos, transferencias, información y obligaciones aplicables al uso propuesto. Hay preguntas preparadas sobre datos sensibles y alojamiento; no se presume que la asesoría prevista para diciembre ya las haya resuelto.                                                                                           |
-| P1 · salida                   | Validar y activar deliberadamente una versión identificada   | Recorrido clínico completo, decisiones anteriores cerradas, incidencias críticas resueltas y versión/configuración registradas. Revisar disponibilidad y contingencia de Free. No basta ocultar los avisos de prueba.                                                                                                                                |
+| Prioridad | Decisión/operación | Criterio de cierre |
+| --- | --- | --- |
+| P0 | Condiciones y tratamiento sanitario | Resolver la revisión específica de proveedores, encargos/transferencias, información y obligaciones aplicables. El titular puede adelantar la contratación a esta semana y confirmará estos días; todavía no ha confirmado el cierre. |
+| P0 | Custodia y continuidad | Acordar destino, frase recuperable por separado, copia independiente de la sincronización, frecuencia/retención y contingencia, y evaluar límites/pausas de Free. Descargar el archivo en otro dispositivo no acredita todo esto. |
+| P0 | Conjunto clínico limpio | Preparar una operación explícita y revisada sobre los ejemplos, conservando antes su copia y confirmando que no son historias reales. No convierte ni borra automáticamente fixtures, cuentas o factores. |
+| P1 | Validación y decisión de salida | Revisar el recorrido final, límites e incidencias críticas y registrar versión/configuración y referencia de decisión. Un operador habilita el perfil solo después; esta entrega no lo hace. |
 
-Estos son resultados pendientes, no una exigencia de contratar obligatoriamente una asesoría concreta o esperar una fecha del calendario. Se puede seguir desarrollando mientras se revisan las condiciones. El mes de diciembre comunicado por el titular se mantiene como previsión; no habilita el uso real por adelantado ni programa activación automática.
+No se exige contratar una asesoría concreta o esperar a diciembre. Se puede continuar desarrollando y cerrar las decisiones antes si se resuelven. La contratación prevista no equivale a contratos revisados o a activación automática.
 
-## Alcance que se pospone
+## Confirmaciones que no se repiten
 
-Se congelan ampliaciones de ejercicios, informes privados, funciones de equipos/roles/invitaciones, importación de calendarios y cambios estéticos. Se conserva la agenda actual en el iPhone durante la transición; no se duplica o migra sin un procedimiento explícito. No se propone guardar historias reales bajo aliases ficticios o pasarlas al chat para probarlas.
+El titular ya confirmó alta/guardado/reapertura, motivo/precauciones y archivo cifrado verificado en iPad, guardado en iCloud y descargable desde iPhone. El [registro manual](../clinical/verification/MANUAL_CHECKS.json) distingue esas declaraciones de descifrado/restauración en el segundo dispositivo o recuperación de cuenta, que no se han confirmado.
 
-La API base de pacientes existente no constituye por sí sola el circuito clínico validado: la interfaz y las herramientas de copia/restauración actuales son específicas de fixtures. No se presenta un cambio de nombre, prefijo o casilla como transición completa.
-
-## Evidencias y trabajo ya preparado
-
-- [Registro de pruebas del titular](../clinical/verification/MANUAL_CHECKS.json): distingue declaraciones del titular, pruebas técnicas y pendientes.
-- [Estado técnico](../clinical/verification/PROJECT_STATUS.md): esquema, permisos, publicación y ensayos.
-- [Revisión de proveedores](CLINICAL_PROVIDER_REVIEW.md) y [consultas sin enviar](CLINICAL_VENDOR_QUESTIONS.md).
-- [Propuesta de copias](CLINICAL_BACKUP_OPERATIONS.md): sin borrado o automatización ejecutados.
-
-No se han leído o modificado pacientes reales, cuentas, datos de calendario, configuración de servicios o facturación durante esta revisión. La aplicación publicada y su entorno privado permanecen con su funcionamiento actual.
+Se posponen informes, ampliaciones de catálogo, equipos/roles/invitaciones, importación de calendarios y estética. La agenda existente puede mantenerse durante la transición. No se propone introducir pacientes reales bajo aliases ficticios ni subir historias al chat para probarlas.
