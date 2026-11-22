@@ -1,6 +1,6 @@
 // Synthetic recovery with actual GoTrue, PostgREST and PostgreSQL; no hosted credentials.
 import { createClient } from "@supabase/supabase-js";
-import { randomUUID, randomBytes, createHmac } from "node:crypto";
+import { randomUUID, randomBytes, createHmac, createHash } from "node:crypto";
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 import { startServices, images } from "./local-services.mjs";
 import { recoverySchema } from "./schema.mjs";
@@ -182,11 +182,26 @@ try {
   snapshot = validateSnapshot(await rpc(c, "clinical_backup_export_test"));
   sourceHash = await snapshotDigest(snapshot);
   sourceToken = (await c.auth.getSession()).data.session.access_token;
-  await writeFile(
-    new URL("synthetic.mlrehab", directory),
-    await encryptBackup(snapshot, phrase),
-    { mode: 0o600 },
-  );
+  const encrypted = await encryptBackup(snapshot, phrase);
+  const custody = await rpc(c, "clinical_backup_check_record", {
+    p_request_id: randomUUID(),
+    p_details: {
+      version: snapshot.version,
+      export_event_id: snapshot.audit_events
+        .filter((e) => e.action === "backup.export")
+        .at(-1).id,
+      encrypted_sha256: createHash("sha256").update(encrypted).digest("hex"),
+      location: "this_device",
+      independent_copy: false,
+      phrase_separate: false,
+      verified_elsewhere: false,
+    },
+  });
+  if ((await rpc(c, "clinical_backup_check_status")).latest?.id !== custody.id)
+    throw new Error("Backup metadata receipt did not persist");
+  await writeFile(new URL("synthetic.mlrehab", directory), encrypted, {
+    mode: 0o600,
+  });
   snapshot = null;
   await source.cleanup();
   source = null;
@@ -242,6 +257,10 @@ try {
   const recoveredPatient = await rpc(recovered, "clinical_patient_get", {
     p_id: patient.id,
   });
+  if ((await rpc(recovered, "clinical_backup_check_status")).latest !== null)
+    throw new Error(
+      "Old custody declaration was presented as a recovered check",
+    );
   if (
     recoveredPatient.payload.reason !== "Motivo ficticio del ensayo" ||
     recoveredPatient.payload.precautions !== "Precaución ficticia del ensayo"
@@ -310,7 +329,7 @@ try {
       `select json_build_object('rls_tables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='clinical_private' and c.relkind='r' and c.relrowsecurity),'client_table_grants',(select count(*) from information_schema.role_table_grants where table_schema='clinical_private' and grantee in ('anon','authenticated','PUBLIC'))) `,
     ),
   );
-  if (security.rls_tables !== 11 || security.client_table_grants !== 0)
+  if (security.rls_tables !== 12 || security.client_table_grants !== 0)
     throw new Error("Restored security boundary differs");
   const report = {
     tested_at: new Date().toISOString(),
@@ -329,6 +348,8 @@ try {
     clinical_suspension_verified: clinical,
     patient_creation_idempotent: true,
     patient_intake_fields_restored: true,
+    backup_receipt_metadata_roundtrip: true,
+    recovered_custody_requires_fresh_check: true,
     real_auth_and_rest: true,
     auth_created_via_admin_api: true,
     password_and_mfa_recreated: true,

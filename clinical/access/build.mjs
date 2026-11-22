@@ -74,7 +74,7 @@ await build({
     SUPABASE_KEY: JSON.stringify(key),
   },
 });
-const csp = `default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; connect-src ${url}; base-uri 'none'; form-action 'none'; object-src 'none'`;
+const csp = `default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; connect-src ${url}; base-uri 'none'; form-action 'none'; object-src 'none'`;
 const html = (
   await readFile(new URL("./index.html", import.meta.url), "utf8")
 ).replace("__CSP__", csp);
@@ -83,6 +83,8 @@ await copyFile(
   new URL("./access.css", import.meta.url),
   new URL("access.css", out),
 );
+for (const name of ["private.webmanifest", "app-icon.png", "backup-guide.txt"])
+  await copyFile(new URL(`./${name}`, import.meta.url), new URL(name, out));
 // Hosting must actually serve these HTTP headers; the meta CSP cannot prevent framing.
 await writeFile(
   new URL("_headers", out),

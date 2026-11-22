@@ -2,7 +2,7 @@
 
 22 de noviembre de 2026. El titular necesita empezar cuanto antes, será el único usuario y lleva la agenda actual en Calendario del iPhone. No se ha consultado ni importado ese calendario ni se presume dónde guarda historias anteriores.
 
-**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 15.
+**El modelo clínico y sus copias están implementados y ensayados, pero las cuentas alojadas permanecen en prueba.** No se confirma una puesta en marcha para mañana ni se cambia el aviso para dar por habilitados pacientes reales. La versión privada actual es la 16, con navegación de aplicación y registro de comprobaciones de copias.
 
 ## Trabajo técnico completado
 
@@ -18,8 +18,8 @@ Los detalles y las evidencias están en [PROJECT_STATUS.md](../clinical/verifica
 
 | Prioridad | Decisión/operación | Criterio de cierre |
 | --- | --- | --- |
-| P0 | Condiciones y tratamiento sanitario | Resolver la revisión específica de proveedores, encargos/transferencias, información y obligaciones aplicables. El titular puede adelantar la contratación a esta semana y confirmará estos días; todavía no ha confirmado el cierre. |
-| P0 | Custodia y continuidad | Acordar destino, frase recuperable por separado, copia independiente de la sincronización, frecuencia/retención y contingencia, y evaluar límites/pausas de Free. Descargar el archivo en otro dispositivo no acredita todo esto. |
+| P0 | Condiciones y tratamiento sanitario | Resolver la revisión específica de proveedores, encargos/transferencias, información y obligaciones aplicables. El titular llamará sobre proveedores el 23 de noviembre; todavía no ha confirmado el cierre. |
+| P0 | Custodia y continuidad | Frecuencia, rotación y contingencia ya definidas; ejecutar y confirmar copia local independiente en Windows y frase recuperable por separado. Revisar el destino para uso clínico y límites/pausas de Free. Descargar el archivo en otro dispositivo no acredita todo esto. |
 | P0 | Conjunto clínico limpio | Preparar una operación explícita y revisada sobre los ejemplos, conservando antes su copia y confirmando que no son historias reales. No convierte ni borra automáticamente fixtures, cuentas o factores. |
 | P1 | Validación y decisión de salida | Revisar el recorrido final, límites e incidencias críticas y registrar versión/configuración y referencia de decisión. Un operador habilita el perfil solo después; esta entrega no lo hace. |
 
@@ -29,4 +29,4 @@ No se exige contratar una asesoría concreta o esperar a diciembre. Se puede con
 
 El titular ya confirmó alta/guardado/reapertura, motivo/precauciones y archivo cifrado verificado en iPad, guardado en iCloud y descargable desde iPhone. El [registro manual](../clinical/verification/MANUAL_CHECKS.json) distingue esas declaraciones de descifrado/restauración en el segundo dispositivo o recuperación de cuenta, que no se han confirmado.
 
-Se posponen informes, ampliaciones de catálogo, equipos/roles/invitaciones, importación de calendarios y estética. La agenda existente puede mantenerse durante la transición. No se propone introducir pacientes reales bajo aliases ficticios ni subir historias al chat para probarlas.
+Quedan para otras iteraciones los informes, ampliaciones de catálogo, equipos/roles/invitaciones e importación de calendarios. La interfaz de aplicación ya está implementada. La agenda existente puede mantenerse durante la transición. No se propone introducir pacientes reales bajo aliases ficticios ni subir historias al chat para probarlas.

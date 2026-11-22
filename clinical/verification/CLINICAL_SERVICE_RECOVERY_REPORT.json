@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-22T10:02:21.690Z",
+  "tested_at": "2026-11-22T12:43:42.744Z",
   "test_only": true,
   "passed": true,
   "services": {
@@ -55,12 +55,16 @@
     {
       "name": "20261122093236_clinical_patient_model.sql",
       "sha256": "6edfeb32b53c431d6078713d9c503ef5e39479233e755f204012d6a7c7bdcdff"
+    },
+    {
+      "name": "20261122123320_backup_custody_receipts.sql",
+      "sha256": "acb05bcaa96b9a95623306327b2894334874a0416260e8bb34ba4ea076ac32ce"
     }
   ],
-  "schema_sha256": "6ecb68f16573527d9dfaa4b0511428fc517cf94466117b08055f36264dd285e5",
+  "schema_sha256": "3185fb76443adfa14642fa085ab59959d0b84fe0dddbbb0893baca3456098bad",
   "source_closed_before_restore": true,
-  "source_hash": "4b23c39d561e751c42f0124dd6653d3d4cbf0a7e8f0aefe0f8d9f099293bdfa0",
-  "restored_hash": "4b23c39d561e751c42f0124dd6653d3d4cbf0a7e8f0aefe0f8d9f099293bdfa0",
+  "source_hash": "d14c15bce663db09c9c5919e764e3d2e685c72fb4ea162b75d889e07fededc71",
+  "restored_hash": "d14c15bce663db09c9c5919e764e3d2e685c72fb4ea162b75d889e07fededc71",
   "counts": {
     "patients": 2,
     "patient_versions": 3,
@@ -73,7 +77,7 @@
     "audit_events": 10
   },
   "security": {
-    "rls_tables": 11,
+    "rls_tables": 12,
     "client_table_grants": 0
   },
   "snapshot_version": 6,
@@ -81,6 +85,8 @@
   "clinical_suspension_verified": true,
   "patient_creation_idempotent": true,
   "patient_intake_fields_restored": true,
+  "backup_receipt_metadata_roundtrip": true,
+  "recovered_custody_requires_fresh_check": true,
   "real_auth_and_rest": true,
   "auth_created_via_admin_api": true,
   "password_and_mfa_recreated": true,

@@ -8,14 +8,22 @@ async function setup(fail = false) {
   const root = await mkdtemp(join(tmpdir(), "mlrehab-recovery-build-"));
   await mkdir(join(root, "src"));
   await mkdir(join(root, "access-dist"));
-  const names = ["index.html", "access.js", "access.css", "_headers"];
+  const names = [
+    "index.html",
+    "access.js",
+    "access.css",
+    "_headers",
+    "private.webmanifest",
+    "app-icon.png",
+    "backup-guide.txt",
+  ];
   for (const n of names)
     await writeFile(join(root, "access-dist", n), "original " + n);
   const html =
-    '<title>Acceso de pruebas · MLREHAB</title><h1>Acceso de pruebas</h1><input id="email"><h2>Recuperación de acceso</h2><button id="add-reserve"></button><button id="test-revoke"></button>';
+    '<body><title>MLREHAB Manager · Consulta</title><h1 id="access-title">Accede a tu consulta</h1><input id="email"><div id="reserve-options"><h2>Recuperación de acceso</h2><button id="add-reserve"></button></div><button id="test-revoke"></button>';
   await writeFile(
     join(root, "src/build.mjs"),
-    `import {writeFile} from 'node:fs/promises';for(const n of ${JSON.stringify(names)})await writeFile(new URL('../access-dist/'+n,import.meta.url),n==='index.html'?${JSON.stringify(html)}:'target '+n);${fail ? "process.exit(1)" : ""}`,
+    `import {writeFile} from 'node:fs/promises';for(const n of ${JSON.stringify(names)})await writeFile(new URL('../access-dist/'+n,import.meta.url),n==='index.html'?${JSON.stringify(html)}:n==='private.webmanifest'?'{}':'target '+n);${fail ? "process.exit(1)" : ""}`,
   );
   return { root, names };
 }
@@ -35,7 +43,11 @@ test("the recovery entry is clearly marked and preserves all usual assets", asyn
     const html = await readFile(join(root, "recovery-dist/index.html"), "utf8");
     assert.ok(html.includes("Proyecto independiente de recuperación"));
     assert.ok(html.includes('value="recuperacion@example.invalid" readonly'));
-    assert.ok(html.includes("<div hidden><h2>Recuperación de acceso"));
+    assert.ok(html.includes('id="reserve-options" hidden'));
+    const manifest = JSON.parse(
+      await readFile(join(root, "recovery-dist/private.webmanifest"), "utf8"),
+    );
+    assert.equal(manifest.name, "MLREHAB · Recuperación");
   } finally {
     await rm(root, { recursive: true, force: true });
   }

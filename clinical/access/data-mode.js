@@ -68,4 +68,5 @@ export function setDataMode(next) {
     document.getElementById("backup-scope").textContent =
       "La copia incluye pacientes, citas, sesiones, ejercicios propios, versiones y auditoría. No incluye cuentas, contraseñas ni configuración del proveedor. Guarda la frase separada del archivo.";
   }
+  document.dispatchEvent(new CustomEvent("mlrehab:mode"));
 }

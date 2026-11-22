@@ -189,7 +189,7 @@ export async function recoveryDataSql(
     `create temp table recovery_checks(ok boolean not null check(ok)) on commit drop;`,
     `insert into recovery_checks select count(*)=1 from recovery_admin.destination where project_ref=${literal(project)} and stage='schema_ready';`,
     `insert into recovery_checks select count(*)=1 from auth.users where id=${identity}::uuid and email_confirmed_at is not null and banned_until is null;`,
-    `insert into recovery_checks select not exists(select 1 from clinical_private.authorized_clinicians) ${collections.map(([, t]) => `and not exists(select 1 from clinical_private.${t})`).join(" ")};`,
+    `insert into recovery_checks select not exists(select 1 from clinical_private.authorized_clinicians) and not exists(select 1 from clinical_private.backup_checks) and not exists(select 1 from clinical_private.mode_events) ${collections.map(([, t]) => `and not exists(select 1 from clinical_private.${t})`).join(" ")};`,
     `insert into clinical_private.authorized_clinicians(user_id,enabled,data_mode) values(${identity},false,${literal(snapshot.version === 6 ? "suspended" : "test")});`,
   ];
   for (const [name, table, fields] of collections)

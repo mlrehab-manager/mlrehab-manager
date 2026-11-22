@@ -1,0 +1,36 @@
+MLREHAB MANAGER — GUARDADO Y RECUPERACIÓN DE COPIAS
+22 de noviembre de 2026
+Guarda estas instrucciones fuera de la app. No contienen datos de pacientes.
+
+RUTINA MANUAL
+Responsable: el titular, único usuario.
+Al terminar una jornada con cambios y antes de una actualización importante:
+1. Guarda las fichas, citas, sesiones y ejercicios pendientes.
+2. En Copias, crea el archivo cifrado y guárdalo en el destino elegido.
+3. Vuelve a abrir el archivo desde ese destino y pulsa Comprobar archivo con su frase.
+4. Conserva otra copia fuera de la misma cuenta de sincronización: carpeta local del ordenador fuera de iCloud/OneDrive, o soporte desconectado y protegido.
+5. Guarda la frase separada de los archivos, recuperable sin el iPad. No la envíes por chat.
+6. Registra la comprobación en MLREHAB y marca solo los pasos que ya has hecho.
+
+SEGUNDA COPIA EN WINDOWS
+Pulsa Windows + R, escribe %USERPROFILE% y acepta. Crea una carpeta llamada MLREHAB-Copias en esa ubicación, fuera de OneDrive e iCloud. Guarda ahí el archivo cifrado y comprueba que la carpeta no está sincronizada con esas cuentas. Desde MLREHAB en Windows, abre Copias y comprueba ese mismo archivo con su frase. Después puedes registrar los pasos completados. El archivo cifrado y su frase deben seguir separados.
+
+CONSERVACIÓN
+Conserva dos copias recientes comprobadas y una anterior que haya superado un ensayo de restauración. Sustituye una antigua después de comprobar la nueva. Nunca borres la única copia válida para liberar espacio. No hay borrado ni copia automática. Esta rotación no autoriza eliminar historias clínicas.
+
+PRUEBA PERIÓDICA
+Una vez al mes y después de cambios importantes, ensaya una restauración en un destino autorizado, independiente y vacío. Nunca uses la base habitual ni el proyecto de recuperación ya ocupado. Comprueba integridad y acceso; registra la fecha y el resultado.
+
+SI FALLA EL DISPOSITIVO
+Usa otro dispositivo protegido. Vuelve a entrar con tu cuenta y autenticador. Localiza la copia externa y recupera su frase por separado. Comprueba el archivo. No sustituyas la base habitual por una copia antigua.
+
+SI FALLA EL SERVICIO O FALTAN SUS DATOS
+Conserva los archivos verificados. Anota el último guardado confirmado y la incidencia; detén cambios sobre el origen afectado. La recuperación técnica se prepara en un proyecto independiente autorizado y vacío. Se reconstruyen esquema y acceso, se restauran y contrastan las nueve colecciones y se verifican los datos antes de volver a habilitar operaciones. Las copias clínicas arrancan suspendidas. Después se actualiza la conexión de la app si corresponde.
+Procedimiento técnico y código:
+https://github.com/mlrehab-manager/mlrehab-manager/blob/security/clinical-foundation/clinical/recovery/README.md
+
+LÍMITES
+Archivo verificado significa comprobación local, no restauración del servidor.
+La copia incluye pacientes, versiones, citas, sesiones, ejercicios propios y auditoría. No incluye cuentas, contraseñas, autenticadores, secretos ni configuración de proveedores. Esos accesos requieren recuperación separada. Sin la frase no se puede descifrar el archivo.
+Un iPad y un iPhone con el mismo iCloud no son dos copias independientes.
+La rutina es manual. La app no vigila las omisiones ni garantiza plazos de recuperación. Para datos reales, destino y conservación deben quedar revisados con los proveedores. El modo actual sigue siendo de pruebas.

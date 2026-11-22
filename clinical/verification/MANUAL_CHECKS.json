@@ -23,7 +23,10 @@
     "file_hash_recorded": false,
     "phrase_or_file_collected_by_agent": false,
     "independent_copy_outside_same_sync_account": "not_confirmed",
-    "backup_phrase_recovery": "not_confirmed"
+    "backup_phrase_recovery": "not_confirmed",
+    "operational_routine": "Defined at holder request on 2026-11-22: manual after changed day, two recent verified plus one restore-tested previous, independent copy, separate recoverable phrase, monthly isolated drill; physical steps still pending.",
+    "second_device_os": "Windows (holder confirmed 2026-11-22)",
+    "windows_independent_copy_and_local_verification": "instructions_prepared_not_yet_confirmed"
   },
   "provider_review": {
     "public_documentation_reviewed_on": "2026-11-21",
@@ -34,17 +37,19 @@
     "billing_changed": false,
     "holder_planning_reported_on": "2026-11-22",
     "previously_planned_review_month": "2026-12",
-    "holder_current_plan": "Puede contratar el servicio esta semana; confirmar\u00e1 estos d\u00edas",
+    "holder_current_plan": "Llamará el 23 de noviembre de 2026; la revisión de proveedores sigue pendiente.",
     "holder_confirmation_received": false
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
   "updated_on": "2026-11-22",
-  "latest_site_version_available": 15,
+  "latest_site_version_available": 16,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
   "existing_agenda": "iPhone Calendar (holder clarification)",
   "existing_clinical_record_system": "not_confirmed",
   "requested_start_date": "2026-11-23",
-  "clinical_profile_activated": false
+  "clinical_profile_activated": false,
+  "private_workspace_and_backup_registry": "not_yet_tested_by_holder",
+  "standalone_installation_on_ipad": "not_yet_tested_by_holder"
 }

@@ -14,7 +14,15 @@ export async function buildRecoveryAccess(builder, output, env = process.env) {
     throw new Error(
       "El acceso habitual y el recuperado deben compilarse por separado",
     );
-  const files = ["index.html", "access.js", "access.css", "_headers"],
+  const files = [
+      "index.html",
+      "access.js",
+      "access.css",
+      "_headers",
+      "private.webmanifest",
+      "app-icon.png",
+      "backup-guide.txt",
+    ],
     original = new Map();
   for (const name of files) {
     try {
@@ -33,33 +41,34 @@ export async function buildRecoveryAccess(builder, output, env = process.env) {
     await mkdir(output, { recursive: true });
     for (const name of files) {
       let content = await readFile(join(sourceOutput, name));
+      if (name === "private.webmanifest") {
+        const manifest = JSON.parse(content.toString("utf8"));
+        manifest.name = "MLREHAB · Recuperación";
+        manifest.short_name = "Recuperación";
+        content = Buffer.from(JSON.stringify(manifest));
+      }
       if (name === "index.html") {
         let html = content.toString("utf8");
-        if (!html.includes("<h1>Acceso de pruebas</h1>"))
+        if (!html.includes('<h1 id="access-title">Accede a tu consulta</h1>'))
           throw new Error("Revisar la plantilla de acceso antes de publicar");
         html = html
           .replace(
-            "<title>Acceso de pruebas · MLREHAB</title>",
+            "<title>MLREHAB Manager · Consulta</title>",
             "<title>Recuperación de pruebas · MLREHAB</title>",
           )
           .replace(
-            "<h1>Acceso de pruebas</h1>",
-            "<h1>Recuperación de pruebas</h1><p><strong>Proyecto independiente de recuperación.</strong> Entra con recuperacion@example.invalid y la contraseña que creaste para esa cuenta ficticia. Los datos que verás son los del ensayo recuperado.</p><p>Si se solicita un autenticador, pertenece únicamente a esta cuenta ficticia. Mantén su entrada separada de la cuenta habitual de MLREHAB.</p>",
+            '<h1 id="access-title">Accede a tu consulta</h1>',
+            '<h1 id="access-title">Recuperación de pruebas</h1><p><strong>Proyecto independiente de recuperación.</strong> Entra con recuperacion@example.invalid y la contraseña que creaste para esa cuenta ficticia. Los datos que verás son los del ensayo recuperado.</p><p>Si se solicita un autenticador, pertenece únicamente a esta cuenta ficticia. Mantén su entrada separada de la cuenta habitual de MLREHAB.</p>',
           )
           .replace(
             'id="email"',
             'id="email" value="recuperacion@example.invalid" readonly',
           );
-        const reserve = html.indexOf("<h2>Recuperación de acceso</h2>"),
-          end = html.indexOf('<button id="test-revoke"');
-        if (reserve < 0 || end < reserve)
+        if (!html.includes('id="reserve-options"'))
           throw new Error("Revisar el apartado de recuperación de acceso");
-        html =
-          html.slice(0, reserve) +
-          "<div hidden>" +
-          html.slice(reserve, end) +
-          "</div>" +
-          html.slice(end);
+        html = html
+          .replace("<body>", '<body data-recovery="true">')
+          .replace('id="reserve-options"', 'id="reserve-options" hidden');
         content = Buffer.from(html);
       }
       await writeFile(join(output, name), content);

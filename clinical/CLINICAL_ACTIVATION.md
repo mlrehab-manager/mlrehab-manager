@@ -1,6 +1,6 @@
 # Activación clínica · preparada, sin ejecutar
 
-22 de noviembre de 2026. La versión privada 15 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
+22 de noviembre de 2026. La versión privada 16 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
 
 ## Qué está implementado
 
@@ -26,8 +26,8 @@ Algunos RPC conservan el sufijo histórico `_test` por compatibilidad, pero sele
 
 ## Lo necesario antes de una decisión de activación
 
-1. Cerrar la revisión concreta de condiciones/proveedores y las obligaciones aplicables al tratamiento sanitario. El titular indica ahora que puede contratar el servicio esta semana y confirmará estos días; no se da por confirmado. No es obligatorio esperar a diciembre si se resuelve antes.
-2. Acordar destino/custodia de copias y frase, independencia frente a la cuenta de sincronización, frecuencia, retención, contingencia y recuperación de acceso. La descarga desde el iPhone ya confirmada no demuestra por sí sola toda esa recuperación. La reserva TOTP independiente sigue aplazada; no se exige volver a configurarla como única solución.
+1. Cerrar la revisión concreta de condiciones/proveedores y las obligaciones aplicables al tratamiento sanitario. El titular indica ahora que llamará sobre proveedores el 23 de noviembre; no se da por confirmado. No es obligatorio esperar a diciembre si se resuelve antes.
+2. Ejecutar y confirmar los pasos materiales del procedimiento de copias ya definido: destino/custodia, frase recuperable y copia independiente. La frecuencia, rotación y contingencia están documentadas; su adecuación clínica/destino se revisan junto con proveedores. La descarga desde el iPhone ya confirmada no demuestra por sí sola toda esa recuperación. La reserva TOTP independiente sigue aplazada; no se exige volver a configurarla como única solución.
 3. Preparar un conjunto clínico limpio con una decisión explícita sobre los datos de prueba. Se puede planificar conservar la cuenta/MFA actuales; este código no obliga a repetir el enrolamiento. Antes de cualquier limpieza se debe conservar/comprobar la copia de prueba, confirmar que no contiene historias reales y revisar la operación exacta. No se ejecuta borrado automático ni se mezclan fixtures con historias clínicas.
 4. Validar el recorrido de salida, los límites y la contingencia y registrar la versión/configuración autorizadas. Solo entonces un operador autorizado cambia el modo con la referencia de decisión. Esa acción no está incluida en esta entrega.
 
@@ -37,8 +37,8 @@ No se publican comandos de activación directa ni se programa la fecha. Disponer
 
 El generador administrativo admite v6 únicamente con la opción booleana explícita `allowClinical: true`. Una cadena como `"false"` no habilita esa opción. Sigue rechazando el proyecto habitual y exige destino marcado/vacío, identidad confirmada y validación completa. El destino restaurado empieza suspendido y con admisión deshabilitada, hasta verificar igualdad/hash y autorizar su acceso.
 
-Las nueve colecciones no incluyen Auth, secretos, configuración ni `mode_events`: la admisión y los controles del destino se reconstruyen por separado y no se conceden por importar un archivo. Las copias no se restauran sobre la base habitual como prueba ni se reimportan sobre el destino alojado ya ocupado.
+Las nueve colecciones no incluyen Auth, secretos, configuración ni `mode_events` o `backup_checks`: la admisión y los controles del destino se reconstruyen por separado y no se conceden por importar un archivo. Las copias no se restauran sobre la base habitual como prueba ni se reimportan sobre el destino alojado ya ocupado.
 
 Continúan los límites del exportador: 500 pacientes, 500 citas, 500 sesiones, 5 000 versiones de pacientes, 2 000 de cada recurso de agenda/catálogo, 10 000 eventos y 4 MiB de contenido, además de límites internos de historial. Al excederlos la exportación falla sin truncar. Debe evaluarse y vigilarse el crecimiento para el piloto; no se presenta como capacidad clínica ilimitada ni como copia automática. Free y sus pausas/continuidad requieren una decisión operativa.
 
-La [revisión de proveedores](../docs/CLINICAL_PROVIDER_REVIEW.md), las [consultas preparadas](../docs/CLINICAL_VENDOR_QUESTIONS.md) y la [propuesta de copias](../docs/CLINICAL_BACKUP_OPERATIONS.md) siguen siendo entradas para esa decisión. No se han enviado mensajes ni aceptado condiciones o pagos en nombre del titular.
+La [revisión de proveedores](../docs/CLINICAL_PROVIDER_REVIEW.md), las [consultas preparadas](../docs/CLINICAL_VENDOR_QUESTIONS.md) y la [procedimiento de copias](../docs/CLINICAL_BACKUP_OPERATIONS.md) siguen siendo entradas para esa decisión. No se han enviado mensajes ni aceptado condiciones o pagos en nombre del titular.

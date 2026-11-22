@@ -1,4 +1,4 @@
-# Acceso de pruebas independiente
+# Consulta privada · interfaz de aplicación
 
 Interfaz privada de pruebas con autenticación, copias y una primera [consulta/edición de fichas ficticias](PATIENTS.md). Publicada para el propietario en https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site . No utilizar historias reales. Consulta el [estado de las comprobaciones HTTPS](../verification/PROJECT_STATUS.md).
 
@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta y cinco pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las sesenta y ocho pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 
@@ -52,3 +52,11 @@ El [flujo de fichas](PATIENTS.md) permite crear por alias ficticio, buscar, edit
 La ficha añade «Motivo de consulta ficticio» y «Antecedentes y precauciones ficticios», opcionales y separados de los textos anteriores. Se guardan con revisión, se incluyen en v5 y conservan las protecciones de borrador/cierre. No se añaden usuarios, roles o invitaciones; sigue siendo la aplicación individual de pruebas.
 
 El código de la versión 15 admite un modo clínico asignado por el servidor, identificación validada y copias v6. La cuenta actual sigue en prueba y permite ensayar identidad con ejemplos inventados. No hay botón de activación en la pantalla; la [activación clínica](../CLINICAL_ACTIVATION.md) se prepara por separado. Una denegación explícita de datos limpia todos los paneles y devuelve al acceso.
+
+## Navegación e instalación en iPad
+
+Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso comparten la sesión; cambiar de sección no desmonta formularios ni descarta borradores. No se cargan fichas automáticamente al entrar. La barra lateral se convierte en navegación inferior en pantallas estrechas. Inicio distingue totales sin cargar y citas del día consultado.
+
+Desde el enlace privado habitual, Safari → Compartir → Añadir a pantalla de inicio permite abrir la app en modo independiente con icono propio. Manifest y alcance relativos; `/recovery/` conserva nombre y backend distintos. No añade funcionamiento sin conexión ni recuerda tokens al recargar. La instalación real en iPad debe comprobarse con el titular.
+
+En Copias, la rutina y las instrucciones descargables permiten conservar el procedimiento fuera de la app. Después de validar localmente una copia v5/v6 del modo actual, «Guardar comprobación» envía exclusivamente metadatos/declaraciones acotadas mediante una operación idempotente. «Consultar última comprobación» recupera ese registro para el titular/modo autorizado. El archivo, frase y contenido descifrado no se suben; el registro no equivale a una restauración ni a observar el destino externo. Véase [conservación y recuperación](../../docs/CLINICAL_BACKUP_OPERATIONS.md).
