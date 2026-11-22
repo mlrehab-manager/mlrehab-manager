@@ -55,7 +55,7 @@ El titular confirma el 22 de noviembre que utiliza ChatGPT personal (Plus/Pro) y
 
 El siguiente paso contractual es conservar los textos aplicables y documentar la decisión del responsable sobre datos sensibles, transferencias y continuidad. La consulta del apartado 4(d) puede revisarse con el proveedor o con su asesoría; no se presenta una respuesta del proveedor o la contratación de una asesoría concreta como un requisito universal independiente de la normativa aplicable. Las dudas materiales sí deben resolverse antes de la decisión de uso real.
 
-La [guía descargable desde la app](../clinical/access/storage-guide.txt) incluye enlaces oficiales, una consulta concreta sin enviar y los pasos de custodia. En iPad se puede crear, comprobar y registrar el archivo; no demuestra una copia independiente. Windows no está disponible en este momento. La consulta administrativa solo de metadatos muestra cero comprobaciones registradas: no invalida la confirmación anterior de archivo verificado, pero no aporta un registro nuevo de custodia.
+La [guía descargable desde la app](../clinical/access/storage-guide.txt) incluye enlaces oficiales, una consulta concreta sin enviar y los pasos de custodia. El titular ha completado el recorrido desde el iPad: la consulta de las 16:10 UTC observa una comprobación vinculada a una exportación actual. El destino seleccionado es «Este dispositivo», con copia independiente, frase separada y verificación en otro dispositivo marcadas. Se solicita aclarar dispositivo y destino independiente por el contexto anterior de disponer solo del iPad. Las declaraciones registradas no certifican observación física o restauración.
 
 ## Revisión de cierre solicitada por el titular
 
