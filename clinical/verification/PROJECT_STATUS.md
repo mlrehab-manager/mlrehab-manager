@@ -51,7 +51,7 @@ Worker verificado: rutas, separación de backends/CSP, manifest/icono binario/gu
 
 ## Lo confirmado y lo pendiente
 
-[MANUAL_CHECKS.json](MANUAL_CHECKS.json) conserva las confirmaciones del titular: alta/guardado/reapertura, motivo/precauciones, copia verificada en iPad y descargable desde iPhone. No afirma descifrado en iPhone/Windows, existencia de segunda copia independiente o recuperación de la frase. Windows está confirmado; las instrucciones no equivalen a haber hecho esos pasos.
+[MANUAL_CHECKS.json](MANUAL_CHECKS.json) conserva las confirmaciones del titular: alta/guardado/reapertura, motivo/precauciones, copia verificada en iPad y descargable desde iPhone. El 22 de noviembre confirma que todos los registros actuales son inventados y que puede recuperar la frase aunque pierda el iPad. No se afirma descifrado en iPhone/Windows o existencia de segunda copia independiente. Windows está confirmado; las instrucciones no equivalen a haber hecho esos pasos.
 
 El titular llamará sobre proveedores el 23 de noviembre. El desarrollo y el procedimiento de copias siguen avanzando; su revisión contractual, custodia material pendiente, conjunto clínico limpio y activación deliberada siguen sin darse por hechos. La reserva MFA independiente permanece aplazada. La agenda actual está en Calendario del iPhone y no se ha accedido o importado.
 
@@ -61,4 +61,4 @@ La revisión de proveedores se ha actualizado con fuentes oficiales el 22 de nov
 
 A petición del titular, se repite la consulta administrativa de metadatos y asesores: ambos proyectos operativos, plan Free confirmado, mismos permisos y único aviso de contraseñas filtradas. El [informe de cierre](CLOSING_REVIEW.json) conserva los recuentos: tres fichas/tres citas/una sesión en el habitual, cero comprobaciones de custodia y cero cambios de modo. No incluye textos de pacientes ni secretos.
 
-La [decisión de puesta en marcha](../../docs/CLINICAL_LAUNCH_DECISION.md) concreta los registros afectados por una eventual retirada de pruebas, manteniendo cuenta/MFA. Se solicitan confirmación de que todo el contenido es inventado y de la recuperación separada de la frase. Esas respuestas, la prueba material pendiente y la decisión de adecuación de proveedores no se inventan. Esta entrega solo modifica documentación/evidencia: no retira registros, cambia el perfil o publica otra versión del Site.
+La [decisión de puesta en marcha](../../docs/CLINICAL_LAUNCH_DECISION.md) concreta los registros afectados por una eventual retirada de pruebas, manteniendo cuenta/MFA. El titular ya ha confirmado que todos los registros son inventados y que puede recuperar la frase sin el iPad. Ambas declaraciones quedan registradas con su procedencia; la copia independiente, la revisión de la operación destructiva y la decisión de adecuación de proveedores continúan pendientes. Esta entrega solo modifica documentación/evidencia: no retira registros, cambia el perfil o publica otra versión del Site.

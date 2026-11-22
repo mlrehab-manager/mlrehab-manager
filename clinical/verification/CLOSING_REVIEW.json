@@ -197,8 +197,20 @@
     "both_projects_12_tables_all_rls_zero_client_table_grants_24_public_invoker_rpc",
     "private_site_owner_only_version_19",
     "existing_v5_v6_restore_reports_pass_with_nine_collections_equal_hashes",
-    "application_ci_45039800878_passed"
+    "application_ci_45039800878_passed",
+    "holder_confirmed_all_current_records_invented",
+    "holder_confirmed_phrase_recoverable_without_ipad"
   ],
+  "holder_confirmations": {
+    "reported_on": "2026-11-22",
+    "evidence_kind": "holder_report_in_conversation",
+    "all_current_records_invented": true,
+    "phrase_recoverable_without_ipad": true,
+    "independently_observed_by_agent": false,
+    "phrase_or_file_collected": false,
+    "physical_independent_copy_verified": false,
+    "removal_or_activation_executed": false
+  },
   "open_findings": [
     {
       "id": "provider_case_review",
@@ -208,12 +220,12 @@
     {
       "id": "physical_custody",
       "status": "requires_holder_action",
-      "detail": "No registered custody checks. Prior iPad verification and iPhone download are holder reports, not evidence of independent file verification or separate phrase recovery."
+      "detail": "The read-only query recorded no custody checks. The holder now confirms phrase recovery without the iPad. The prior iPad verification and iPhone download remain holder reports; independent file verification is still unconfirmed."
     },
     {
       "id": "test_set_transition",
-      "status": "prepared_scope_only",
-      "detail": "The current nine collections contain three patients, three appointments and one session with their versions and audit. Fixture markers do not prove that all entered text is invented; holder confirmation and a current checked backup are required before any proposed removal."
+      "status": "awaiting_current_backup_and_execution_review",
+      "detail": "The holder confirms that all current records are invented. The proposed scope remains three patients, three appointments and one session with their versions and audit, subject to fresh count validation. A current checked backup and review of the destructive operation remain necessary before execution. No removal or activation has occurred."
     },
     {
       "id": "leaked_password_protection",

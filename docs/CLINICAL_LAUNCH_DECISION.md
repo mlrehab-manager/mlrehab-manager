@@ -26,7 +26,7 @@ La decisión puede apoyarse en una aclaración del proveedor o una revisión com
 
 La [rutina](CLINICAL_BACKUP_OPERATIONS.md) ya fija copia manual tras jornadas con cambios, verificación, rotación y restauración aislada. La propuesta para datos clínicos es un archivo cifrado en almacenamiento local protegido fuera de sincronización y una frase separada recuperable. Windows es el dispositivo propuesto, no una exigencia ligada a ese sistema operativo. Otro dispositivo protegido o soporte externo independiente puede servir si se comprueban sus condiciones y recuperación.
 
-Está confirmada por el titular una comprobación anterior en iPad y una descarga desde iPhone. Hoy hay cero comprobaciones registradas y la última exportación observada es del 21 de noviembre. Ninguno de esos datos acredita por sí solo independencia o recuperación de la frase.
+Está confirmada por el titular una comprobación anterior en iPad y una descarga desde iPhone. El 22 de noviembre también confirma que puede recuperar la frase aunque pierda el iPad. La consulta administrativa de las 15:52 UTC registró cero comprobaciones y una última exportación del 21 de noviembre. La confirmación de recuperación de la frase queda recogida como declaración del titular; la independencia y apertura de la copia desde otro dispositivo siguen pendientes.
 
 Paso realizable ahora: en **Copias**, crear un archivo actual, guardarlo, abrirlo desde Archivos con **Comprobar archivo** y usar **Guardar comprobación** con las declaraciones que sean ciertas. No enviar archivo o frase al chat. La copia independiente y apertura desde otro dispositivo siguen pendientes mientras solo esté disponible el iPad. iCloud se conserva como destino del ensayo; su uso clínico no se da por aprobado.
 
@@ -48,7 +48,7 @@ Recuentos observados a las 15:52 UTC del 22 de noviembre; deberán coincidir de 
 | Versiones de ejercicios              |                  0 |                   0 |
 | Auditoría de ese conjunto de pruebas |                 64 |                   0 |
 
-Los marcadores de fixture son compatibles con pruebas, pero no demuestran que todo el texto introducido sea inventado. La confirmación del titular está solicitada y aún no se sustituye por una inferencia del agente. Cualquier cambio de recuentos, confirmación de datos reales o falta de copia comprobada obliga a revisar esta propuesta antes de retirar registros.
+El titular confirma expresamente el 22 de noviembre que todos los registros actuales son inventados. Se registra esta declaración por separado de los marcadores de fixture y de las consultas administrativas. La copia actual comprobada y la revisión del alcance destructivo siguen pendientes antes de ejecutar la propuesta. Cualquier cambio de recuentos o contenido obliga a revalidarla.
 
 La propuesta de retirada no se ha ejecutado ni se considera autorizada por pedir una revisión de cierre. Una vez resueltas las condiciones y la custodia, el titular revisará el alcance destructivo concreto. La operación administrativa deberá bloquear la admisión durante la transacción, revalidar el conjunto y registrar la decisión de activación. El perfil solo pasará a modo clínico con conjunto vacío y referencia de decisión; el código no lo activa automáticamente.
 
