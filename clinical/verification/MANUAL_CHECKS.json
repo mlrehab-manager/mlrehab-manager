@@ -9,7 +9,8 @@
     "search": "not_confirmed_in_this_round",
     "archive_with_and_without_scheduled_appointments": "not_confirmed_in_this_round",
     "independently_observed_by_agent": false,
-    "optional_intake_fields_in_version_14": "not_yet_tested_by_holder"
+    "optional_intake_fields_in_version_14": "holder_reported_completed",
+    "optional_intake_fields_reported_on": "2026-11-22"
   },
   "encrypted_backup": {
     "ipad_export_and_file_verified": "holder_reported_completed",
@@ -38,5 +39,8 @@
   "updated_on": "2026-11-22",
   "latest_site_version_available": 14,
   "usage_scope": "single_practitioner",
-  "clinical_activation_automatic": false
+  "clinical_activation_automatic": false,
+  "existing_agenda": "iPhone Calendar (holder clarification)",
+  "existing_clinical_record_system": "not_confirmed",
+  "requested_start_date": "2026-11-23"
 }
