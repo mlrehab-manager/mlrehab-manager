@@ -54,6 +54,7 @@ const collections = [
       "revision",
       "created_at",
       "updated_at",
+      "visit_type",
     ],
     "id",
   ],
@@ -150,6 +151,7 @@ export function snapshotQuery(snapshot) {
     .join(",");
   const lists = collections.map(([name, table, fields, order]) => {
     const values = fields
+      .filter((f) => f !== "visit_type")
       .flatMap((f) => [
         literal(f),
         f === "payload_json"
@@ -161,7 +163,11 @@ export function snapshotQuery(snapshot) {
               : f,
       ])
       .join(",");
-    return `${literal(name)},(select coalesce(jsonb_agg(jsonb_build_object(${values}) order by ${order}),'[]'::jsonb) from clinical_private.${table})`;
+    const type =
+      table === "appointments"
+        ? " || case when visit_type='unclassified' then '{}'::jsonb else jsonb_build_object('visit_type',visit_type) end"
+        : "";
+    return `${literal(name)},(select coalesce(jsonb_agg(jsonb_build_object(${values})${type} order by ${order}),'[]'::jsonb) from clinical_private.${table})`;
   });
   return `select jsonb_build_object(${root},${lists.join(",")}) as snapshot`;
 }
@@ -198,7 +204,12 @@ export async function recoveryDataSql(
           .map((f) => (f === "payload_json" ? "payload" : f))
           .join(","),
         values = fields
-          .map((f) => literal(row[f]) + (f === "payload_json" ? "::jsonb" : ""))
+          .map(
+            (f) =>
+              literal(
+                f === "visit_type" ? (row[f] ?? "unclassified") : row[f],
+              ) + (f === "payload_json" ? "::jsonb" : ""),
+          )
           .join(",");
       sql.push(
         `insert into clinical_private.${table}(${columns})${table === "audit_events" ? " overriding system value" : ""} values(${values});`,

@@ -9,7 +9,7 @@ npm ci
 npm run test:access
 ```
 
-El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las setenta y seis pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
+El comando compila con un proyecto, clave, cuenta y tokens sintéticos. Playwright intercepta Auth y los RPC de prueba; nunca envía contraseñas, frases o archivos a un proveedor real. Las setenta y nueve pruebas cubren autenticación, reserva, cierre, copias, fichas, agenda y sesiones. El propietario ha confirmado acceso, cierre y comprobación del archivo cifrado con su sesión real. La reserva independiente sigue pendiente por su indicación; el mismo código sincronizado por Contraseñas entre dispositivos corresponde a un solo factor.
 
 ## Preparar el alojamiento de pruebas
 
@@ -62,3 +62,5 @@ Desde el enlace privado habitual, Safari → Compartir → Añadir a pantalla de
 En Copias, la rutina y las instrucciones descargables permiten conservar el procedimiento fuera de la app. Después de validar localmente una copia v5/v6 del modo actual, «Guardar comprobación» envía exclusivamente metadatos/declaraciones acotadas mediante una operación idempotente. «Consultar última comprobación» recupera ese registro para el titular/modo autorizado. El archivo, frase y contenido descifrado no se suben; el registro no equivale a una restauración ni a observar el destino externo. Véase [conservación y recuperación](../../docs/CLINICAL_BACKUP_OPERATIONS.md).
 
 La agenda ahora es semanal de lunes a viernes, sin fila de las 14:00, con alta desde cada casilla y elección obligatoria de paciente. Las citas fuera de la cuadrícula permanecen en el listado; se mantiene el control de borradores, revisiones, sesiones y cierre. Véase [agenda semanal](AGENDA.md).
+
+La versión 19 ajusta la semana al alto útil y añade tipo/color persistente por cita. La guía de almacenamiento/custodia se descarga desde Acceso. Mantiene los avisos del modo autorizado por servidor y no activa datos reales por un cambio visual.

@@ -348,33 +348,69 @@
                 Horario de la clínica: Europe/Madrid. Solo puedes citar a los
                 pacientes ficticios activos de esta base privada.
               </p>
-              <label for="agenda-date">Fecha de la semana</label>
-              <input
-                id="agenda-date"
-                type="date"
-                min="2020-01-01"
-                max="2100-12-31"
-                required
-              />
-              <div class="agenda-navigation">
-                <button id="agenda-prev" type="button">Semana anterior</button
-                ><button id="agenda-next" type="button">Semana siguiente</button
-                ><button id="agenda-today" type="button">Esta semana</button>
+              <div id="agenda-toolbar" class="agenda-toolbar">
+                <div class="agenda-navigation">
+                  <button
+                    id="agenda-prev"
+                    type="button"
+                    aria-label="Semana anterior"
+                  >
+                    Anterior</button
+                  ><button
+                    id="agenda-today"
+                    type="button"
+                    aria-label="Esta semana"
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    id="agenda-next"
+                    type="button"
+                    aria-label="Semana siguiente"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+                <div class="agenda-date-control">
+                  <label for="agenda-date" class="sr-only"
+                    >Fecha de la semana</label
+                  >
+                  <input
+                    id="agenda-date"
+                    type="date"
+                    min="2020-01-01"
+                    max="2100-12-31"
+                    required
+                  />
+                </div>
+                <div class="agenda-actions">
+                  <button id="agenda-load" type="button">Actualizar</button>
+                  <button id="agenda-new" type="button" class="primary">
+                    Nueva cita
+                  </button>
+                </div>
               </div>
-              <p id="agenda-view-state"></p>
+              <p id="agenda-view-state" class="sr-only"></p>
+              <div id="agenda-meta" class="agenda-meta">
+                <p id="agenda-loaded-day"></p>
+                <span id="agenda-availability">Sin cargar</span>
+                <ul
+                  id="agenda-legend"
+                  class="agenda-legend"
+                  aria-label="Tipos de visita"
+                >
+                  <li class="type-first_visit">Primera visita</li>
+                  <li class="type-follow_up">Seguimiento</li>
+                  <li class="type-gym">Gimnasio</li>
+                  <li class="type-unclassified">Sin clasificar</li>
+                </ul>
+              </div>
               <div
                 id="agenda-week"
                 role="region"
                 tabindex="0"
                 aria-label="Calendario semanal de lunes a viernes"
               ></div>
-              <div class="view-toolbar">
-                <button id="agenda-load" type="button">Cargar agenda</button>
-                <button id="agenda-new" type="button" class="primary">
-                  Nueva cita ficticia
-                </button>
-              </div>
-              <p id="agenda-loaded-day"></p>
               <p id="agenda-outside-note" hidden></p>
               <details id="agenda-saved-list">
                 <summary>Listado de citas guardadas</summary>
@@ -384,6 +420,9 @@
                 ></ul>
               </details>
               <section id="agenda-editor" hidden class="editor-card">
+                <button id="agenda-close" type="button" class="secondary">
+                  Cerrar edición y volver a la semana
+                </button>
                 <h3 id="agenda-editor-title"></h3>
                 <form id="appointment-form" autocomplete="off">
                   <fieldset id="appointment-fields" class="fields-grid">
@@ -393,6 +432,17 @@
                       <label for="appointment-patient">Paciente ficticio</label
                       ><select id="appointment-patient" required></select>
                     </fieldset>
+                    <div class="field">
+                      <label for="appointment-visit-type">Tipo de visita</label
+                      ><select id="appointment-visit-type" required>
+                        <option value="first_visit">Primera visita</option>
+                        <option value="follow_up">Seguimiento</option>
+                        <option value="gym">Gimnasio</option>
+                        <option value="unclassified" disabled>
+                          Sin clasificar (cita anterior)
+                        </option>
+                      </select>
+                    </div>
                     <div class="field">
                       <label for="appointment-start"
                         >Fecha y hora en la clínica</label
@@ -493,6 +543,14 @@
                   Cargar cita y sesión guardadas
                 </button>
               </section>
+              <dialog
+                id="agenda-group-picker"
+                aria-labelledby="agenda-group-title"
+              >
+                <h2 id="agenda-group-title">Elige una cita</h2>
+                <div id="agenda-group-list"></div>
+                <button id="agenda-group-close" type="button">Cerrar</button>
+              </dialog>
             </section>
             <section
               id="patients-panel"
@@ -1040,6 +1098,29 @@
                 Gestiona la sesión y consulta las opciones de recuperación de tu
                 cuenta.
               </p>
+              <section
+                class="storage-review"
+                aria-labelledby="storage-review-title"
+              >
+                <h3 id="storage-review-title">Almacenamiento y custodia</h3>
+                <p>
+                  Base y acceso en Supabase, Frankfurt. La revisión de
+                  condiciones y la comprobación de una copia independiente
+                  forman parte de la puesta en marcha.
+                </p>
+                <p>
+                  Guarda los pasos y enlaces para revisarlos desde el iPad. El
+                  documento distingue lo comprobado de lo pendiente y explica
+                  cómo terminar la prueba en Windows.
+                </p>
+                <p>
+                  <a
+                    href="./storage-guide.txt"
+                    download="MLREHAB-almacenamiento-y-copias.txt"
+                    >Guardar guía de almacenamiento y copias</a
+                  >
+                </p>
+              </section>
               <div id="reserve-options">
                 <h2>Recuperación de acceso</h2>
                 <p>

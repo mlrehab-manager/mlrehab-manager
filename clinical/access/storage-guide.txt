@@ -1,0 +1,47 @@
+MLREHAB — ALMACENAMIENTO Y CUSTODIA DE COPIAS
+Revisión de 22 de noviembre de 2026. Uso individual en España.
+Documento de trabajo; no es una certificación de cumplimiento ni activa la cuenta clínica.
+
+LO IDENTIFICADO
+La base y Auth actuales están en la región eu-central-1 (Frankfurt). La interfaz privada se sirve desde Sites y el navegador llama directamente a Supabase. El alojamiento no contiene un proxy de historias. Esto no demuestra que todos los metadatos, el soporte o los subencargados se limiten a la UE.
+El titular confirma una cuenta personal de ChatGPT (Plus/Pro). Corresponde revisar el DPA de Sites para planes personales. Este DPA cubre el alojamiento y no el chat de creación/desarrollo; no introduzcas historias clínicas en este chat.
+
+CONDICIONES: QUÉ GUARDAR Y QUÉ ACLARAR
+1. Conserva una copia fechada del DPA de Supabase, el DPA de Sites personal, sus condiciones y las listas vigentes de subencargados. Identifica tu actividad como responsable y la cuenta/organización que presta el servicio. No hace falta instalar un contrato dentro de la app.
+2. Revisa el apartado 4(d) del DPA de Supabase: se refiere a los consentimientos explícitos necesarios para datos sensibles. Aclara su encaje con la base jurídica aplicable a la asistencia sanitaria en España, sin sustituirlo por una casilla genérica. La guía de la AEPD distingue el consentimiento sanitario y la legitimación del tratamiento.
+3. Documenta soporte, transferencias y salvaguardas aplicables al uso concreto. Frankfurt no equivale a residencia europea exclusiva de todo el proveedor.
+4. Decide cómo operar con los límites y posibles pausas de Free: el proveedor no incluye las copias diarias de planes superiores. La copia externa de MLREHAB es manual. No se ha cambiado el plan ni contratado pagos.
+5. El destino de copias clínicas también necesita una decisión. iCloud se ha usado para el ensayo ficticio; no se da por aprobado para historias clínicas. La carpeta local de Windows fuera de sincronización es la segunda copia propuesta y está pendiente de comprobar.
+
+ENLACES OFICIALES
+Supabase DPA:
+https://supabase.com/legal/customer-resources/data-processing-addendum
+Residencia y transferencias:
+https://supabase.com/legal/privacy-resources/data-residency-and-transfers-faq
+Sites DPA, planes personales:
+https://openai.com/policies/chatgpt-sites-data-processing-addendum/
+Sites condiciones:
+https://openai.com/policies/chatgpt-sites-terms/
+Guía AEPD para profesionales sanitarios:
+https://www.aepd.es/guias/guia-profesionales-sector-sanitario.pdf
+Copias del proveedor y Free:
+https://supabase.com/docs/guides/platform/backups
+
+CONSULTA PREPARADA, SIN ENVIAR
+Soy fisioterapeuta autónomo en España y utilizaré una aplicación de uso individual para agenda e historias. La base/Auth están en Frankfurt y el navegador se conecta directamente a Supabase. Necesito aclarar la aplicación del apartado 4(d) del DPA a datos sanitarios tratados para asistencia sanitaria bajo el RGPD, los términos aplicables a mi cuenta y las salvaguardas de soporte/transferencias. Por favor, confirmen qué requisitos contractuales adicionales, si alguno, corresponden a este caso. No se adjuntan datos de pacientes.
+Este texto puede remitirse al proveedor o revisarse con quien te asesore. No se ha enviado ni aceptado un contrato nuevo en tu nombre.
+
+COMPROBACIÓN AHORA DESDE EL IPAD
+1. Guarda los cambios de las fichas y sesiones. En Copias, crea una copia cifrada y guarda el archivo.
+2. Ábrelo desde Archivos con Comprobar archivo y tu frase. Debe aparecer Archivo verificado. No envíes el archivo o la frase por chat.
+3. En el formulario de comprobación, elige dónde lo has guardado y marca solamente los pasos que hayas realizado. No marques copia independiente ni verificación en otro dispositivo por haberlo abierto dos veces en el mismo iPad.
+4. Conserva la frase separada del archivo y comprueba que puedas recuperarla sin el iPad. No la escribas en el nombre del archivo o en un documento junto a la copia.
+
+CUANDO TENGAS WINDOWS
+1. Descarga ese mismo archivo cifrado. Pulsa Windows + R, escribe %USERPROFILE% y crea MLREHAB-Copias fuera de OneDrive e iCloud. Comprueba que esa carpeta no esté sincronizada con esas cuentas.
+2. Guarda el archivo allí y compruébalo desde MLREHAB en Windows con la misma frase, recuperada de su lugar separado.
+3. Registra entonces la copia independiente y la comprobación en otro dispositivo. Verificar en Windows demuestra apertura de ese archivo; no equivale a restaurar el servidor.
+
+CONTINUIDAD
+Responsable: tú, único usuario. Copia al final de una jornada con cambios y antes de modificaciones importantes. Conserva dos recientes verificadas y una anterior con restauración ensayada; sustituye una antigua después de comprobar la nueva. Ensaya la restauración mensualmente en destino autorizado, aislado y vacío. No borres la única copia válida ni uses la base habitual como ensayo.
+La copia incluye las nueve colecciones de la app, con tipos de visita cuando existen. Excluye cuentas, contraseñas, autenticadores y configuración de proveedores. La recuperación de acceso es un circuito separado; la reserva MFA sigue aplazada por tu decisión.

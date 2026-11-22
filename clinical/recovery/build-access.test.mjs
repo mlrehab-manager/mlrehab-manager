@@ -16,6 +16,7 @@ async function setup(fail = false) {
     "private.webmanifest",
     "app-icon.png",
     "backup-guide.txt",
+    "storage-guide.txt",
   ];
   for (const n of names)
     await writeFile(join(root, "access-dist", n), "original " + n);

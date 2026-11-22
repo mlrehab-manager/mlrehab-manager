@@ -19,6 +19,7 @@ export function installAppShell({ isAuthorized }) {
   function selectPage(page, focus = false) {
     if (!Object.hasOwn(titles, page)) return;
     currentPage = page;
+    document.body.dataset.view = page;
     for (const view of document.querySelectorAll("[data-app-view]"))
       view.hidden = view.dataset.appView !== page;
     for (const button of document.querySelectorAll("[data-app-page]")) {
@@ -34,6 +35,7 @@ export function installAppShell({ isAuthorized }) {
       $("workspace-title").focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: "instant" });
     }
+    document.dispatchEvent(new CustomEvent("mlrehab:view", { detail: page }));
   }
   function updateSummary() {
     const count = $("patient-count").textContent.match(/^(\d+)/u);

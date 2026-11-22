@@ -26,11 +26,15 @@
     "backup_phrase_recovery": "not_confirmed",
     "operational_routine": "Defined at holder request on 2026-11-22: manual after changed day, two recent verified plus one restore-tested previous, independent copy, separate recoverable phrase, monthly isolated drill; physical steps still pending.",
     "second_device_os": "Windows (holder confirmed 2026-11-22)",
-    "windows_independent_copy_and_local_verification": "instructions_prepared_not_yet_confirmed"
+    "windows_independent_copy_and_local_verification": "instructions_prepared_not_yet_confirmed",
+    "current_device": "iPad only (holder confirmed 2026-11-22)",
+    "recorded_check_count_observed": 0,
+    "metadata_observed_on": "2026-11-22",
+    "windows_verification_in_current_round": "pending_computer_not_available"
   },
   "provider_review": {
-    "public_documentation_reviewed_on": "2026-11-21",
-    "account_specific_contract_review": "pending",
+    "public_documentation_reviewed_on": "2026-11-22",
+    "account_specific_contract_review": "public_terms_reviewed_holder_decision_pending",
     "clinical_custody_destination_approved": false,
     "vendors_contacted": false,
     "new_terms_accepted_by_agent": false,
@@ -39,12 +43,14 @@
     "previously_planned_review_month": "2026-12",
     "holder_current_plan": "Llamará el 23 de noviembre de 2026; la revisión de proveedores sigue pendiente.",
     "holder_confirmation_received": false,
-    "holder_latest_statement": "Solicita comenzar con pacientes reales el 23 de noviembre y prevé disponer de protección de datos en un par de días; aún no confirma revisión/custodia/activación."
+    "holder_latest_statement": "Solicita comenzar con pacientes reales el 23 de noviembre y prevé disponer de protección de datos en un par de días; aún no confirma revisión/custodia/activación.",
+    "sites_account_category": "individual_plus_or_pro_holder_confirmed",
+    "sites_applicable_dpa_identified": true
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
   "updated_on": "2026-11-22",
-  "latest_site_version_available": 18,
+  "latest_site_version_available": 19,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
   "existing_agenda": "iPhone Calendar (holder clarification)",
@@ -53,5 +59,6 @@
   "clinical_profile_activated": false,
   "private_workspace_and_backup_registry": "not_yet_tested_by_holder",
   "standalone_installation_on_ipad": "not_yet_tested_by_holder",
-  "weekly_agenda_on_ipad": "not_yet_tested_by_holder"
+  "weekly_agenda_on_ipad": "not_yet_tested_by_holder",
+  "compact_week_and_visit_colours": "not_yet_tested_by_holder"
 }

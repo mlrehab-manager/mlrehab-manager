@@ -1,6 +1,6 @@
 # Activación clínica · preparada, sin ejecutar
 
-22 de noviembre de 2026. La versión privada 18 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
+22 de noviembre de 2026. La versión privada 19 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
 
 ## Qué está implementado
 

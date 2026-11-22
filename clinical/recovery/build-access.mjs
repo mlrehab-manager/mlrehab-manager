@@ -22,6 +22,7 @@ export async function buildRecoveryAccess(builder, output, env = process.env) {
       "private.webmanifest",
       "app-icon.png",
       "backup-guide.txt",
+      "storage-guide.txt",
     ],
     original = new Map();
   for (const name of files) {

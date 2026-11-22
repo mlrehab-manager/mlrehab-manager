@@ -1,6 +1,6 @@
 # Revisión de proveedores para MLREHAB
 
-Revisión documental: 21 de noviembre de 2026. Alcance: autónomo individual, fisioterapia en España, iPad y ordenador. Resultado: candidatos identificados y dudas concretadas; uso real pendiente. No se han aceptado nuevos contratos, enviado consultas, cambiado proveedores ni activado pagos.
+Revisión documental: 22 de noviembre de 2026. Alcance: autónomo individual, fisioterapia en España, iPad y ordenador. Resultado: base Frankfurt comprobada y contrato de Sites personal identificado; decisión de uso clínico y prueba material de custodia pendientes. No se han aceptado nuevos contratos, enviado consultas, cambiado proveedores ni activado pagos.
 
 ## Flujo revisado
 
@@ -8,14 +8,14 @@ El Worker privado sirve archivos de la interfaz y rechaza métodos distintos de 
 
 | Servicio                                 | Función actual                                                  | Evidencia                                                                               | Pendiente antes del uso real                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Supabase, proyectos Frankfurt            | Auth, API, base y auditoría                                     | Región y permisos comprobados previamente; documentación contractual pública localizada | Aplicabilidad del contrato a la cuenta, cláusula de datos sensibles, transferencias y operación del plan             |
-| ChatGPT Sites/OpenAI y sus subencargados | Distribución de la interfaz privada y control de acceso al Site | Worker estático; acuerdo específico de alojamiento localizado                           | Acuerdo aplicable al titular, metadatos, soporte, ubicaciones, disponibilidad y exportación de la interfaz           |
+| Supabase, proyectos Frankfurt            | Auth, API, base y auditoría                                     | Región eu-central-1 y permisos comprobados hoy; DPA incorporado a las condiciones públicas | Aplicabilidad del contrato a la cuenta, cláusula de datos sensibles, transferencias y operación del plan             |
+| ChatGPT Sites/OpenAI y sus subencargados | Distribución de la interfaz privada y control de acceso al Site | Worker estático; titular confirma Plus/Pro personal y se identifica su DPA de alojamiento                           | Documentar decisión sobre metadatos, soporte, transferencias, disponibilidad y exportación de la interfaz           |
 | Apple/iCloud Drive                       | Depósito manual de archivos ya cifrados                         | Titular confirma descarga desde el iPhone                                               | Adecuación contractual a copias clínicas, custodia/recuperación de cuenta y copia independiente de la sincronización |
 | GitHub/GitHub Pages                      | Código y demo pública ficticia                                  | Separación de la aplicación privada                                                     | Mantener repositorio, incidencias y demo sin pacientes, credenciales ni copias reales                                |
 
 ## Supabase: contrato y continuidad
 
-El [DPA de Supabase](https://supabase.com/legal/customer-resources/data-processing-addendum), versión de 1 de agosto de 2026, se incorpora al acuerdo de servicio y contempla datos sensibles. Su apartado 4 incluye una obligación de consentimiento explícito. Debe aclararse su encaje con la asistencia sanitaria y con las condiciones efectivamente aplicables a la cuenta; localizar el texto público no acredita por sí solo su revisión/aceptación documental por el responsable.
+El [DPA de Supabase](https://supabase.com/legal/customer-resources/data-processing-addendum), versión de 1 de agosto de 2026, se incorpora al acuerdo de servicio y contempla datos sensibles. Su apartado 4(d) se refiere a los consentimientos explícitos necesarios para datos sensibles. No se interpreta automáticamente como que la asistencia sanitaria deba basarse en consentimiento, ni se da por resuelta esa cuestión contractual. Debe aclararse su encaje con la asistencia sanitaria y con las condiciones efectivamente aplicables a la cuenta; localizar el texto público no acredita por sí solo su revisión/aceptación documental por el responsable.
 
 La [guía de la AEPD para profesionales sanitarios](https://www.aepd.es/guias/guia-profesionales-sector-sanitario.pdf), apartado 2, explica que la asistencia sanitaria puede tener otra legitimación y diferencia el consentimiento sanitario del relativo a datos. No se añade una casilla genérica para resolver la cuestión contractual. Deben documentarse las bases aplicables y aclarar el requisito del proveedor antes de cargar historias reales.
 
@@ -48,3 +48,11 @@ Las [condiciones de iCloud](https://www.apple.com/legal/internet-services/icloud
 Mantener los proveedores actuales para el entorno ficticio. La recomendación provisional de continuidad es conservar la base UE como candidata y resolver primero las dudas contractuales de Supabase y del alojamiento, junto con un destino de copias adecuado y su operación. La revisión jurídica del caso y la decisión del responsable siguen pendientes; no se certifica cumplimiento por la existencia de un DPA.
 
 Hay [preguntas preparadas para los proveedores y la asesoría](CLINICAL_VENDOR_QUESTIONS.md), sin datos de pacientes y sin enviar. La [propuesta de copias](CLINICAL_BACKUP_OPERATIONS.md) reduce acumulación y distingue descargar, verificar un archivo y restaurar el servicio. No se implementa borrado, aceptación de condiciones o activación clínica automática.
+
+## Cierre práctico de esta revisión
+
+El titular confirma el 22 de noviembre que utiliza ChatGPT personal (Plus/Pro) y ahora solo dispone del iPad. Esto permite identificar el DPA de Sites para particulares; no se exige contratar Business por defecto. Quedan documentadas las condiciones públicas revisadas, pero no se emite una certificación clínica ni se aceptan contratos nuevos en su nombre.
+
+El siguiente paso contractual es conservar los textos aplicables y documentar la decisión del responsable sobre datos sensibles, transferencias y continuidad. La consulta del apartado 4(d) puede revisarse con el proveedor o con su asesoría; no se presenta una respuesta del proveedor o la contratación de una asesoría concreta como un requisito universal independiente de la normativa aplicable. Las dudas materiales sí deben resolverse antes de la decisión de uso real.
+
+La [guía descargable desde la app](../clinical/access/storage-guide.txt) incluye enlaces oficiales, una consulta concreta sin enviar y los pasos de custodia. En iPad se puede crear, comprobar y registrar el archivo; no demuestra una copia independiente. Windows no está disponible en este momento. La consulta administrativa solo de metadatos muestra cero comprobaciones registradas: no invalida la confirmación anterior de archivo verificado, pero no aporta un registro nuevo de custodia.

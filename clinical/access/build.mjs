@@ -83,7 +83,12 @@ await copyFile(
   new URL("./access.css", import.meta.url),
   new URL("access.css", out),
 );
-for (const name of ["private.webmanifest", "app-icon.png", "backup-guide.txt"])
+for (const name of [
+  "private.webmanifest",
+  "app-icon.png",
+  "backup-guide.txt",
+  "storage-guide.txt",
+])
   await copyFile(new URL(`./${name}`, import.meta.url), new URL(name, out));
 // Hosting must actually serve these HTTP headers; the meta CSP cannot prevent framing.
 await writeFile(

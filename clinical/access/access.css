@@ -1122,3 +1122,293 @@ body.is-authorized #auth-logout {
   width: auto;
   flex: 1 1 135px;
 }
+
+/* Calendar overview uses the available viewport; notes remain in the editor below. */
+body.is-authorized[data-view="agenda"] .workspace-header {
+  padding: 8px 16px;
+  min-height: 48px;
+}
+body.is-authorized[data-view="agenda"] .workspace-header h1 {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  margin: 0;
+}
+body.is-authorized[data-view="agenda"] .workspace-header .eyebrow,
+body.is-authorized[data-view="agenda"] .session-label {
+  display: none;
+}
+body.is-authorized[data-view="agenda"] .mode-badge {
+  padding: 4px 8px;
+}
+body.is-authorized[data-view="agenda"] #app-feedback {
+  padding: 0 16px;
+}
+body.is-authorized[data-view="agenda"] #app-feedback #status {
+  margin: 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+body.is-authorized[data-view="agenda"] .workspace-content {
+  padding: 8px 16px 32px;
+}
+body.is-authorized[data-view="agenda"] #environment-notice,
+body.is-authorized[data-view="agenda"] #agenda-title,
+body.is-authorized[data-view="agenda"] #agenda-panel > p:not([id]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.agenda-toolbar,
+.agenda-actions,
+.agenda-toolbar .agenda-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.agenda-toolbar {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.agenda-toolbar .agenda-navigation {
+  max-width: none;
+  margin: 0;
+}
+.agenda-toolbar button,
+.agenda-toolbar #agenda-date {
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  width: auto;
+  font-size: 0.875rem;
+  padding: 8px 10px;
+}
+.agenda-toolbar .agenda-navigation button {
+  flex: none;
+}
+.agenda-toolbar #agenda-date {
+  width: 154px;
+  font-size: 1rem;
+}
+.agenda-actions {
+  margin-left: auto;
+}
+.agenda-actions #agenda-new {
+  background: var(--sidebar);
+  color: var(--surface);
+}
+.agenda-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 6px;
+}
+#agenda-loaded-day {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+#agenda-loaded-day:empty {
+  display: none;
+}
+#agenda-availability {
+  font-size: 0.875rem;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.agenda-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.agenda-legend li {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.agenda-legend li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--visit-bg);
+  border: 1px solid var(--visit-border);
+}
+.type-first_visit {
+  --visit-bg: #e5eef9;
+  --visit-border: #a9bfdc;
+  --visit-ink: #244a78;
+}
+.type-follow_up {
+  --visit-bg: #e3efe7;
+  --visit-border: #a8c6b2;
+  --visit-ink: #28553d;
+}
+.type-gym {
+  --visit-bg: #eee8f5;
+  --visit-border: #c5b4d8;
+  --visit-ink: #63477e;
+}
+.type-unclassified {
+  --visit-bg: #ece8e0;
+  --visit-border: #cfc5b7;
+  --visit-ink: #575147;
+}
+#agenda-week {
+  margin-top: 0;
+  max-height: none;
+  height: var(--agenda-fit-height, 660px);
+  overflow-x: auto;
+  overflow-y: auto;
+}
+#agenda-calendar {
+  height: var(--agenda-fit-height, 660px);
+}
+#agenda-calendar thead th {
+  height: 36px;
+  padding: 5px 4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+#agenda-calendar thead strong,
+#agenda-calendar thead span {
+  display: inline;
+  margin: 0;
+}
+#agenda-calendar thead strong {
+  margin-right: 6px;
+}
+#agenda-calendar tr > :first-child {
+  width: 48px;
+}
+#agenda-calendar tbody tr {
+  height: var(--agenda-row-height, 56px);
+}
+#agenda-calendar tbody td {
+  position: relative;
+  height: var(--agenda-row-height, 56px);
+  padding: 0;
+}
+#agenda-calendar tbody th {
+  padding: 0 2px;
+  height: var(--agenda-row-height, 56px);
+  vertical-align: middle;
+}
+.agenda-cell-content {
+  position: absolute;
+  inset: 2px;
+}
+#agenda-week .agenda-slot-add {
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  font-size: 1.35rem;
+  border-radius: 6px;
+}
+#agenda-week .agenda-event {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 3px 6px;
+  gap: 0;
+  align-content: center;
+  border-color: var(--visit-border);
+  border-radius: 6px;
+  background: var(--visit-bg);
+  color: var(--visit-ink);
+  line-height: 1.2;
+}
+#agenda-week .agenda-event > strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week .agenda-event .agenda-event-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week .agenda-event small,
+#agenda-week .agenda-event span {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week td:has(.agenda-event) .agenda-slot-add {
+  min-height: 0;
+}
+#agenda-group-picker {
+  width: min(480px, calc(100% - 32px));
+  max-height: 80dvh;
+  overflow: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+#agenda-group-picker::backdrop {
+  background: #171a1e66;
+}
+#agenda-group-list button {
+  text-align: left;
+  line-height: 1.5;
+}
+#agenda-close {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border);
+}
+@media (max-width: 720px) {
+  .agenda-toolbar {
+    justify-content: flex-start;
+  }
+  .agenda-actions {
+    margin-left: 0;
+  }
+  .agenda-legend {
+    gap: 4px 10px;
+  }
+}
+body.is-authorized[data-view="agenda"] #agenda-panel {
+  margin: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+#agenda-calendar {
+  height: calc(var(--agenda-fit-height, 660px) - 2px);
+}
+#agenda-group-list .agenda-choice {
+  background: var(--visit-bg);
+  color: var(--visit-ink);
+  border-color: var(--visit-border);
+}
+.storage-review {
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  padding: 20px;
+  border-radius: 14px;
+  margin: 20px 0;
+}

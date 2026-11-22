@@ -1,4 +1,5 @@
 import { validateClinicalPatient } from "../records/identity.mjs";
+import { VISIT_TYPES } from "../records/visit-types.mjs";
 import { MAX_PLAINTEXT_BYTES } from "./crypto.mjs";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const actions = new Set([
@@ -404,6 +405,12 @@ function readAgenda(snapshot, patients) {
             "created_at",
             "updated_at",
           ];
+    if (kind === "appointment" && Object.hasOwn(row, "visit_type")) {
+      requireValue(
+        snapshot.version >= 5 && VISIT_TYPES.includes(row.visit_type),
+      );
+      expected.push("visit_type");
+    }
     requireValue(
       keys(row, expected) &&
         uuid.test(row.id) &&

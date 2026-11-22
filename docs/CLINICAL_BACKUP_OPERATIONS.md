@@ -36,3 +36,9 @@ La pantalla permite descargar unas instrucciones sin datos personales para conse
 Confirmado por el titular: archivo verificado en iPad, guardado en iCloud Drive, visible y descargable desde iPhone. No se ha confirmado descifrado desde iPhone, copia fuera de la misma sincronización, custodia/recuperación de la frase ni restauración del servicio desde ese archivo concreto. El titular ha confirmado que el ordenador es Windows. Para la segunda copia, abrir `%USERPROFILE%` con Windows + R, crear `MLREHAB-Copias` fuera de OneDrive/iCloud, guardar el archivo cifrado y comprobarlo desde la app en ese ordenador. La confirmación del sistema operativo no acredita haber realizado esos pasos.
 
 Los ensayos sintéticos de datos y de servicios tienen informes separados en `clinical/verification/`; no certifican la custodia del archivo del titular. La [revisión de proveedores](CLINICAL_PROVIDER_REVIEW.md) permanece pendiente. El procedimiento está definido y su implementación preparada; los pasos físicos no se dan por hechos ni activan automáticamente el uso clínico.
+
+## Paso actual desde iPad
+
+El titular confirma el 22 de noviembre que ahora solo dispone del iPad. Después de esta actualización, crear una copia nueva que incluya los tipos de visita, guardarla y comprobarla desde Archivos. Registrar únicamente el destino y declaraciones realmente completadas. Dejar pendientes copia independiente y verificación en otro dispositivo hasta realizar la prueba en Windows. El 22 de noviembre el registro administrativo contiene cero comprobaciones; la confirmación manual anterior de archivo verificado se conserva por separado.
+
+Los tipos de visita se incluyen como campo opcional de citas/versiones en copias v5/v6. Los formatos anteriores siguen leyéndose y restaurándose sin asignar retrospectivamente una clasificación. Los ensayos sintéticos no sustituyen la apertura del archivo concreto del titular desde el destino independiente.

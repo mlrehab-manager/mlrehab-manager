@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-22T14:44:14.252Z",
+  "tested_at": "2026-11-22T15:34:58.020Z",
   "test_only": true,
   "passed": true,
   "services": {
@@ -63,12 +63,16 @@
     {
       "name": "20261122143127_weekly_agenda.sql",
       "sha256": "b05ee3a7a6c0ec384858952ec6a0475b1c5b3f87ac1a995410367a61ac777121"
+    },
+    {
+      "name": "20261122151054_appointment_visit_types.sql",
+      "sha256": "f3ef5101c2ab85a0a0304ac7590690c535eb3c9fc6bd097d4b78f485c0abed8b"
     }
   ],
-  "schema_sha256": "7b642cd7d0af5c533cd0fc630e32a7cf9fe89c340ce595d2042575a4e878370c",
+  "schema_sha256": "ac025f1edaa5615f600c65e63c00cda1e43fd07a2a772978e8e7b0649b190cfd",
   "source_closed_before_restore": true,
-  "source_hash": "e2419a255f80466c5d2a826ce7dd5efdeb17feb110669d697b56400e6d24c3de",
-  "restored_hash": "e2419a255f80466c5d2a826ce7dd5efdeb17feb110669d697b56400e6d24c3de",
+  "source_hash": "f1e35aa47fcb7008b3885d59c9e2066257f018db2273420692c2b66d773e378d",
+  "restored_hash": "f1e35aa47fcb7008b3885d59c9e2066257f018db2273420692c2b66d773e378d",
   "counts": {
     "patients": 3,
     "patient_versions": 6,
@@ -92,6 +96,7 @@
   "backup_receipt_metadata_roundtrip": true,
   "recovered_custody_requires_fresh_check": true,
   "weekly_agenda_restored_and_readable": true,
+  "visit_types_restored": true,
   "real_auth_and_rest": true,
   "auth_created_via_admin_api": true,
   "password_and_mfa_recreated": true,
@@ -100,7 +105,7 @@
   "admission_disabled_until_verified": true,
   "old_project_jwt_denied": true,
   "revoked_session_denied": true,
-  "elapsed_seconds": 19,
+  "elapsed_seconds": 17,
   "limits": [
     "Local core services, not hosted Supabase disaster recovery",
     "Synthetic account only; human identity verification and lost-provider-account recovery are not tested",

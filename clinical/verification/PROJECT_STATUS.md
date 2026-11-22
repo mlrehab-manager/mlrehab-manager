@@ -1,6 +1,6 @@
 # Estado verificado · 22 de noviembre de 2026
 
-La versión privada 18 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
+La versión privada 19 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
 
 ## Interfaz privada
 
@@ -12,25 +12,29 @@ La agenda muestra cinco columnas lunes/viernes y once franjas 08:00–20:00 sin 
 
 El nuevo RPC `clinical_agenda_week` realiza una sola lectura coherente y un evento de auditoría, conservando las escrituras existentes. Una ocupación aparecida desde la primera carga abre la cita existente. Los fallos de carga mantienen la semana previa y no presentan disponibilidad falsa; la selección de paciente recibe foco después de habilitarse. Véase [agenda semanal](../access/AGENDA.md).
 
+La agenda calcula el alto de sus once filas según el espacio útil del viewport, compacta los controles y mantiene texto legible. La última fila de las 19:00 queda visible sin scroll vertical del calendario en 1180×820, 1024×768, 1024×700 y 820×1180. Las citas múltiples de una hora muestran una elección accesible sin ocultarlas; cerrar edición devuelve a la semana. En ventanas menores o con ampliación se prioriza legibilidad, sin prometer ajuste universal de todos los dispositivos.
+
+El tipo se guarda por cita: primera visita (azul), seguimiento (verde salvia), gimnasio (malva). El texto/leyenda acompañan los colores. Los registros anteriores permanecen sin clasificar (gris); no se reescriben versiones antiguas. El endpoint nuevo `clinical_appointment_save_typed` reutiliza las comprobaciones de revisión/solapamiento/propietario y actualiza tipo y versión atómicamente. La operación histórica conserva los tipos existentes.
+
 ## Copias y custodia
 
 Procedimiento manual definido a petición del titular: final de cada jornada con cambios y antes de modificaciones importantes; comprobar desde el destino, segunda copia independiente, frase separada recuperable, dos recientes verificadas y una anterior con restauración ensayada, ensayo mensual aislado. [Procedimiento y límites](../../docs/CLINICAL_BACKUP_OPERATIONS.md). Las instrucciones descargables incluyen carpeta local de Windows fuera de OneDrive/iCloud y se pueden conservar fuera de la app.
 
 Tras comprobar localmente un archivo v5/v6 del modo actual, el titular puede registrar fecha, exportación propia, huella del archivo cifrado, destino acotado y declaraciones de custodia. Es un envío explícito de metadatos; no sube archivo, frase o contenido clínico. AAL2/sesión/admisión y propietario se verifican en servidor. Reintentos idempotentes, aislamiento por modo y limpieza al salir. La última comprobación se consulta expresamente, sin afirmar restauración, sincronización observada o cobertura de cambios posteriores.
 
-`backup_checks` es control operativo privado y no entra en las nueve colecciones portátiles; después de recuperar se exige una nueva comprobación. Permanecen v1–v5 de prueba y v6 `mlrehab-clinical-snapshot`, AES-GCM/PBKDF2, validación de propietario/identidad/referencias/revisiones/auditoría. La restauración administrativa clínica requiere `allowClinical: true`, origen distinto y destino vacío; arranca suspendida. Auth, secretos y configuración se reconstruyen aparte. No hay copias automáticas ni borrado automático.
+`backup_checks` es control operativo privado y no entra en las nueve colecciones portátiles; después de recuperar se exige una nueva comprobación. Permanecen v1–v5 de prueba y v6 `mlrehab-clinical-snapshot`, AES-GCM/PBKDF2, validación de propietario/identidad/referencias/revisiones/auditoría. La restauración administrativa clínica requiere `allowClinical: true`, origen distinto y destino vacío; arranca suspendida. Auth, secretos y configuración se reconstruyen aparte. El campo opcional `visit_type` se valida en v5/v6 y se omite cuando es desconocido: esto conserva representaciones/hashes antiguos y permite recuperar tipos nuevos. No hay copias automáticas ni borrado automático.
 
 ## Instalación y permisos
 
-El esquema fuente contiene catorce migraciones. Se ha aplicado `20261122143127_weekly_agenda.sql` a los dos proyectos existentes, sin modificar Auth, factores, fichas o facturación. La cuenta clínica continúa sin activar y no se ha repetido la restauración del destino ocupado.
+El esquema fuente contiene quince migraciones. Se ha aplicado `20261122151054_appointment_visit_types.sql` a los dos proyectos existentes, sin modificar Auth, factores, fichas o facturación. La cuenta clínica continúa sin activar y no se ha repetido la restauración del destino ocupado.
 
-Comprobación administrativa por proyecto: doce tablas de aplicación, todas con RLS, cero permisos cliente de tabla, veintitrés RPC públicos invoker y cero definer públicos. Una cuenta test, cero cuentas fuera de test, cero eventos de cambio de modo y cero comprobaciones reales creadas por el agente. El historial de migraciones del proyecto habitual tiene catorce entradas; el recuperado, siete, porque su esquema inicial se reconstruyó agrupado. El número de entradas de ese historial no equivale al de archivos fuente.
+Comprobación administrativa por proyecto: doce tablas de aplicación, todas con RLS, cero permisos cliente de tabla, veinticuatro RPC públicos invoker y cero definer públicos. Una cuenta test, cero cuentas fuera de test, cero eventos de cambio de modo y cero comprobaciones reales creadas por el agente. El historial de migraciones del proyecto habitual tiene quince entradas; el recuperado, ocho, porque su esquema inicial se reconstruyó agrupado. El número de entradas de ese historial no equivale al de archivos fuente.
 
-Las veintitrés llamadas RPC anónimas por proyecto se rechazan por HTTPS con 401/42501; el esquema privado devuelve 406/PGRST106. El asesor conserva únicamente el aviso conocido de [protección contra contraseñas filtradas desactivada](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), cuya disponibilidad/decisión sigue en la revisión de proveedores. No se activa facturación.
+Las veinticuatro llamadas RPC anónimas por proyecto se rechazan por HTTPS con 401/42501; el esquema privado devuelve 406/PGRST106. El asesor conserva únicamente el aviso conocido de [protección contra contraseñas filtradas desactivada](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), cuya disponibilidad/decisión sigue en la revisión de proveedores. No se activa facturación.
 
 ## Verificación
 
-73 pruebas SQL/identidad/permisos/utilidades, 76 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
+78 pruebas SQL/identidad/permisos/utilidades, 79 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
 
 Una regresión adicional comprueba que cambiar el archivo durante una verificación anula el resultado anterior, conserva el nuevo archivo y exige comprobarlo de nuevo. Las cuatro pruebas afectadas de comprobación/custodia se repiten tras ese ajuste.
 
@@ -38,15 +42,17 @@ Los ensayos [clínico v6](CLINICAL_SERVICE_RECOVERY_REPORT.json) y [legado v5](S
 
 ## Publicación
 
-Site propietario privado, versión 18, commit `7cbfa150da9ded867459a2a0cc4493cb68a34126`, despliegue `appgdep_6b03004cd2b4819186f2c6bdfcfc1027`, completado. Una cuenta propietaria, sin grupos/editores.
+Site propietario privado, versión 19, commit `b5f8cb19174b2106528a9e16ae993270ffaadbdc`, despliegue `appgdep_6b030c302d2c8191aac95688ca796fd2`, completado. Una cuenta propietaria, sin grupos/editores.
 
 - Habitual: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site
 - Recuperación: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/
 
-Worker verificado: rutas, separación de backends/CSP, manifest/icono binario/guía, redirección, HEAD y rechazo de escritura. Las doce respuestas HTTPS coinciden con los artefactos y mantienen no-store, no-referrer, nosniff, DENY y frame-ancestors. No hay navegador administrado disponible para QA del Site alojado; no se sustituye por pruebas con credenciales reales.
+Worker verificado: rutas, separación de backends/CSP, manifest/icono binario/guía, redirección, HEAD y rechazo de escritura. Las catorce respuestas HTTPS coinciden con los artefactos y mantienen no-store, no-referrer, nosniff, DENY y frame-ancestors. No hay navegador administrado disponible para QA del Site alojado; no se sustituye por pruebas con credenciales reales.
 
 ## Lo confirmado y lo pendiente
 
 [MANUAL_CHECKS.json](MANUAL_CHECKS.json) conserva las confirmaciones del titular: alta/guardado/reapertura, motivo/precauciones, copia verificada en iPad y descargable desde iPhone. No afirma descifrado en iPhone/Windows, existencia de segunda copia independiente o recuperación de la frase. Windows está confirmado; las instrucciones no equivalen a haber hecho esos pasos.
 
 El titular llamará sobre proveedores el 23 de noviembre. El desarrollo y el procedimiento de copias siguen avanzando; su revisión contractual, custodia material pendiente, conjunto clínico limpio y activación deliberada siguen sin darse por hechos. La reserva MFA independiente permanece aplazada. La agenda actual está en Calendario del iPhone y no se ha accedido o importado.
+
+La revisión de proveedores se ha actualizado con fuentes oficiales el 22 de noviembre. La base está en Frankfurt y el titular confirma ChatGPT personal, identificando el DPA de Sites aplicable. El documento descargable concreta cláusula 4(d), transferencias y Free, sin exigir una compra o firma genérica como solución. La comprobación independiente en Windows queda pendiente porque el titular está ahora solo con el iPad. Cero registros nuevos de custodia; la evidencia manual histórica se conserva. No se ha activado el perfil clínico ni aceptado nuevas condiciones.

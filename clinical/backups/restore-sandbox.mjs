@@ -29,13 +29,13 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         [v.patient_id, v.revision, v.payload_json, v.archived, v.created_at],
       );
     if (source.version >= 2) {
-      await db.exec(`create table appointments(id uuid primary key,clinician_id uuid not null,patient_id uuid not null references patients(id),starts_at timestamptz not null,ends_at timestamptz not null,status text not null check(status in ('scheduled','cancelled','completed')),revision integer not null check(revision>0),created_at timestamptz not null,updated_at timestamptz not null,check(ends_at>starts_at));
+      await db.exec(`create table appointments(id uuid primary key,clinician_id uuid not null,patient_id uuid not null references patients(id),starts_at timestamptz not null,ends_at timestamptz not null,status text not null check(status in ('scheduled','cancelled','completed')),revision integer not null check(revision>0),created_at timestamptz not null,updated_at timestamptz not null,visit_type text not null default 'unclassified' check(visit_type in ('unclassified','first_visit','follow_up','gym')),check(ends_at>starts_at));
         create table appointment_versions(appointment_id uuid references appointments(id),revision integer check(revision>0),payload jsonb not null,created_at timestamptz not null,primary key(appointment_id,revision));
         create table clinical_sessions(id uuid primary key,clinician_id uuid not null,patient_id uuid not null references patients(id),appointment_id uuid not null unique references appointments(id),evolution text not null,passive text not null,exercise text not null,revision integer not null check(revision>0),created_at timestamptz not null,updated_at timestamptz not null);
         create table session_versions(session_id uuid references clinical_sessions(id),revision integer check(revision>0),payload jsonb not null,created_at timestamptz not null,primary key(session_id,revision));`);
       for (const a of source.appointments)
         await db.query(
-          "insert into appointments values($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+          "insert into appointments values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
           [
             a.id,
             a.clinician_id,
@@ -46,6 +46,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
             a.revision,
             a.created_at,
             a.updated_at,
+            a.visit_type ?? "unclassified",
           ],
         );
       for (const v of source.appointment_versions)
@@ -133,7 +134,7 @@ export async function restoreEncryptedToSandbox(encrypted, password) {
         .join(",");
       return (
         await db.query(
-          `select jsonb_build_object(${projection}) as record from ${table} order by ${order}`,
+          `select (jsonb_build_object(${projection})${table === "appointments" ? " || case when visit_type='unclassified' then '{}'::jsonb else jsonb_build_object('visit_type',visit_type) end" : ""}) as record from ${table} order by ${order}`,
         )
       ).rows.map((r) => r.record);
     }

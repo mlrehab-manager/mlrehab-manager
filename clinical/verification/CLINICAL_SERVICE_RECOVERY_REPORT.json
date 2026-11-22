@@ -1,5 +1,5 @@
 {
-  "tested_at": "2026-11-22T14:43:07.703Z",
+  "tested_at": "2026-11-22T15:32:39.671Z",
   "test_only": true,
   "passed": true,
   "services": {
@@ -63,12 +63,16 @@
     {
       "name": "20261122143127_weekly_agenda.sql",
       "sha256": "b05ee3a7a6c0ec384858952ec6a0475b1c5b3f87ac1a995410367a61ac777121"
+    },
+    {
+      "name": "20261122151054_appointment_visit_types.sql",
+      "sha256": "f3ef5101c2ab85a0a0304ac7590690c535eb3c9fc6bd097d4b78f485c0abed8b"
     }
   ],
-  "schema_sha256": "7b642cd7d0af5c533cd0fc630e32a7cf9fe89c340ce595d2042575a4e878370c",
+  "schema_sha256": "ac025f1edaa5615f600c65e63c00cda1e43fd07a2a772978e8e7b0649b190cfd",
   "source_closed_before_restore": true,
-  "source_hash": "536491896651057398d33f7261b93ce815e10c8aa43da3c69ce21382507ea907",
-  "restored_hash": "536491896651057398d33f7261b93ce815e10c8aa43da3c69ce21382507ea907",
+  "source_hash": "0c7cc2b286fe283083a56b94dbff70e8c16455839a404dea0d5108e6deaa65a8",
+  "restored_hash": "0c7cc2b286fe283083a56b94dbff70e8c16455839a404dea0d5108e6deaa65a8",
   "counts": {
     "patients": 2,
     "patient_versions": 3,
@@ -92,6 +96,7 @@
   "backup_receipt_metadata_roundtrip": true,
   "recovered_custody_requires_fresh_check": true,
   "weekly_agenda_restored_and_readable": true,
+  "visit_types_restored": true,
   "real_auth_and_rest": true,
   "auth_created_via_admin_api": true,
   "password_and_mfa_recreated": true,
