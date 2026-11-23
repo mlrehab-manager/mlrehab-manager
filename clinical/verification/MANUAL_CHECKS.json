@@ -76,7 +76,7 @@
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
   "updated_on": "2026-11-23",
-  "latest_site_version_available": 19,
+  "latest_site_version_available": 20,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
   "existing_agenda": "iPhone Calendar (holder clarification)",
@@ -101,5 +101,6 @@
     "clinical_activation_authorized": false,
     "current_backup_receipt": "observed_2026-11-23_windows_same_file_as_ipad",
     "independent_copy_declarations": "windows_context_and_new_local_computer_receipt_same_file"
-  }
+  },
+  "patient_dedicated_screen_and_finish_save": "not_yet_tested_by_holder"
 }

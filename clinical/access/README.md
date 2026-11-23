@@ -64,3 +64,5 @@ En Copias, la rutina y las instrucciones descargables permiten conservar el proc
 La agenda ahora es semanal de lunes a viernes, sin fila de las 14:00, con alta desde cada casilla y elección obligatoria de paciente. Las citas fuera de la cuadrícula permanecen en el listado; se mantiene el control de borradores, revisiones, sesiones y cierre. Véase [agenda semanal](AGENDA.md).
 
 La versión 19 ajusta la semana al alto útil y añade tipo/color persistente por cita. La guía de almacenamiento/custodia se descarga desde Acceso. Mantiene los avisos del modo autorizado por servidor y no activa datos reales por un cambio visual.
+
+Cada paciente se abre en una pantalla propia, con lista oculta y «Guardar y volver a pacientes». La confirmación del servidor permite volver a la lista; conflictos, conexión fallida y textos posteriores a la petición mantienen el borrador abierto. Volver con cambios ofrece guardar, continuar o descartar. No se abren otras pestañas ni se añade información de la ficha a la URL o al título del navegador. Véase [fichas](PATIENTS.md).

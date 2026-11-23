@@ -567,7 +567,6 @@ body.is-authorized #auth-logout {
   color: #fff;
   border-color: var(--sidebar);
 }
-.patient-layout,
 .exercise-layout {
   display: grid;
   grid-template-columns: minmax(230px, 0.85fr) minmax(0, 1.65fr);
@@ -610,6 +609,56 @@ body.is-authorized #auth-logout {
 #patient-count {
   font-size: 0.875rem;
   color: #6b675f;
+}
+.patient-page {
+  max-width: 100%;
+}
+.patient-page > h2 {
+  overflow-wrap: anywhere;
+  margin-bottom: 6px;
+}
+#patient-back {
+  width: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+#patient-save-status {
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+.patient-finish-bar {
+  position: sticky;
+  bottom: 8px;
+  padding: 10px 0;
+  background: var(--surface);
+  z-index: 1;
+}
+#patient-finish {
+  margin: 0;
+  font-weight: 600;
+}
+#patient-leave-dialog {
+  width: min(480px, calc(100% - 32px));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 24px;
+}
+#patient-leave-dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+#patient-leave-continue,
+#patient-leave-discard {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+@media (max-width: 760px) {
+  .patient-finish-bar {
+    bottom: 68px;
+  }
 }
 .fields-grid {
   display: grid;

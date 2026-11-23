@@ -930,11 +930,9 @@ test("failed saves keep drafts, canceling navigation preserves them and backups 
   await expect(page.getByRole("status")).toContainText(
     "No se ha podido confirmar el guardado",
   );
-  page.once("dialog", (dialog) => dialog.dismiss());
-  await navigate(page, "patients");
-  await page
-    .getByRole("button", { name: "Cargar pacientes de prueba" })
-    .click();
+  await page.locator("#patient-back").click();
+  await expect(page.locator("#patient-leave-dialog")).toBeVisible();
+  await page.locator("#patient-leave-continue").click();
   await expect(page.getByLabel("Historia clínica ficticia")).toHaveValue(
     "Borrador ficticio sin confirmar",
   );
@@ -1800,9 +1798,11 @@ test("new fictional patients can be created, renamed, searched and archived with
   await page.locator("#patient-form button[type=submit]").click();
   await expect(page.getByRole("status")).toContainText("guardada");
   await navigate(page, "patients");
+  await page.locator("#patient-back").click();
   await page.locator("#patient-search").fill("RODILLA");
   await expect(page.locator("#patient-list button")).toHaveCount(1);
   await expect(page.locator("#patient-count")).toContainText("3 fichas");
+  await page.locator("#patient-list button").first().click();
   page.once("dialog", (d) => d.accept());
   await navigate(page, "patients");
   await page.locator("#patient-archive").click();
@@ -1938,6 +1938,7 @@ test("optional intake fields save separately, reopen, stay read-only when archiv
   );
   await expect(page.locator("#patient-history")).toHaveValue(priorHistory);
   await navigate(page, "patients");
+  await page.locator("#patient-back").click();
   await page.locator("#patient-load").click();
   await page
     .locator("#patient-list button")
@@ -2018,6 +2019,8 @@ test("v5 encrypted copies preserve optional intake fields and accept older recor
 });
 async function createClinicalPatient(page, birth = "1990-01-02") {
   await navigate(page, "patients");
+  if (await page.locator("#patient-editor").isVisible())
+    await page.locator("#patient-back").click();
   await navigate(page, "patients");
   await page.locator("#patient-new").click();
   for (const [field, value] of Object.entries({
@@ -2832,4 +2835,191 @@ test("several appointments within an hour remain selectable in the compact grid"
   await expect(page.locator("#appointment-start")).toHaveValue(
     "2026-11-18T09:30",
   );
+});
+
+test("patient page saves before returning, reopens saved fields and avoids redundant writes", async ({
+  page,
+}) => {
+  const calls = await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  await expect(page.locator("#patient-directory")).toBeHidden();
+  await expect(page.locator("#workspace-title")).toHaveText(
+    "Ficha del paciente",
+  );
+  await expect(page.locator("#patient-name")).toBeFocused();
+  await expect(page).toHaveTitle("Ficha del paciente · MLREHAB");
+  expect(new URL(page.url()).hash).toBe("");
+  await page.locator("#patient-history").fill("Historia ficticia terminada");
+  await page.locator("#patient-exam").fill("Exploración ficticia terminada");
+  await expect(page.locator("#patient-save-status")).toContainText(
+    "sin guardar",
+  );
+  await page.locator("#patient-finish").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+  await expect(page.locator("#patient-editor")).toBeHidden();
+  await expect(page.locator("#workspace-title")).toHaveText("Pacientes");
+  await expect(page.locator("#status")).toContainText("Ficha guardada");
+  const writes = () =>
+    calls.filter((c) => c.path.endsWith("/clinical_patient_save_fields_test"));
+  expect(JSON.parse(writes()[0].postBody).p_fields).toEqual({
+    history: "Historia ficticia terminada",
+    exam: "Exploración ficticia terminada",
+  });
+  await openPatient(page);
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Historia ficticia terminada",
+  );
+  await expect(page.locator("#patient-exam")).toHaveValue(
+    "Exploración ficticia terminada",
+  );
+  await page.locator("#patient-finish").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+  expect(writes()).toHaveLength(1);
+});
+
+test("patient page return offers continue, save and explicit discard without losing the saved version", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  await page.locator("#patient-history").fill("Borrador ficticio conservado");
+  await page.locator("#patient-back").click();
+  await expect(page.locator("#patient-leave-dialog")).toBeVisible();
+  await page.locator("#patient-leave-continue").click();
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Borrador ficticio conservado",
+  );
+  await page.locator("#patient-back").click();
+  await page.locator("#patient-leave-save").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+  await openPatient(page);
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Borrador ficticio conservado",
+  );
+  await page
+    .locator("#patient-history")
+    .fill("Borrador ficticio para descartar");
+  await page.locator("#patient-back").click();
+  await page.locator("#patient-leave-discard").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+  await openPatient(page);
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Borrador ficticio conservado",
+  );
+});
+
+for (const mode of ["conflict", "unavailable"])
+  test(`patient page finish ${mode} retains the page and its draft`, async ({
+    page,
+  }) => {
+    await mockAuth(page, { patientMode: mode });
+    await authorized(page);
+    await openPatient(page);
+    await page
+      .locator("#patient-history")
+      .fill("Borrador ficticio sin confirmar");
+    await page.locator("#patient-finish").click();
+    await expect(page.locator("#status")).toContainText("Tu texto sigue aquí");
+    await expect(page.locator("#patient-directory")).toBeHidden();
+    await expect(page.locator("#patient-history")).toHaveValue(
+      "Borrador ficticio sin confirmar",
+    );
+    await expect(page.locator("#patient-save-status")).toContainText(
+      "sin guardar",
+    );
+  });
+
+test("patient page finish waits for confirmation and keeps edits typed during the request", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    "**/rest/v1/rpc/clinical_patient_save_fields_test",
+    async (route) => {
+      const args = route.request().postDataJSON();
+      await gate;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: args.p_id,
+          revision: args.p_expected_revision + 1,
+        }),
+      });
+    },
+  );
+  await page.locator("#patient-history").fill("Texto ficticio enviado");
+  const sending = page.waitForRequest(
+    "**/rest/v1/rpc/clinical_patient_save_fields_test",
+  );
+  await page.locator("#patient-finish").click();
+  await sending;
+  await expect(page.locator("#patient-directory")).toBeHidden();
+  await expect(page.locator("#patient-save-status")).toContainText("Guardando");
+  await page.locator("#patient-history").fill("Texto ficticio posterior");
+  release();
+  await expect(page.locator("#status")).toContainText("cambios posteriores");
+  await expect(page.locator("#patient-history")).toHaveValue(
+    "Texto ficticio posterior",
+  );
+  await expect(page.locator("#patient-directory")).toBeHidden();
+  await page.locator("#patient-finish").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+});
+
+test("patient page archived records return safely and detail fits iPad and phone", async ({
+  page,
+}) => {
+  await mockAuth(page);
+  await authorized(page);
+  await openPatient(page, true);
+  await expect(page.locator("#patient-finish")).toBeHidden();
+  await page.locator("#patient-back").click();
+  await expect(page.locator("#patient-directory")).toBeVisible();
+  await openPatient(page);
+  for (const viewport of [
+    { width: 1180, height: 820 },
+    { width: 820, height: 1180 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const geometry = await page.evaluate(() => ({
+      width: document.documentElement.scrollWidth,
+      viewport: innerWidth,
+      detail: document.getElementById("patient-editor").getBoundingClientRect()
+        .width,
+      panel: document.getElementById("patients-panel").getBoundingClientRect()
+        .width,
+    }));
+    expect(geometry.width).toBeLessThanOrEqual(geometry.viewport);
+    expect(geometry.detail).toBeGreaterThan(geometry.panel * 0.9);
+    await page.locator("#patient-goals").scrollIntoViewIfNeeded();
+    await expect(page.locator("#patient-finish")).toBeInViewport();
+  }
+});
+
+test("patient page inactivity closes the return dialog and clears the draft", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await mockAuth(page);
+  await authorized(page);
+  await openPatient(page);
+  await page.locator("#patient-history").fill("Borrador ficticio privado");
+  await page.locator("#patient-back").click();
+  await expect(page.locator("#patient-leave-dialog")).toBeVisible();
+  await page.clock.fastForward(5 * 60 * 1000 + 15000);
+  await expect(page.locator("#login")).toBeVisible();
+  await expect(page.locator("#patient-leave-dialog")).toBeHidden();
+  await expect(page.locator("#patient-name")).toHaveText("");
+  await expect(page.locator("#patient-history")).toHaveValue("");
+  await expect(page.locator("#patient-save-status")).toHaveText("");
 });

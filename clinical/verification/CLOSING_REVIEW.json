@@ -3,12 +3,14 @@
   "purpose": "Read-only closing review; not clinical authorization, a file-custody receipt or a certification",
   "reviewed_application_commit": "e9db7dc4dd80b23921f48f43f006ee3ea7152566",
   "live_site": {
-    "version": 19,
+    "version": 20,
     "url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site",
     "audience": "owner_only",
     "owners": 1,
     "editors": 0,
-    "groups": 0
+    "groups": 0,
+    "private_source_commit": "848e6402b64dc011ac757b066a4741fdc8d1bfc6",
+    "deployment_id": "appgdep_6b04735e86048191ba0e55e1571d3fa2"
   },
   "providers": {
     "supabase": {
@@ -280,5 +282,17 @@
       "evidence_kind": "holder_windows_context_and_linked_server_receipt",
       "detail": "The holder is now using Windows. A second receipt selects computer and declares independent copy, separate phrase and verification on another device. Owner, encrypted-file hash and export event match the prior iPad receipt. The synthetic custody walkthrough is recorded as completed; filesystem placement is a holder declaration. This is not a server restore or approval of clinical storage."
     }
-  ]
+  ],
+  "patient_page_verification": {
+    "checked_on": "2026-11-23",
+    "private_source_commit": "848e6402b64dc011ac757b066a4741fdc8d1bfc6",
+    "automated_ui_cases_passed": 86,
+    "recovery_build_cases_passed": 6,
+    "https_assets_matching": 14,
+    "draft_loss_and_uncertain_save_cases_verified": true,
+    "detail_names_in_urls_or_document_titles": false,
+    "real_safari_or_windows_browser_qa": false,
+    "backend_schema_or_auth_changed": false,
+    "holder_acceptance": "pending"
+  }
 }

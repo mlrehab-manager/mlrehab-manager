@@ -1,6 +1,6 @@
 # Estado verificado · 23 de noviembre de 2026
 
-La versión privada 19 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
+La versión privada 20 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Cada paciente abre una pantalla propia, con guardado confirmado antes de volver a la lista. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
 
 ## Interfaz privada
 
@@ -13,6 +13,8 @@ La agenda muestra cinco columnas lunes/viernes y once franjas 08:00–20:00 sin 
 El nuevo RPC `clinical_agenda_week` realiza una sola lectura coherente y un evento de auditoría, conservando las escrituras existentes. Una ocupación aparecida desde la primera carga abre la cita existente. Los fallos de carga mantienen la semana previa y no presentan disponibilidad falsa; la selección de paciente recibe foco después de habilitarse. Véase [agenda semanal](../access/AGENDA.md).
 
 La agenda calcula el alto de sus once filas según el espacio útil del viewport, compacta los controles y mantiene texto legible. La última fila de las 19:00 queda visible sin scroll vertical del calendario en 1180×820, 1024×768, 1024×700 y 820×1180. Las citas múltiples de una hora muestran una elección accesible sin ocultarlas; cerrar edición devuelve a la semana. En ventanas menores o con ampliación se prioriza legibilidad, sin prometer ajuste universal de todos los dispositivos.
+
+La ficha se abre en una pantalla propia dentro de la misma pestaña, con lista/alta ocultas y título genérico del documento. «Guardar y volver a pacientes» vuelve solo después de confirmar el guardado; sin cambios cierra sin escribir otra versión. Errores, conflictos o texto posterior a una petición conservan la ficha. Volver con cambios ofrece guardar, continuar o descartar. Las archivadas siguen en lectura y el cierre por inactividad limpia también el diálogo. Navegar a otra sección conserva el borrador. Véase [fichas](../access/PATIENTS.md).
 
 El tipo se guarda por cita: primera visita (azul), seguimiento (verde salvia), gimnasio (malva). El texto/leyenda acompañan los colores. Los registros anteriores permanecen sin clasificar (gris); no se reescriben versiones antiguas. El endpoint nuevo `clinical_appointment_save_typed` reutiliza las comprobaciones de revisión/solapamiento/propietario y actualiza tipo y versión atómicamente. La operación histórica conserva los tipos existentes.
 
@@ -34,7 +36,7 @@ Las veinticuatro llamadas RPC anónimas por proyecto se rechazan por HTTPS con 4
 
 ## Verificación
 
-78 pruebas SQL/identidad/permisos/utilidades, 79 de interfaz con respuestas sintéticas, 12 de cifrado y seis de recuperación superadas; formato y comprobación del diff correctos. Tras los cambios finales de texto/activos, se repiten el recorrido de navegación/borradores/geometría en 820×1180, 1180×820 y 390×844 y las pruebas de compilación de recuperación.
+Esta entrega supera 86 pruebas de interfaz con respuestas sintéticas (85 del recorrido completo y una regresión adicional del diálogo por inactividad), seis pruebas de recuperación/compilación, formato y comprobación del diff. Incluye guardado/reapertura, retorno sin escritura redundante, las tres opciones del diálogo, conflicto/desconexión, texto escrito durante la petición y geometría en 820×1180, 1180×820 y 390×844. El esquema, contratos de copia y criptografía conservan los resultados anteriores de 78 pruebas SQL/identidad/permisos y 12 de cifrado; no se modifican.
 
 Una regresión adicional comprueba que cambiar el archivo durante una verificación anula el resultado anterior, conserva el nuevo archivo y exige comprobarlo de nuevo. Las cuatro pruebas afectadas de comprobación/custodia se repiten tras ese ajuste.
 
@@ -42,7 +44,7 @@ Los ensayos [clínico v6](CLINICAL_SERVICE_RECOVERY_REPORT.json) y [legado v5](S
 
 ## Publicación
 
-Site propietario privado, versión 19, commit `b5f8cb19174b2106528a9e16ae993270ffaadbdc`, despliegue `appgdep_6b030c302d2c8191aac95688ca796fd2`, completado. Una cuenta propietaria, sin grupos/editores.
+Site propietario privado, versión 20, commit `848e6402b64dc011ac757b066a4741fdc8d1bfc6`, despliegue `appgdep_6b04735e86048191ba0e55e1571d3fa2`, completado. Una cuenta propietaria, sin grupos/editores.
 
 - Habitual: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site
 - Recuperación: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/

@@ -23,6 +23,23 @@ const normalized = (value) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("es");
+function setPatientScreen(detail) {
+  $("patient-directory").hidden = detail;
+  $("patient-editor").hidden = !detail;
+  $("patients-panel").dataset.patientScreen = detail ? "detail" : "list";
+  $("patients-panel").setAttribute(
+    "aria-labelledby",
+    detail ? "patient-name" : "patients-title",
+  );
+  document.dispatchEvent(new CustomEvent("mlrehab:patient-screen"));
+}
+function updateSaveStatus() {
+  $("patient-save-status").textContent = selected?.archived
+    ? "Ficha archivada · Solo lectura"
+    : hasPatientChanges()
+      ? "Cambios sin guardar"
+      : "Sin cambios pendientes";
+}
 export function hasPatientChanges() {
   return Boolean(
     (!$("patient-create-form").hidden &&
@@ -46,11 +63,14 @@ function clearCreation() {
   $("patient-create-fields").disabled = false;
 }
 function clearEditor() {
+  if ($("patient-leave-dialog").open) $("patient-leave-dialog").close();
   selected = baseline = null;
-  $("patient-editor").hidden = true;
+  setPatientScreen(false);
   $("patient-name").textContent = "";
   $("patient-revision").textContent = "";
   $("patient-treatment").textContent = "";
+  $("patient-save-status").textContent = "";
+  $("patient-finish").hidden = false;
   fields.forEach((key) => ($(`patient-${key}`).value = ""));
   $("patient-alias-label").hidden = true;
   $("patient-alias").hidden = true;
@@ -66,6 +86,23 @@ export function clearPatientData() {
   clearEditor();
 }
 export function installPatientTools({ client, run, isAuthorized, message }) {
+  function returnToList() {
+    const previousId = selected?.id;
+    clearEditor();
+    requestAnimationFrame(() => {
+      if (
+        !isAuthorized() ||
+        selected ||
+        document.body.dataset.view !== "patients"
+      )
+        return;
+      const previousButton = [
+        ...$("patient-list").querySelectorAll("button"),
+      ].find((button) => button.dataset.patientId === previousId);
+      (previousButton || $("patient-search")).focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }
   function failure(error, save = false) {
     if (["42501", "PGRST301", "PGRST303"].includes(error?.code)) {
       clearPatientData();
@@ -112,6 +149,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       const item = document.createElement("li"),
         button = document.createElement("button");
       button.type = "button";
+      button.dataset.patientId = row.id;
       button.textContent = `${row.name}${isClinicalMode() ? ` · ${row.birth_date || "Sin fecha de nacimiento"} · Nº ${row.id}` : ""} · ${row.archived ? "Archivado (solo lectura)" : "Activo"}`;
       button.addEventListener("click", () =>
         run(async (current) => {
@@ -193,7 +231,13 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
           : "";
       $("patient-archive").hidden = selected.archived;
       $("patient-fields").disabled = selected.archived;
-      $("patient-editor").hidden = false;
+      $("patient-finish").hidden = selected.archived;
+      setPatientScreen(true);
+      updateSaveStatus();
+      if (document.body.dataset.view === "patients") {
+        $("patient-name").focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
       message(
         selected.archived
           ? "Ficha archivada cargada en modo lectura."
@@ -206,6 +250,24 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
     }
   }
   $("patient-search").addEventListener("input", renderList);
+  $("patient-form").addEventListener("input", updateSaveStatus);
+  $("patient-back").addEventListener("click", () => {
+    if (!isAuthorized() || !selected) return;
+    if (hasPatientChanges()) $("patient-leave-dialog").showModal();
+    else returnToList();
+  });
+  $("patient-leave-continue").addEventListener("click", () =>
+    $("patient-leave-dialog").close(),
+  );
+  $("patient-leave-save").addEventListener("click", () => {
+    $("patient-leave-dialog").close();
+    $("patient-form").requestSubmit($("patient-finish"));
+  });
+  $("patient-leave-discard").addEventListener("click", () => {
+    if (!isAuthorized() || !selected) return;
+    returnToList();
+    message("Ficha cerrada. Se han descartado los cambios sin guardar.");
+  });
   $("patient-new").addEventListener("click", () =>
     run(async () => {
       if (!isAuthorized() || !confirmPatientDiscard()) return;
@@ -331,6 +393,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
   );
   $("patient-form").addEventListener("submit", (event) => {
     event.preventDefault();
+    const finish = event.submitter?.id === "patient-finish";
     run(async (isCurrent) => {
       if (!isAuthorized() || !selected || selected.archived) return;
       const sent = values(),
@@ -340,6 +403,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
             .map((key) => [key, sent[key]]),
         );
       if (!Object.keys(patch).length) {
+        if (finish) returnToList();
         message("No hay cambios pendientes en la ficha.");
         return;
       }
@@ -356,20 +420,26 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
           return;
         }
       }
-      const { data, error } = await client.rpc(
-        "clinical_patient_save_fields_test",
-        {
+      $("patient-save-status").textContent = "Guardando…";
+      let result;
+      try {
+        result = await client.rpc("clinical_patient_save_fields_test", {
           p_id: selected.id,
           p_expected_revision: selected.revision,
           p_fields: patch,
-        },
-      );
+        });
+      } finally {
+        if (isCurrent()) updateSaveStatus();
+      }
+      const { data, error } = result;
       if (!isCurrent()) return;
       if (error) {
+        updateSaveStatus();
         failure(error, true);
         return;
       }
       if (data?.id !== selected.id || data.revision !== selected.revision + 1) {
+        updateSaveStatus();
         failure(null, true);
         return;
       }
@@ -393,6 +463,11 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
           ? "Ficha guardada. Hay cambios posteriores sin guardar."
           : "Ficha ficticia guardada en la base privada.",
       );
+      updateSaveStatus();
+      if (finish && !hasPatientChanges()) {
+        returnToList();
+        message("Ficha guardada. Puedes elegir otro paciente.");
+      }
     });
   });
   $("patient-archive").addEventListener("click", () =>

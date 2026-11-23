@@ -11,7 +11,7 @@ const titles = {
 };
 
 // Navigation only changes visibility. Drafts stay mounted until saved or discarded.
-// No route, browser storage, automatic data request or patient name is needed.
+// Patient detail is a dedicated screen; URLs/titles never contain patient names.
 export function installAppShell({ isAuthorized }) {
   let currentPage = "home";
   let wasOpen = false;
@@ -27,9 +27,14 @@ export function installAppShell({ isAuthorized }) {
         button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
     }
-    $("workspace-title").textContent = titles[page];
+    const title =
+      page === "patients" &&
+      $("patients-panel").dataset.patientScreen === "detail"
+        ? "Ficha del paciente"
+        : titles[page];
+    $("workspace-title").textContent = title;
     document.title = isAuthorized()
-      ? `${titles[page]} · MLREHAB${recovery ? " · Recuperación" : ""}`
+      ? `${title} · MLREHAB${recovery ? " · Recuperación" : ""}`
       : `MLREHAB Manager${recovery ? " · Recuperación" : " · Consulta"}`;
     if (focus) {
       $("workspace-title").focus({ preventScroll: true });
@@ -80,6 +85,9 @@ export function installAppShell({ isAuthorized }) {
     updateLayout();
     selectPage(currentPage);
   });
+  document.addEventListener("mlrehab:patient-screen", () =>
+    selectPage(currentPage),
+  );
   selectPage("home");
   updateLayout();
 }

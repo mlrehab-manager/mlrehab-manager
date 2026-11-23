@@ -42,9 +42,9 @@
   },
   "public_signups_disabled": true,
   "recovery_access_url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/",
-  "site_version": 19,
-  "hosting_source_commit": "b5f8cb19174b2106528a9e16ae993270ffaadbdc",
-  "hosting_deployment_id": "appgdep_6b030c302d2c8191aac95688ca796fd2",
+  "site_version": 20,
+  "hosting_source_commit": "848e6402b64dc011ac757b066a4741fdc8d1bfc6",
+  "hosting_deployment_id": "appgdep_6b04735e86048191ba0e55e1571d3fa2",
   "usual_entry_assets_unchanged": false,
   "separate_csp_backends_verified": true,
   "holder_confirmed_recovered_patient_list": true,
@@ -86,5 +86,6 @@
   "compact_week_available": true,
   "visit_types_available": true,
   "visit_types_preserved_in_backups": true,
-  "legacy_unknown_visit_types_not_reclassified": true
+  "legacy_unknown_visit_types_not_reclassified": true,
+  "patient_detail_screen_and_confirmed_finish_save_available": true
 }

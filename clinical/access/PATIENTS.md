@@ -1,5 +1,13 @@
 # Fichas ficticias conectadas a la base privada
 
+## Pantalla propia de cada ficha
+
+Pulsar un paciente abre su ficha como pantalla propia dentro de la aplicación. La lista, búsqueda y alta quedan ocultas mientras se edita; «Volver a pacientes» y «Guardar y volver a pacientes» permiten terminar. La sesión se conserva en la misma pestaña. El nombre/identificador no se añade a la URL, al historial del navegador ni al título del documento.
+
+«Guardar y volver a pacientes» usa el guardado existente con revisión esperada y vuelve a la lista solo tras confirmar la respuesta. Si no hay cambios, cierra sin crear una versión adicional. Un error o conflicto conserva la ficha y sus textos. Si se escribe algo nuevo mientras se guarda, se conserva como borrador posterior y la ficha permanece abierta.
+
+«Volver a pacientes» ofrece guardar, seguir editando o descartar expresamente cuando quedan cambios. El indicador de la ficha distingue cambios pendientes, guardado en curso y ficha sin cambios. Navegar a otra sección mantiene el borrador montado. Las archivadas se abren en lectura y permiten volver. El cierre de sesión limpia también el diálogo y los elementos de la pantalla de detalle. El guardado es explícito; cerrar Safari o una pestaña no sustituye la confirmación del servidor.
+
 La interfaz privada permite crear fichas mediante un alias de prueba, buscar por alias o identificador, editar motivo de consulta, antecedentes y precauciones, historia, exploración, diagnóstico y objetivos y archivar conservando el historial. Se admiten hasta 500 fichas del propietario, incluidas las archivadas. Sigue prohibido introducir nombres, teléfonos u otros datos reales de pacientes. No se migra información de la demo.
 
 «Nueva ficha ficticia» envía un alias de hasta 80 caracteres; el servidor normaliza espacios y genera `FICTICIO · {alias}`. Los alias de prueba son únicos por propietario, ignorando acentos, mayúsculas y espacios; esta regla no se plantea como unicidad de nombres de personas. El identificador UUID de petición se conserva al reintentar un alta sin confirmación para evitar duplicados. Reutilizarlo con otro alias se rechaza y una colisión con otra cuenta no permite acceder a ella. Cada alta crea ficha, versión inicial y auditoría en la misma transacción.

@@ -558,101 +558,105 @@
               data-app-view="patients"
               class="workspace-page"
             >
-              <h2 id="patients-title">Pacientes ficticios · base privada</h2>
-              <p>
-                Prueba el alta, la lectura, la edición y el archivo de fichas
-                ficticias. Los cambios confirmados quedan en la base y se
-                incluyen en las copias. Las fichas archivadas se consultan sin
-                editarlas.
-              </p>
-              <div class="view-toolbar">
-                <button id="patient-load" type="button">
-                  Cargar pacientes de prueba
-                </button>
-                <button id="patient-prepare" type="button">
-                  Preparar los dos pacientes ficticios
-                </button>
-                <button id="patient-new" type="button" class="primary">
-                  Nueva ficha ficticia
-                </button>
-              </div>
-              <form id="patient-create-form" autocomplete="off" hidden>
-                <fieldset id="patient-create-fields">
-                  <legend>Alta ficticia</legend>
-                  <div data-test-only>
-                    <label for="patient-create-alias"
-                      >Alias para la nueva ficha ficticia</label
-                    ><input
-                      id="patient-create-alias"
-                      type="text"
-                      maxlength="80"
-                      required
-                    />
-                    <p>
-                      Usa un alias de prueba, por ejemplo Caso 3. El servidor
-                      añade FICTICIO al nombre. No introduzcas nombres,
-                      teléfonos ni otros datos reales de pacientes.
-                    </p>
-                  </div>
-                  <div id="patient-create-identity" hidden class="fields-grid">
-                    <div class="field">
-                      <label for="patient-create-given_name"
-                        >Nombre ficticio</label
+              <div id="patient-directory">
+                <h2 id="patients-title">Pacientes ficticios · base privada</h2>
+                <p>
+                  Prueba el alta, la lectura, la edición y el archivo de fichas
+                  ficticias. Los cambios confirmados quedan en la base y se
+                  incluyen en las copias. Las fichas archivadas se consultan sin
+                  editarlas.
+                </p>
+                <div class="view-toolbar">
+                  <button id="patient-load" type="button">
+                    Cargar pacientes de prueba
+                  </button>
+                  <button id="patient-prepare" type="button">
+                    Preparar los dos pacientes ficticios
+                  </button>
+                  <button id="patient-new" type="button" class="primary">
+                    Nueva ficha ficticia
+                  </button>
+                </div>
+                <form id="patient-create-form" autocomplete="off" hidden>
+                  <fieldset id="patient-create-fields">
+                    <legend>Alta ficticia</legend>
+                    <div data-test-only>
+                      <label for="patient-create-alias"
+                        >Alias para la nueva ficha ficticia</label
                       ><input
-                        id="patient-create-given_name"
+                        id="patient-create-alias"
                         type="text"
                         maxlength="80"
-                        autocomplete="off"
+                        required
                       />
+                      <p>
+                        Usa un alias de prueba, por ejemplo Caso 3. El servidor
+                        añade FICTICIO al nombre. No introduzcas nombres,
+                        teléfonos ni otros datos reales de pacientes.
+                      </p>
                     </div>
-                    <div class="field">
-                      <label for="patient-create-family_name"
-                        >Apellidos ficticios</label
-                      ><input
-                        id="patient-create-family_name"
-                        type="text"
-                        maxlength="80"
-                        autocomplete="off"
-                      />
+                    <div
+                      id="patient-create-identity"
+                      hidden
+                      class="fields-grid"
+                    >
+                      <div class="field">
+                        <label for="patient-create-given_name"
+                          >Nombre ficticio</label
+                        ><input
+                          id="patient-create-given_name"
+                          type="text"
+                          maxlength="80"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-family_name"
+                          >Apellidos ficticios</label
+                        ><input
+                          id="patient-create-family_name"
+                          type="text"
+                          maxlength="80"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-birth_date"
+                          >Fecha de nacimiento ficticia (opcional)</label
+                        ><input
+                          id="patient-create-birth_date"
+                          type="date"
+                          maxlength="10"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-phone"
+                          >Teléfono ficticio (opcional)</label
+                        ><input
+                          id="patient-create-phone"
+                          type="tel"
+                          maxlength="32"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-email"
+                          >Correo ficticio de contacto (opcional)</label
+                        ><input
+                          id="patient-create-email"
+                          type="email"
+                          maxlength="254"
+                          autocomplete="off"
+                        />
+                      </div>
                     </div>
-                    <div class="field">
-                      <label for="patient-create-birth_date"
-                        >Fecha de nacimiento ficticia (opcional)</label
-                      ><input
-                        id="patient-create-birth_date"
-                        type="date"
-                        maxlength="10"
-                        autocomplete="off"
-                      />
-                    </div>
-                    <div class="field">
-                      <label for="patient-create-phone"
-                        >Teléfono ficticio (opcional)</label
-                      ><input
-                        id="patient-create-phone"
-                        type="tel"
-                        maxlength="32"
-                        autocomplete="off"
-                      />
-                    </div>
-                    <div class="field">
-                      <label for="patient-create-email"
-                        >Correo ficticio de contacto (opcional)</label
-                      ><input
-                        id="patient-create-email"
-                        type="email"
-                        maxlength="254"
-                        autocomplete="off"
-                      />
-                    </div>
-                  </div>
-                  <button type="submit">Crear ficha ficticia</button>
-                </fieldset>
-                <button id="patient-create-cancel" type="button">
-                  Cerrar alta
-                </button>
-              </form>
-              <div class="patient-layout">
+                    <button type="submit">Crear ficha ficticia</button>
+                  </fieldset>
+                  <button id="patient-create-cancel" type="button">
+                    Cerrar alta
+                  </button>
+                </form>
                 <div class="list-card">
                   <label for="patient-search"
                     >Buscar ficha ficticia por alias o identificador</label
@@ -665,148 +669,181 @@
                   <p id="patient-count"></p>
                   <ul id="patient-list" aria-label="Pacientes de prueba"></ul>
                 </div>
-                <section id="patient-editor" hidden class="editor-card">
-                  <h3 id="patient-name"></h3>
-                  <p id="patient-revision"></p>
-                  <p id="patient-treatment"></p>
-                  <form id="patient-form" autocomplete="off">
-                    <fieldset id="patient-fields" class="fields-grid">
-                      <legend>Ficha ficticia</legend>
-                      <div class="field field-full">
-                        <label
-                          id="patient-alias-label"
-                          for="patient-alias"
-                          hidden
-                          >Alias de la ficha ficticia</label
-                        ><input
-                          id="patient-alias"
-                          type="text"
-                          maxlength="80"
-                          hidden
-                        />
-                      </div>
-                      <div class="field">
-                        <label for="patient-given_name">Nombre ficticio</label
-                        ><input
-                          id="patient-given_name"
-                          type="text"
-                          maxlength="80"
-                          autocomplete="off"
-                        />
-                      </div>
-                      <div class="field">
-                        <label for="patient-family_name"
-                          >Apellidos ficticios</label
-                        ><input
-                          id="patient-family_name"
-                          type="text"
-                          maxlength="80"
-                          autocomplete="off"
-                        />
-                      </div>
-                      <div class="field">
-                        <label for="patient-birth_date"
-                          >Fecha de nacimiento ficticia (opcional)</label
-                        ><input
-                          id="patient-birth_date"
-                          type="date"
-                          maxlength="10"
-                          autocomplete="off"
-                        />
-                      </div>
-                      <div class="field">
-                        <label for="patient-phone"
-                          >Teléfono ficticio (opcional)</label
-                        ><input
-                          id="patient-phone"
-                          type="tel"
-                          maxlength="32"
-                          autocomplete="off"
-                        />
-                      </div>
-                      <div class="field">
-                        <label for="patient-email"
-                          >Correo ficticio de contacto (opcional)</label
-                        ><input
-                          id="patient-email"
-                          type="email"
-                          maxlength="254"
-                          autocomplete="off"
-                        />
-                      </div>
-                      <div class="field field-full">
-                        <label for="patient-reason"
-                          >Motivo de consulta ficticio</label
-                        >
-                        <textarea
-                          id="patient-reason"
-                          rows="3"
-                          maxlength="2000"
-                        ></textarea>
-                      </div>
-                      <div class="field field-full">
-                        <label for="patient-precautions"
-                          >Antecedentes y precauciones ficticios</label
-                        >
-                        <textarea
-                          id="patient-precautions"
-                          rows="4"
-                          maxlength="4000"
-                        ></textarea>
-                      </div>
-                      <p data-test-only>
-                        Texto libre opcional. Usa solo ejemplos inventados
-                        durante las pruebas.
-                      </p>
-                      <div class="field field-full">
-                        <label for="patient-history"
-                          >Historia clínica ficticia</label
-                        >
-                        <textarea
-                          id="patient-history"
-                          rows="5"
-                          maxlength="8000"
-                        ></textarea>
-                      </div>
-                      <div class="field field-full">
-                        <label for="patient-exam">Exploración ficticia</label>
-                        <textarea
-                          id="patient-exam"
-                          rows="4"
-                          maxlength="8000"
-                        ></textarea>
-                      </div>
-                      <div class="field field-full">
-                        <label for="patient-diagnosis"
-                          >Diagnóstico ficticio</label
-                        >
-                        <textarea
-                          id="patient-diagnosis"
-                          rows="3"
-                          maxlength="2000"
-                        ></textarea>
-                      </div>
-                      <div class="field field-full">
-                        <label for="patient-goals">Objetivos ficticios</label>
-                        <textarea
-                          id="patient-goals"
-                          rows="3"
-                          maxlength="2000"
-                        ></textarea>
-                      </div>
-                      <button type="submit" class="field-full">
-                        Guardar ficha ficticia
-                      </button>
-                    </fieldset>
-                  </form>
-                  <button id="patient-archive" type="button" hidden>
-                    Archivar ficha ficticia
-                  </button>
-                  <button id="patient-refresh" type="button">
-                    Cargar versión guardada
-                  </button>
-                </section>
               </div>
+              <section
+                id="patient-editor"
+                hidden
+                class="editor-card patient-page"
+              >
+                <button id="patient-back" type="button">
+                  Volver a pacientes
+                </button>
+                <h2 id="patient-name" tabindex="-1"></h2>
+                <p id="patient-revision"></p>
+                <p
+                  id="patient-save-status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                ></p>
+                <p id="patient-treatment"></p>
+                <form id="patient-form" autocomplete="off">
+                  <fieldset id="patient-fields" class="fields-grid">
+                    <legend>Ficha ficticia</legend>
+                    <div class="field field-full">
+                      <label id="patient-alias-label" for="patient-alias" hidden
+                        >Alias de la ficha ficticia</label
+                      ><input
+                        id="patient-alias"
+                        type="text"
+                        maxlength="80"
+                        hidden
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-given_name">Nombre ficticio</label
+                      ><input
+                        id="patient-given_name"
+                        type="text"
+                        maxlength="80"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-family_name"
+                        >Apellidos ficticios</label
+                      ><input
+                        id="patient-family_name"
+                        type="text"
+                        maxlength="80"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-birth_date"
+                        >Fecha de nacimiento ficticia (opcional)</label
+                      ><input
+                        id="patient-birth_date"
+                        type="date"
+                        maxlength="10"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-phone"
+                        >Teléfono ficticio (opcional)</label
+                      ><input
+                        id="patient-phone"
+                        type="tel"
+                        maxlength="32"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-email"
+                        >Correo ficticio de contacto (opcional)</label
+                      ><input
+                        id="patient-email"
+                        type="email"
+                        maxlength="254"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-reason"
+                        >Motivo de consulta ficticio</label
+                      >
+                      <textarea
+                        id="patient-reason"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-precautions"
+                        >Antecedentes y precauciones ficticios</label
+                      >
+                      <textarea
+                        id="patient-precautions"
+                        rows="4"
+                        maxlength="4000"
+                      ></textarea>
+                    </div>
+                    <p data-test-only>
+                      Texto libre opcional. Usa solo ejemplos inventados durante
+                      las pruebas.
+                    </p>
+                    <div class="field field-full">
+                      <label for="patient-history"
+                        >Historia clínica ficticia</label
+                      >
+                      <textarea
+                        id="patient-history"
+                        rows="5"
+                        maxlength="8000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-exam">Exploración ficticia</label>
+                      <textarea
+                        id="patient-exam"
+                        rows="4"
+                        maxlength="8000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-diagnosis"
+                        >Diagnóstico ficticio</label
+                      >
+                      <textarea
+                        id="patient-diagnosis"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-goals">Objetivos ficticios</label>
+                      <textarea
+                        id="patient-goals"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <button type="submit" class="field-full">
+                      Guardar ficha ficticia
+                    </button>
+                  </fieldset>
+                </form>
+                <div class="patient-finish-bar">
+                  <button id="patient-finish" type="submit" form="patient-form">
+                    Guardar y volver a pacientes
+                  </button>
+                </div>
+                <button id="patient-archive" type="button" hidden>
+                  Archivar ficha ficticia
+                </button>
+                <button id="patient-refresh" type="button">
+                  Cargar versión guardada
+                </button>
+              </section>
+              <dialog
+                id="patient-leave-dialog"
+                aria-labelledby="patient-leave-title"
+              >
+                <h2 id="patient-leave-title">Hay cambios sin guardar</h2>
+                <p>
+                  Guarda la ficha antes de volver a la lista o continúa
+                  editándola.
+                </p>
+                <button id="patient-leave-save" type="button">
+                  Guardar y volver
+                </button>
+                <button id="patient-leave-continue" type="button">
+                  Seguir editando
+                </button>
+                <button id="patient-leave-discard" type="button">
+                  Descartar cambios y volver
+                </button>
+              </dialog>
             </section>
             <section
               id="custom-exercises-panel"
