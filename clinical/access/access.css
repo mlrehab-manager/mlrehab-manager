@@ -649,6 +649,34 @@ body.is-authorized #auth-logout {
 #patient-leave-dialog::backdrop {
   background: rgb(0 0 0 / 35%);
 }
+body.is-patient-tab .app-shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+body.is-patient-tab .app-sidebar,
+body.is-patient-tab #patient-directory,
+body.is-patient-tab #app-logout,
+body.is-patient-tab .session-label,
+body.is-patient-tab #login,
+body.is-patient-tab #enrollment,
+body.is-patient-tab #verify,
+body.is-patient-tab #enroll,
+body.is-patient-tab #auth-logout {
+  display: none !important;
+}
+body.is-patient-tab .workspace-main {
+  margin-left: 0;
+}
+body.is-patient-tab .workspace-content {
+  padding-bottom: 32px;
+}
+body.is-patient-tab .patient-finish-bar {
+  bottom: 8px;
+}
+.patient-tab-notice {
+  color: #6b675f;
+  font-size: 0.875rem;
+  margin-top: 0;
+}
 #patient-leave-continue,
 #patient-leave-discard {
   background: var(--surface);

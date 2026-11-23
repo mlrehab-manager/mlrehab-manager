@@ -39,6 +39,7 @@ function updateSaveStatus() {
     : hasPatientChanges()
       ? "Cambios sin guardar"
       : "Sin cambios pendientes";
+  document.dispatchEvent(new CustomEvent("mlrehab:patient-state"));
 }
 export function hasPatientChanges() {
   return Boolean(
@@ -76,6 +77,7 @@ function clearEditor() {
   $("patient-alias").hidden = true;
   $("patient-alias").required = false;
   $("patient-archive").hidden = true;
+  document.dispatchEvent(new CustomEvent("mlrehab:patient-state"));
 }
 export function clearPatientData() {
   patients = [];
@@ -85,10 +87,22 @@ export function clearPatientData() {
   clearCreation();
   clearEditor();
 }
-export function installPatientTools({ client, run, isAuthorized, message }) {
+export function installPatientTools({
+  client,
+  run,
+  isAuthorized,
+  message,
+  openPatientInTab,
+  inPatientTab = false,
+  onFinish,
+}) {
   function returnToList() {
     const previousId = selected?.id;
     clearEditor();
+    if (onFinish) {
+      onFinish();
+      return;
+    }
     requestAnimationFrame(() => {
       if (
         !isAuthorized() ||
@@ -151,13 +165,18 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       button.type = "button";
       button.dataset.patientId = row.id;
       button.textContent = `${row.name}${isClinicalMode() ? ` · ${row.birth_date || "Sin fecha de nacimiento"} · Nº ${row.id}` : ""} · ${row.archived ? "Archivado (solo lectura)" : "Activo"}`;
-      button.addEventListener("click", () =>
+      button.title = "Abrir ficha en una pestaña nueva";
+      button.addEventListener("click", () => {
+        if (openPatientInTab) {
+          if (isAuthorized()) openPatientInTab(row.id);
+          return;
+        }
         run(async (current) => {
           if (!isAuthorized() || !confirmPatientDiscard()) return;
           clearCreation();
           await open(row.id, current);
-        }),
-      );
+        });
+      });
       item.append(button);
       fragment.append(item);
     }
@@ -337,6 +356,13 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
           return;
         }
         clearCreation();
+        if (openPatientInTab) {
+          if (await loadList(isCurrent))
+            message(
+              "Ficha creada. Pulsa el paciente para abrirlo en una pestaña nueva.",
+            );
+          return;
+        }
         if (await open(id, isCurrent)) {
           if (await loadList(isCurrent))
             message(
@@ -503,7 +529,7 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
           return;
         }
         if (await open(data.id, isCurrent)) {
-          await loadList(isCurrent);
+          if (!inPatientTab) await loadList(isCurrent);
           if (isCurrent())
             message(
               "Ficha ficticia archivada. Se conservan sus versiones, sesiones y auditoría.",
@@ -521,4 +547,8 @@ export function installPatientTools({ client, run, isAuthorized, message }) {
       event.returnValue = "";
     }
   });
+  return {
+    openPatient: (id) => run((current) => open(id, current)),
+    refreshList: () => run((current) => loadList(current)),
+  };
 }

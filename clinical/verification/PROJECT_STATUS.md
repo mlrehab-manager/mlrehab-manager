@@ -1,6 +1,6 @@
 # Estado verificado · 23 de noviembre de 2026
 
-La versión privada 20 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Cada paciente abre una pantalla propia, con guardado confirmado antes de volver a la lista. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
+La versión privada 22 organiza MLREHAB como una aplicación con Inicio, Agenda, Pacientes, Ejercicios, Copias y Acceso. Cada paciente abre una pestaña nueva del navegador; la lista permanece en la principal y el cierre de la ficha espera la confirmación del guardado. Conserva identificación/historias/sesiones y recuperación v6 con activación administrada. El titular es autónomo individual en España y utilizará iPad y Windows. Las cuentas alojadas permanecen en `test`; no se han habilitado pacientes reales ni se ha modificado la demo pública.
 
 ## Interfaz privada
 
@@ -14,7 +14,7 @@ El nuevo RPC `clinical_agenda_week` realiza una sola lectura coherente y un even
 
 La agenda calcula el alto de sus once filas según el espacio útil del viewport, compacta los controles y mantiene texto legible. La última fila de las 19:00 queda visible sin scroll vertical del calendario en 1180×820, 1024×768, 1024×700 y 820×1180. Las citas múltiples de una hora muestran una elección accesible sin ocultarlas; cerrar edición devuelve a la semana. En ventanas menores o con ampliación se prioriza legibilidad, sin prometer ajuste universal de todos los dispositivos.
 
-La ficha se abre en una pantalla propia dentro de la misma pestaña, con lista/alta ocultas y título genérico del documento. «Guardar y volver a pacientes» vuelve solo después de confirmar el guardado; sin cambios cierra sin escribir otra versión. Errores, conflictos o texto posterior a una petición conservan la ficha. Volver con cambios ofrece guardar, continuar o descartar. Las archivadas siguen en lectura y el cierre por inactividad limpia también el diálogo. Navegar a otra sección conserva el borrador. Véase [fichas](../access/PATIENTS.md).
+Cada clic en la lista abre una pestaña real del navegador con título y URL genéricos. «Guardar y cerrar pestaña» cierra solo tras confirmar el guardado; sin cambios no escribe otra versión. Errores, conflictos o texto posterior a una petición conservan la ficha. Cerrar con cambios ofrece guardar, continuar o descartar. Las archivadas siguen en lectura. La principal conserva la lista y debe permanecer abierta. Un MessageChannel limitado a esa ventana y paciente envía operaciones a la principal, única propietaria del cliente autenticado: no se transfieren tokens o contraseñas. La actividad de la ficha respeta la inactividad existente; cerrar sesión o la principal bloquea y limpia las fichas. Al salir de una ficha también se limpia su documento antes de conservarlo en el historial. Las copias y el aviso de salida de la principal detectan borradores y escrituras pendientes en otras pestañas, incluso si se cierra una ficha durante una petición. La comprobación manual en Safari/iPad sigue pendiente; el modo instalado puede requerir abrir MLREHAB en Safari para mantener pestañas vinculadas. Véase [fichas](../access/PATIENTS.md).
 
 El tipo se guarda por cita: primera visita (azul), seguimiento (verde salvia), gimnasio (malva). El texto/leyenda acompañan los colores. Los registros anteriores permanecen sin clasificar (gris); no se reescriben versiones antiguas. El endpoint nuevo `clinical_appointment_save_typed` reutiliza las comprobaciones de revisión/solapamiento/propietario y actualiza tipo y versión atómicamente. La operación histórica conserva los tipos existentes.
 
@@ -36,7 +36,7 @@ Las veinticuatro llamadas RPC anónimas por proyecto se rechazan por HTTPS con 4
 
 ## Verificación
 
-Esta entrega supera 86 pruebas de interfaz con respuestas sintéticas (85 del recorrido completo y una regresión adicional del diálogo por inactividad), seis pruebas de recuperación/compilación, formato y comprobación del diff. Incluye guardado/reapertura, retorno sin escritura redundante, las tres opciones del diálogo, conflicto/desconexión, texto escrito durante la petición y geometría en 820×1180, 1180×820 y 390×844. El esquema, contratos de copia y criptografía conservan los resultados anteriores de 78 pruebas SQL/identidad/permisos y 12 de cifrado; no se modifican.
+Esta entrega verifica 98 casos de interfaz con respuestas sintéticas: 97 del recorrido completo y una regresión adicional de limpieza al salir de la pestaña, con repetición de seis casos de ciclo de vida afectados. Supera también seis pruebas de recuperación/compilación, formato y comprobación del diff. Incluye pestañas reales, guardado/cierre y reapertura, tres opciones del diálogo, conflictos/desconexión, escritura durante la petición, dos fichas independientes, denegación de otros pacientes/RPC, ausencia de credenciales transferidas, bloqueo al salir de la principal, aviso de salida por borradores remotos y bloqueo de copias por escrituras pendientes. Conserva las comprobaciones de geometría en iPad y móvil. El esquema, contratos de copia y criptografía conservan los resultados anteriores de 78 pruebas SQL/identidad/permisos y 12 de cifrado; no se modifican.
 
 Una regresión adicional comprueba que cambiar el archivo durante una verificación anula el resultado anterior, conserva el nuevo archivo y exige comprobarlo de nuevo. Las cuatro pruebas afectadas de comprobación/custodia se repiten tras ese ajuste.
 
@@ -44,7 +44,7 @@ Los ensayos [clínico v6](CLINICAL_SERVICE_RECOVERY_REPORT.json) y [legado v5](S
 
 ## Publicación
 
-Site propietario privado, versión 20, commit `848e6402b64dc011ac757b066a4741fdc8d1bfc6`, despliegue `appgdep_6b04735e86048191ba0e55e1571d3fa2`, completado. Una cuenta propietaria, sin grupos/editores.
+Site propietario privado, versión 22, commit `da1f2ba02e02383642719d201063b01f3e406c68`, despliegue `appgdep_6b0481d30c20819188c621bbe4a517ee`, completado. Una cuenta propietaria, sin grupos/editores.
 
 - Habitual: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site
 - Recuperación: https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site/recovery/
@@ -63,4 +63,4 @@ La revisión de proveedores conserva las fuentes del día 22 y el día 23 vuelve
 
 El [informe de cierre](CLOSING_REVIEW.json) conserva con sus fechas las consultas de configuración, permisos, avisos y recuentos del día 22. La última consulta del día 23 observa dos comprobaciones: la de Windows es posterior, selecciona carpeta local y coincide en archivo/propietario/exportación con la del iPad. El paso operativo se registra como completado para el archivo ficticio bajo las declaraciones del titular. No se incluyen textos de pacientes, archivos o secretos.
 
-La [decisión de puesta en marcha](../../docs/CLINICAL_LAUNCH_DECISION.md) concreta los registros afectados por una eventual retirada de pruebas, manteniendo cuenta/MFA. El titular ya ha confirmado registros inventados, recuperación de frase y el recorrido desde Windows, respaldado por la comprobación vinculada. La revisión de la operación destructiva y la decisión de adecuación de proveedores continúan pendientes. Esta entrega solo modifica documentación/evidencia: no retira registros, cambia el perfil o publica otra versión del Site.
+La [decisión de puesta en marcha](../../docs/CLINICAL_LAUNCH_DECISION.md) concreta los registros afectados por una eventual retirada de pruebas, manteniendo cuenta/MFA. El titular ya ha confirmado registros inventados, recuperación de frase y el recorrido desde Windows, respaldado por la comprobación vinculada. La revisión de la operación destructiva y la decisión de adecuación de proveedores continúan pendientes. La actualización de interfaz publicada no retira registros ni cambia el perfil, el esquema o la configuración Auth del proveedor. La coordinación entre pestañas se realiza en el cliente.

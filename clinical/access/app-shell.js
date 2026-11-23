@@ -90,4 +90,5 @@ export function installAppShell({ isAuthorized }) {
   );
   selectPage("home");
   updateLayout();
+  return { show: selectPage };
 }

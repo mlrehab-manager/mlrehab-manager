@@ -1,5 +1,7 @@
 import { setDataMode, modeText } from "./data-mode.js";
 import { installAppShell } from "./app-shell.js";
+import { installPatientTabs } from "./patient-tabs.js";
+import { installPatientTabPage } from "./patient-tab-page.js";
 import {
   clearCustomExerciseData,
   installCustomExercises,
@@ -18,8 +20,14 @@ import {
   installAgendaTools,
   hasAgendaChanges,
 } from "./agenda-tools.js";
+let patientTabs = null,
+  patientTools = null,
+  patientRefreshPending = false;
 const hasAnyChanges = () =>
-  hasPatientChanges() || hasAgendaChanges() || hasCustomExerciseChanges();
+  hasPatientChanges() ||
+  hasAgendaChanges() ||
+  hasCustomExerciseChanges() ||
+  patientTabs?.hasPendingChanges();
 const confirmAllDiscard = () =>
   !hasAnyChanges() ||
   window.confirm(
@@ -46,6 +54,8 @@ function clearSetup() {
 function reset() {
   epoch++;
   active = false;
+  patientTabs?.closeAll();
+  patientRefreshPending = false;
   setDataMode("test");
   factorId = null;
   clearSetup();
@@ -85,6 +95,8 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   message(
     "Acceso bloqueado: abre la dirección de pruebas autorizada en una ventana propia.",
   );
+} else if (location.hash === "#ficha") {
+  void installPatientTabPage();
 } else {
   const service = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
@@ -142,8 +154,30 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
         .forEach((el) => {
           el.disabled = false;
         });
+      flushPatientRefresh();
     }
   }
+
+  function flushPatientRefresh() {
+    if (!patientRefreshPending || busy || !active || !patientTools) return;
+    patientRefreshPending = false;
+    void patientTools.refreshList();
+  }
+
+  patientTabs = installPatientTabs({
+    client,
+    isAuthorized: () => active && !$("complete").hidden,
+    message,
+    checkAccess: checkIdle,
+    onActivity: () => {
+      checkIdle();
+      if (active) lastActivity = Date.now();
+    },
+    onSaved: () => {
+      patientRefreshPending = true;
+      flushPatientRefresh();
+    },
+  });
 
   async function exit(reason) {
     reset();
@@ -166,11 +200,12 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     message,
     hasPendingChanges: hasAnyChanges,
   });
-  installPatientTools({
+  patientTools = installPatientTools({
     client,
     run,
     isAuthorized: () => active && !$("complete").hidden,
     message,
+    openPatientInTab: (id) => patientTabs.open(id),
   });
 
   installCustomExercises({
