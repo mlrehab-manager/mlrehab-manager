@@ -22,32 +22,37 @@
     "restore_service_from_this_specific_file": "not_tested",
     "file_hash_recorded": true,
     "phrase_or_file_collected_by_agent": false,
-    "independent_copy_outside_same_sync_account": "declared_in_receipt_device_and_destination_clarification_pending",
+    "independent_copy_outside_same_sync_account": "holder_declared_completed_after_windows_instructions_linked_receipt_observed",
     "backup_phrase_recovery": "holder_reported_recoverable_without_ipad",
     "backup_phrase_recovery_reported_on": "2026-11-22",
     "operational_routine": "Defined at holder request on 2026-11-22: manual after changed day, two recent verified plus one restore-tested previous, independent copy, separate recoverable phrase, monthly isolated drill; physical steps still pending.",
     "second_device_os": "Windows (holder confirmed 2026-11-22)",
-    "windows_independent_copy_and_local_verification": "instructions_prepared_not_yet_confirmed",
-    "current_device": "iPad only (holder confirmed 2026-11-22)",
-    "recorded_check_count_observed": 1,
-    "metadata_observed_on": "2026-11-22",
-    "windows_verification_in_current_round": "pending_computer_not_available",
+    "windows_independent_copy_and_local_verification": "holder_reported_completed_same_file_as_ipad_receipt_observed",
+    "current_device": "Windows (holder confirmed 2026-11-23)",
+    "recorded_check_count_observed": 2,
+    "metadata_observed_on": "2026-11-23",
+    "windows_verification_in_current_round": "completed_holder_context_and_linked_server_receipt",
     "phrase_separate": "declared_in_registered_check",
-    "metadata_observed_at": "2026-11-22T16:10:59.635646+00:00",
+    "metadata_observed_at": "2026-11-23T16:08:19.470421+00:00",
     "latest_registered_check": {
       "version": 5,
-      "location": "this_device",
+      "location": "computer",
       "data_mode": "test",
-      "checked_at": "2026-11-22T16:10:17.243953+00:00",
+      "checked_at": "2026-11-23T16:07:03.708942+00:00",
       "exported_at": "2026-11-22T16:09:27.114386+00:00",
       "phrase_separate": true,
       "independent_copy": true,
       "verified_elsewhere": true,
-      "export_event_exists": true
+      "export_event_exists": true,
+      "newer_than_prior_ipad": true,
+      "same_file_as_prior_ipad": true,
+      "same_export_as_prior_ipad": true
     },
     "latest_export_at": "2026-11-22T16:09:27.114386+00:00",
     "current_ipad_backup_workflow": "holder_reported_completed_receipt_observed",
-    "independent_device_and_destination": "awaiting_holder_clarification"
+    "independent_device_and_destination": "Windows; local computer folder declared; filesystem not independently observed",
+    "physical_custody_test_status": "completed_for_synthetic_file_under_holder_declarations",
+    "windows_verification_reported_on": "2026-11-23"
   },
   "provider_review": {
     "public_documentation_reviewed_on": "2026-11-22",
@@ -65,11 +70,12 @@
     "sites_applicable_dpa_identified": true,
     "account_and_plan_identification": "completed_holder_report_and_native_metadata",
     "supabase_plan_observed": "free",
-    "specific_sensitive_data_contract_question": "section_4d_adequacy_to_healthcare_use_unresolved"
+    "specific_sensitive_data_contract_question": "section_4d_adequacy_to_healthcare_use_unresolved",
+    "supabase_dpa_and_transfer_faq_rechecked_on": "2026-11-23"
   },
   "independent_mfa_reserve": "deferred_by_holder",
   "clinical_ready": false,
-  "updated_on": "2026-11-22",
+  "updated_on": "2026-11-23",
   "latest_site_version_available": 19,
   "usage_scope": "single_practitioner",
   "clinical_activation_automatic": false,
@@ -93,7 +99,7 @@
     "proposed_removal_scope_reviewed": false,
     "destructive_operation_executed": false,
     "clinical_activation_authorized": false,
-    "current_backup_receipt": "observed_2026-11-22",
-    "independent_copy_declarations": "registered_clarification_requested_due_to_previous_ipad_only_context"
+    "current_backup_receipt": "observed_2026-11-23_windows_same_file_as_ipad",
+    "independent_copy_declarations": "windows_context_and_new_local_computer_receipt_same_file"
   }
 }

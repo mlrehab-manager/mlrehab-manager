@@ -200,7 +200,8 @@
     "application_ci_45039800878_passed",
     "holder_confirmed_all_current_records_invented",
     "holder_confirmed_phrase_recoverable_without_ipad",
-    "current_test_backup_export_and_check_receipt_observed"
+    "current_test_backup_export_and_check_receipt_observed",
+    "windows_check_receipt_observed_same_file_and_export_as_prior_ipad"
   ],
   "holder_confirmations": {
     "reported_on": "2026-11-22",
@@ -211,7 +212,9 @@
     "phrase_or_file_collected": false,
     "removal_or_activation_executed": false,
     "ipad_backup_workflow_completed": true,
-    "physical_independent_copy_verification_status": "device_and_destination_clarification_pending"
+    "physical_independent_copy_verification_status": "holder_context_supported_by_linked_windows_receipt_not_filesystem_observation",
+    "current_device": "Windows",
+    "current_device_reported_on": "2026-11-23"
   },
   "open_findings": [
     {
@@ -220,14 +223,9 @@
       "detail": "Supabase DPA section 4(d), applicable healthcare basis/information, transfer safeguards and chosen custody arrangement need a documented responsible-party decision. No particular consultancy purchase or vendor reply is a universal requirement."
     },
     {
-      "id": "physical_custody",
-      "status": "registered_declarations_need_clarification",
-      "detail": "A current test export and its linked check receipt are observed. The receipt declares this_device and marks independent_copy, phrase_separate and verified_elsewhere true. Because the holder previously reported having only the iPad, the other device and independent storage destination have been requested. These declarations do not establish physical custody by themselves."
-    },
-    {
       "id": "test_set_transition",
-      "status": "awaiting_custody_clarification_and_execution_review",
-      "detail": "The holder confirms invented records and recoverable phrase; a current export and linked check receipt are now present. Independent-copy declarations need device/destination clarification. The proposed destructive scope still requires review and fresh count validation before execution. No removal or activation has occurred."
+      "status": "awaiting_provider_case_review_and_execution_approval",
+      "detail": "Invented records and recoverable phrase are confirmed, and the Windows receipt matches the existing iPad backup. The synthetic custody walkthrough is complete under holder declarations. Provider adequacy and review of the destructive scope remain pending. Counts and coverage must be revalidated before any execution; no removal or activation has occurred."
     },
     {
       "id": "leaked_password_protection",
@@ -255,19 +253,32 @@
     "https://www.aepd.es/preguntas-frecuentes/16-salud/2-profesionales-sanitarios/FAQ-1635-es-necesario-que-el-medico-o-el-centro-sanitario-solicite-el-consentimiento-a-los-pacientes-para-tratar-sus-datos-personales"
   ],
   "latest_backup_observation": {
-    "observed_at": "2026-11-22T16:10:59.635646+00:00",
+    "observed_at": "2026-11-23T16:08:19.470421+00:00",
     "latest_check": {
       "version": 5,
-      "location": "this_device",
+      "location": "computer",
       "data_mode": "test",
-      "checked_at": "2026-11-22T16:10:17.243953+00:00",
+      "checked_at": "2026-11-23T16:07:03.708942+00:00",
       "exported_at": "2026-11-22T16:09:27.114386+00:00",
       "phrase_separate": true,
       "independent_copy": true,
       "verified_elsewhere": true,
-      "export_event_exists": true
+      "export_event_exists": true,
+      "newer_than_prior_ipad": true,
+      "same_file_as_prior_ipad": true,
+      "same_export_as_prior_ipad": true
     },
     "latest_export_at": "2026-11-22T16:09:27.114386+00:00",
-    "recorded_check_count": 1
-  }
+    "recorded_check_count": 2
+  },
+  "updated_on": "2026-11-23",
+  "resolved_findings": [
+    {
+      "id": "physical_custody",
+      "status": "completed_for_synthetic_file_test",
+      "resolved_on": "2026-11-23",
+      "evidence_kind": "holder_windows_context_and_linked_server_receipt",
+      "detail": "The holder is now using Windows. A second receipt selects computer and declares independent copy, separate phrase and verification on another device. Owner, encrypted-file hash and export event match the prior iPad receipt. The synthetic custody walkthrough is recorded as completed; filesystem placement is a holder declaration. This is not a server restore or approval of clinical storage."
+    }
+  ]
 }

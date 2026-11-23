@@ -1,6 +1,6 @@
 # Activación clínica · preparada, sin ejecutar
 
-22 de noviembre de 2026. La versión privada 19 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
+23 de noviembre de 2026. La versión privada 19 incluye el modelo clínico y las copias v6. Ambos proyectos alojados conservan sus cuentas en modo de prueba. El ensayo del mismo archivo ficticio desde iPad y Windows ya consta. No se han borrado ejemplos, creado cuentas, cambiado autenticadores ni autorizado pacientes reales.
 
 ## Qué está implementado
 
@@ -27,7 +27,7 @@ Algunos RPC conservan el sufijo histórico `_test` por compatibilidad, pero sele
 ## Lo necesario antes de una decisión de activación
 
 1. Cerrar la revisión concreta de condiciones/proveedores y las obligaciones aplicables al tratamiento sanitario. El titular indica ahora que llamará sobre proveedores el 23 de noviembre; no se da por confirmado. No es obligatorio esperar a diciembre si se resuelve antes.
-2. Ejecutar y confirmar los pasos materiales pendientes del procedimiento de copias ya definido: destino/custodia y copia independiente. El titular confirma el 22 de noviembre que puede recuperar la frase aunque pierda el iPad. La frecuencia, rotación y contingencia están documentadas; su adecuación clínica/destino se revisan junto con proveedores. La descarga desde el iPhone ya confirmada no demuestra por sí sola toda esa recuperación. La reserva TOTP independiente sigue aplazada; no se exige volver a configurarla como única solución.
+2. Mantener el procedimiento de copias ya ensayado: el titular confirma la recuperación de la frase sin el iPad y el 23 de noviembre registra el mismo archivo desde Windows, con huella/exportación coincidentes y destino local del ordenador. La frecuencia, rotación y contingencia están documentadas; la adecuación del destino clínico se revisa junto con proveedores. El registro contiene declaraciones del titular, no una inspección de sus carpetas. La reserva TOTP independiente sigue aplazada; no se exige volver a configurarla como única solución.
 3. Preparar un conjunto clínico limpio con una decisión explícita sobre los datos de prueba. El titular confirma el 22 de noviembre que todos los registros actuales son inventados. Se puede planificar conservar la cuenta/MFA actuales; este código no obliga a repetir el enrolamiento. Antes de cualquier limpieza se debe conservar/comprobar la copia actual y revisar la operación exacta. No se ejecuta borrado automático ni se mezclan fixtures con historias clínicas.
 4. Validar el recorrido de salida, los límites y la contingencia y registrar la versión/configuración autorizadas. Solo entonces un operador autorizado cambia el modo con la referencia de decisión. Esa acción no está incluida en esta entrega.
 

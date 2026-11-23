@@ -1,6 +1,6 @@
 # Revisión de proveedores para MLREHAB
 
-Revisión documental: 22 de noviembre de 2026. Alcance: autónomo individual, fisioterapia en España, iPad y ordenador. Resultado: base Frankfurt comprobada y contrato de Sites personal identificado; decisión de uso clínico y prueba material de custodia pendientes. No se han aceptado nuevos contratos, enviado consultas, cambiado proveedores ni activado pagos.
+Revisión documental del 22 de noviembre, actualizada el 23 de noviembre de 2026 con el ensayo desde Windows y nueva consulta del DPA/FAQ de Supabase. Alcance: autónomo individual, fisioterapia en España, iPad y ordenador. Resultado: base Frankfurt comprobada, contrato de Sites personal identificado y recorrido del mismo archivo en iPad/Windows registrado; decisión de uso clínico pendiente. No se han aceptado nuevos contratos, enviado consultas, cambiado proveedores ni activado pagos.
 
 ## Flujo revisado
 
@@ -37,7 +37,7 @@ La [lista de subencargados de OpenAI](https://openai.com/policies/sub-processor-
 
 ## iCloud: ensayo confirmado, custodia clínica por evaluar
 
-El titular confirmó que guardó el archivo cifrado en iCloud Drive y pudo descargarlo desde el iPhone. No se ha demostrado su descifrado/restauración en ese segundo dispositivo ni la recuperación tras perder el acceso a la cuenta de Apple. Los detalles se separan en [el registro manual](../clinical/verification/MANUAL_CHECKS.json).
+El titular confirmó que guardó el archivo cifrado en iCloud Drive y pudo descargarlo desde el iPhone. El 23 de noviembre completa el recorrido desde Windows: la comprobación nueva declara carpeta local e independencia y coincide en huella/propietario/exportación con la del iPad. La ubicación física es su declaración, sin inspección del agente. El ensayo se registra como completado para datos ficticios; no acredita restauración del servidor o recuperación de la cuenta Apple. Los detalles están en [el registro manual](../clinical/verification/MANUAL_CHECKS.json).
 
 La [información de seguridad de Apple](https://support.apple.com/es-es/102651) distingue protección estándar y avanzada; no consta cuál usa esta cuenta. El cifrado propio de MLREHAB no depende de activar la opción avanzada. No se cambia esa configuración ni se inicia otra recuperación de cuenta durante este trabajo.
 
@@ -51,11 +51,11 @@ Hay [preguntas preparadas para los proveedores y la asesoría](CLINICAL_VENDOR_Q
 
 ## Cierre práctico de esta revisión
 
-El titular confirma el 22 de noviembre que utiliza ChatGPT personal (Plus/Pro) y ahora solo dispone del iPad. Esto permite identificar el DPA de Sites para particulares; no se exige contratar Business por defecto. Quedan documentadas las condiciones públicas revisadas, pero no se emite una certificación clínica ni se aceptan contratos nuevos en su nombre.
+El titular confirma el 22 de noviembre que utiliza ChatGPT personal (Plus/Pro), identificando el DPA de Sites para particulares. El 23 dispone de Windows y completa el recorrido de la copia. Quedan documentadas las condiciones públicas revisadas, sin certificación clínica o aceptación de contratos nuevos en su nombre.
 
 El siguiente paso contractual es conservar los textos aplicables y documentar la decisión del responsable sobre datos sensibles, transferencias y continuidad. La consulta del apartado 4(d) puede revisarse con el proveedor o con su asesoría; no se presenta una respuesta del proveedor o la contratación de una asesoría concreta como un requisito universal independiente de la normativa aplicable. Las dudas materiales sí deben resolverse antes de la decisión de uso real.
 
-La [guía descargable desde la app](../clinical/access/storage-guide.txt) incluye enlaces oficiales, una consulta concreta sin enviar y los pasos de custodia. El titular ha completado el recorrido desde el iPad: la consulta de las 16:10 UTC observa una comprobación vinculada a una exportación actual. El destino seleccionado es «Este dispositivo», con copia independiente, frase separada y verificación en otro dispositivo marcadas. Se solicita aclarar dispositivo y destino independiente por el contexto anterior de disponer solo del iPad. Las declaraciones registradas no certifican observación física o restauración.
+La [guía descargable desde la app](../clinical/access/storage-guide.txt) incluye enlaces oficiales y los pasos de custodia. Constan dos comprobaciones del mismo archivo: iPad el día 22 y carpeta local del ordenador el día 23, con las declaraciones marcadas. El nuevo contexto de Windows y la coincidencia de huella/propietario/exportación cierran el paso operativo del ensayo. Las declaraciones no certifican observación física, restauración o adecuación clínica. Para la duda contractual, la [FAQ oficial](https://supabase.com/legal/privacy-resources/data-residency-and-transfers-faq) publica privacy@supabase.io; la [consulta concreta](CLINICAL_VENDOR_QUESTIONS.md) está preparada y sigue sin enviarse.
 
 ## Revisión de cierre solicitada por el titular
 

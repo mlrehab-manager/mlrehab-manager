@@ -1,6 +1,6 @@
 # Conservación y recuperación de copias
 
-Actualizado el 22 de noviembre de 2026. Responsable operativo: el titular autónomo, único usuario de MLREHAB. El titular ha pedido cerrar el procedimiento y continuar el desarrollo; la revisión de proveedores sigue pendiente y prevé llamar el 23 de noviembre. La cuenta alojada sigue en pruebas.
+Actualizado el 23 de noviembre de 2026. Responsable operativo: el titular autónomo, único usuario de MLREHAB. El ensayo del mismo archivo desde iPad y Windows está completado con declaraciones del titular y registros vinculados. La revisión de proveedores sigue pendiente y la cuenta alojada continúa en pruebas.
 
 ## Rutina acordada para las pruebas
 
@@ -31,14 +31,14 @@ Este registro operativo no forma parte de las nueve colecciones portátiles de p
 
 La pantalla permite descargar unas instrucciones sin datos personales para conservarlas fuera de la app. Si el alojamiento falla, una guía que solo existiera dentro de la sesión no sería suficiente.
 
-## Evidencia y pasos materiales pendientes
+## Evidencia de la comprobación
 
-Confirmado por el titular: archivo verificado en iPad, guardado en iCloud Drive, visible y descargable desde iPhone. El 22 de noviembre confirma además que todos los registros son inventados y que puede recuperar la frase aunque pierda el iPad. Son declaraciones del titular; el agente no recibe la frase ni el archivo. No se ha confirmado descifrado desde iPhone, copia fuera de la misma sincronización ni restauración del servicio desde ese archivo concreto. El titular ha confirmado que el ordenador es Windows. Para la segunda copia, abrir `%USERPROFILE%` con Windows + R, crear `MLREHAB-Copias` fuera de OneDrive/iCloud, guardar el archivo cifrado y comprobarlo desde la app en ese ordenador. La confirmación del sistema operativo no acredita haber realizado esos pasos.
+Confirmado por el titular: archivo verificado en iPad, guardado en iCloud Drive, visible y descargable desde iPhone. El 22 de noviembre confirma que todos los registros son inventados y que puede recuperar la frase aunque pierda el iPad. El 23 utiliza Windows y completa el recorrido indicado para una carpeta local fuera de OneDrive/iCloud. Consta una segunda comprobación con destino «Carpeta local del ordenador», las tres declaraciones marcadas y la misma huella/propietario/exportación del archivo del iPad. La ubicación fuera de sincronización es una declaración del titular, no una inspección del sistema de archivos por el agente. La frase y el archivo no se reciben. Sigue sin ensayarse la restauración del servidor desde este archivo concreto.
 
-Los ensayos sintéticos de datos y de servicios tienen informes separados en `clinical/verification/`; no certifican la custodia del archivo del titular. La [revisión de proveedores](CLINICAL_PROVIDER_REVIEW.md) permanece pendiente. El procedimiento está definido y su implementación preparada; los pasos físicos no se dan por hechos ni activan automáticamente el uso clínico.
+Los ensayos sintéticos de datos y de servicios tienen informes separados en `clinical/verification/`. El recorrido de custodia del titular queda registrado con el alcance anterior. La [revisión de proveedores](CLINICAL_PROVIDER_REVIEW.md) y la decisión sobre los destinos clínicos permanecen pendientes; la comprobación no activa automáticamente el uso clínico.
 
-## Paso actual desde iPad
+## Resultado desde Windows
 
-El titular confirma el 22 de noviembre que ha completado el recorrido solicitado. La consulta administrativa de las 16:10 UTC observa una comprobación del modo de pruebas v5 vinculada a la exportación actual de las 16:09. El formulario declara «Este dispositivo» y tiene marcadas copia independiente, frase separada y verificación en otro dispositivo. Se ha solicitado concretar qué otro dispositivo y qué destino independiente utilizó, porque antes indicó que solo tenía el iPad. No se da por realizada la prueba en Windows a partir de esas casillas. Basta aclarar los pasos y, si procede, registrar las declaraciones correctas con el mismo archivo; no se pide crear otra copia por esta aclaración.
+La consulta administrativa del 23 de noviembre a las 17:08 de Madrid observa dos comprobaciones. La última se guardó a las 17:07 (16:07 UTC), con destino local del ordenador y vinculada al mismo archivo/exportación del día 22. Se conserva la declaración anterior del iPad como registro histórico. El nuevo registro y el contexto de Windows resuelven el paso operativo que estaba pendiente; no convierten retrospectivamente la declaración anterior en una observación física.
 
 Los tipos de visita se incluyen como campo opcional de citas/versiones en copias v5/v6. Los formatos anteriores siguen leyéndose y restaurándose sin asignar retrospectivamente una clasificación. Los ensayos sintéticos no sustituyen la apertura del archivo concreto del titular desde el destino independiente.
