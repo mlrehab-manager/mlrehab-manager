@@ -18,3 +18,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run format:check
       - run: npm test
+      - run: npm run test:clinical
+      - run: npm run test:access
+      - run: npm run test:backup-crypto
+      - run: npm run test:recovery

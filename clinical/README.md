@@ -1,0 +1,66 @@
+# Preparación de la versión clínica · fase 1
+
+**Estado: base de desarrollo, no apta aún para datos reales.** La demo publicada no se modifica ni se conecta a esta base. El usuario ya ha creado y conectado un proyecto gratuito de pruebas. Las doce migraciones se han instalado y verificado; se ha admitido exclusivamente la cuenta Auth creada por el usuario y se ha comprobado el cierre del registro. No se han activado pagos. Consulta [el estado verificado](verification/PROJECT_STATUS.md).
+
+Contexto confirmado: un profesional desde iPad y ordenador, consulta en la Comunitat Valenciana, España, preferencia por comenzar gratis. El propietario confirma que es autónomo y ejerce a título individual. Las obligaciones concretas como responsable y la adecuación de proveedores siguen pendientes de revisión.
+
+## Qué se ha preparado
+
+`migrations/001_private_patients.sql` y `002_private_rpc_boundary.sql` contienen una primera API de pacientes para un proyecto Supabase de pruebas vacío:
+
+- Sin acceso por defecto: la cuenta debe incorporarse a una lista privada por un administrador; no existe alta ni autoasignación de permisos desde la API.
+- Todas las operaciones requieren identidad verificada del proveedor, cuenta habilitada y nivel MFA `aal2`. La tercera migración (`20261111181241_clinical_session_guard.sql`) añade comprobación de sesión actual contra `auth.sessions`, máximo de ocho horas, caducidad del proveedor y cuenta confirmada sin bloqueo. No concede acceso de tabla al cliente.
+- Tablas privadas sin permisos de cliente y RLS con denegación restrictiva explícita. Las funciones públicas son SECURITY INVOKER y llaman implementaciones privadas con privilegios controlados, que vuelven a comprobar identidad y propietario en cada consulta. Cada función fija su `search_path` y no utiliza SQL dinámico.
+- Listado paginado de resúmenes, lectura individual, creación, actualización con revisión esperada y archivo sin borrado físico.
+- Versiones de las modificaciones y registro atómico de accesos/operaciones correctas con identificadores, acción, revisión y hora. No se duplican nombres o textos clínicos en el registro de auditoría. Si el registro de auditoría falla, la operación no se confirma.
+- El cliente no puede leer ni modificar las tablas de auditoría/versiones, ni admitirse a sí mismo. Un administrador de la base conserva privilegios técnicos: esto no es un registro inalterable frente al administrador.
+
+La validación del `payload` es todavía inicial: objeto, nombre limitado y tamaño máximo de 1 MiB. No sustituye el esquema clínico completo, las reglas de citas, la gestión documental ni la validación futura de cada campo.
+
+## Propuesta de proveedor y límite del plan gratuito
+
+Supabase se propone como candidato por PostgreSQL, autenticación/MFA y disponibilidad de región de base en la UE. **No está elegido contractualmente ni aprobado para producción.** Antes de crear el entorno clínico hay que revisar el contrato/DPA, los subencargados, el acceso de soporte, las transferencias y las condiciones para datos de salud. Alojar la base en la UE no demuestra por sí solo que todo tratamiento o acceso quede en la UE.
+
+A 11 de noviembre de 2026, el [plan Free](https://supabase.com/pricing) anuncia 500 MB de base de datos, pausa tras una semana sin actividad y ausencia de copias automáticas. La [documentación de copias](https://supabase.com/docs/guides/platform/backups) recomienda exportaciones externas en Free. Por tanto, empezamos gratis con pruebas ficticias. El uso real queda pendiente de implementar y ensayar recuperación, disponibilidad y operación; un plan de pago tampoco las garantiza por sí solo. No se activa facturación.
+
+## Ejecutar las pruebas locales
+
+```sh
+npm ci
+npm run test:clinical
+```
+
+Las pruebas ejecutan el SQL en PostgreSQL embebido con PGlite. Se simulan `auth.users`, `auth.uid()` y `auth.jwt()` solo en el entorno de pruebas; las migraciones no contienen esa simulación. No hay contraseñas ni tokens reales.
+
+Se prueban anonimato, cuenta no admitida, ausencia de doble factor, separación entre usuarios, acceso directo denegado, revocación de cuenta y sesión, caducidad y límite de ocho horas, bloqueo, conflicto de revisiones, conservación de versiones, archivo, paginación y fallo de auditoría. Una concesión accidental de lectura sigue sin permitir filas por RLS. Se han verificado en Supabase alojado los permisos, la ausencia de exposición del esquema privado y el rechazo de peticiones anónimas. El propietario ha confirmado el enrolamiento MFA y «Acceso de pruebas autorizado» con su sesión real. También confirmó «Cierre seguro verificado», que comprueba la denegación del mismo token contra esta API después de salir. **Quedan pendientes recuperación, cifrado del proveedor, copias/restauración y aplicación clínica completa.**
+
+## Aplicación futura en un proyecto de pruebas
+
+No ejecutar la migración contra un proyecto con datos ni copiar historias reales a este repositorio. Es una migración inicial, deliberadamente no idempotente: ante un error se revierte la transacción y se investiga; no se eliminan tablas para repetirla.
+
+1. Crear un proyecto de pruebas vacío en una región UE y guardar fuera del repositorio sus datos administrativos y credenciales. Verificar la región concreta, las condiciones y el DPA disponibles para la cuenta.
+2. Aplicar las doce migraciones en orden como propietario administrativo; ya están instaladas en el proyecto conectado y no deben repetirse allí. Mantener `clinical_private` fuera de los esquemas expuestos de la API. No habilitar Realtime ni permisos de tablas privadas.
+3. Desactivar altas públicas, crear/invitar únicamente la cuenta del profesional por el procedimiento del proveedor y configurar MFA. Las invitaciones y el correo requieren configuración y prueba; este trabajo no envía mensajes.
+4. Admitir manualmente el UUID de esa cuenta en `clinical_private.authorized_clinicians` desde la administración. No hay UUID real ni usuario autorizado en la migración. Mantener también MFA y acceso mínimo en la cuenta administradora del proveedor.
+5. Ejecutar pruebas reales con dos cuentas ficticias, anonimato, MFA incompleto, cuenta revocada y peticiones HTTP manipuladas. Verificar privilegios efectivos y configuración de esquemas en el proyecto, no solo el SQL local.
+6. Conectar después una interfaz clínica separada, sin usar `save()` ni `localStorage` de la demo. La consulta/edición de fichas y la agenda/sesiones ficticias ya están conectadas; el resto de recursos y el modo clínico siguen pendientes.
+
+Nunca colocar `service_role`, contraseña de PostgreSQL, token administrativo, claves de copia o credenciales de sesión en JavaScript público, GitHub, chat o archivos de ejemplo. La URL y una clave publicable no son contraseñas, pero solo se utilizarán en una integración revisada con permisos de servidor efectivos.
+
+## Antes de permitir datos reales
+
+El [plan clínico](../docs/CLINICAL_SECURITY_PLAN.md) y el [mapa de riesgos](../docs/CLINICAL_THREAT_MODEL.md) identifican el trabajo pendiente. La [pantalla de autenticación/MFA](access/README.md) ya está alojada en un sitio privado separado, con cabeceras HTTPS verificadas. La cuenta, el MFA y el cierre seguro han superado las pruebas reales confirmadas por el propietario. El [procedimiento de recuperación](RECOVERY_RUNBOOK.md) queda pendiente por instrucción del propietario; Contraseñas sincroniza un solo TOTP entre sus dispositivos. La [copia de prueba](backups/README.md) ya exporta el conjunto ficticio actual y supera una restauración en PostgreSQL/PGlite nuevo y separado, con versiones y auditoría; no recupera el servicio Supabase completo ni los recursos de la demo. La [primera interfaz de fichas ficticias](access/PATIENTS.md) permite crear, buscar, editar y archivar fichas ficticias en la base sin persistir borradores en el navegador. La entrada de pacientes reales sigue bloqueada mientras falten los recursos, la operación y la recuperación probada.
+
+La [agenda y sesiones privadas](access/AGENDA.md) ya permiten probar citas y evolución/tratamiento por sesión con el horario de la clínica, control de solapamientos y revisiones. Se incluyen en las copias cifradas versión 2 y en su restauración aislada. Los archivos anteriores versión 1 siguen admitidos. No se habilitan pacientes reales.
+
+El [catálogo personal privado](access/CUSTOM_EXERCISES.md) ya permite guardar nombres con modalidad y zonas para reutilizarlos en sesiones y dispositivos. La copia versión 3 lo incluye; los archivos v1/v2 anteriores siguen admitidos. La nueva alta requiere prueba manual del propietario y no habilita datos reales.
+
+Los ejercicios propios ya admiten edición y archivo con revisión esperada, versiones/auditoría y copia v4. Se conservan las sesiones anteriores y los archivos v1/v2/v3. La prioridad siguiente es [cerrar los bloqueos para el uso clínico](../docs/CLINICAL_LAUNCH_MINIMUM.md), conforme a la petición del propietario de acelerar la puesta en marcha como autónomo individual.
+
+La [recuperación de servicios](recovery/README.md) ya supera un ensayo con PostgreSQL, Auth y API reales, además de las pruebas previas de datos. Hay un destino alojado gratuito independiente, con esquema/permisos reconstruidos, cuenta ficticia, copia restaurada y acceso/lectura MFA verificados. Las altas públicas están cerradas. Sigue pendiente la recuperación operativa completa y no se habilitan pacientes reales.
+
+La copia vigente v5 incluye de cero a 500 fichas ficticias, sin depender de los dos ejemplos iniciales. El nuevo [flujo de pacientes](access/PATIENTS.md) conserva revisiones/auditoría y bloquea el archivo mientras haya citas programadas. Continúa pendiente la identidad clínica definitiva y la activación deliberada tras cerrar los bloqueos del plan.
+
+La undécima migración añade motivo de consulta y antecedentes/precauciones opcionales al guardado de la ficha ficticia, con límites, revisión y auditoría. Las copias v5 los conservan y siguen admitiendo archivos sin esos campos. En esa entrega el titular había previsto la revisión de protección de datos para diciembre de 2026; el desarrollo continúa para un solo profesional con datos ficticios y sin activación clínica automática.
+
+La duodécima migración incorpora el modelo clínico, identificación validada, modos administrados y copias v6. La versión privada 15 permite ensayar identidad sin activar datos reales; las dos cuentas alojadas permanecen en prueba y se conservan sus datos y Auth. La [activación](CLINICAL_ACTIVATION.md) exige decisiones y un conjunto limpio. El titular puede adelantar la revisión de protección de datos a esta semana y confirmará estos días; no se espera automáticamente a diciembre ni se habilita el uso real por esa previsión.

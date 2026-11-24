@@ -1,0 +1,9 @@
+# Modelo clínico · interrupción recuperada y bloque entregado
+
+Actualización del 22 de noviembre de 2026. Este documento sustituye el punto provisional guardado cuando el ordenador de desarrollo quedó no disponible. Se recuperaron los cambios y las salidas: la ampliación de interfaz terminó correctamente, se revisó y completó la verificación y se instaló/publicó la versión privada 15. El código forma parte de esta entrega; no es solo una descripción de cambios locales sin subir.
+
+La primera interrupción ocurrió antes de recuperar las últimas salidas. En aquel momento se conservó este documento mediante GitHub, sobre el commit 5485c24, sin atribuir el código local a la rama o a la publicación. Al recuperar el entorno se integró por avance rápido el commit documental 19db710 y se conservaron las modificaciones locales. La interrupción no activó perfiles clínicos ni afectó a la publicación independiente de la app.
+
+La implementación final incluye el modelo clínico, identidad validada, homónimos, petición estable de alta, modos administrados y suspensión, copias v6, recuperación explícita y compatibilidad de pruebas v1–v5. Se corrigieron además el día de nacimiento respecto a Europe/Madrid y la exigencia booleana de la opción administrativa de restauración. Las pruebas y los ensayos actuales se documentan en [PROJECT_STATUS.md](PROJECT_STATUS.md) y [CLINICAL_SERVICE_RECOVERY_REPORT.json](CLINICAL_SERVICE_RECOVERY_REPORT.json).
+
+La cuenta habitual y la del ensayo recuperado permanecen en modo test. Se conservaron los ejemplos y la configuración de Auth/MFA. El titular confirma que puede adelantar protección de datos a esta semana y avisará estos días; no hay activación clínica automática ni contratación realizada por el agente. Los pasos pendientes están en [CLINICAL_ACTIVATION.md](../CLINICAL_ACTIVATION.md).

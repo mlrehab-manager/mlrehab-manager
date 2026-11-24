@@ -1,0 +1,1500 @@
+:root {
+  color-scheme: light;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f3ed;
+  color: #222;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 32px 20px;
+}
+main {
+  max-width: 540px;
+  margin: 4vh auto;
+}
+.brand {
+  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+}
+h1 {
+  font-size: 1.8rem;
+}
+h2 {
+  font-size: 1.2rem;
+}
+p {
+  line-height: 1.6;
+}
+label {
+  display: block;
+  margin-top: 20px;
+}
+input,
+select,
+textarea,
+button {
+  width: 100%;
+  font: inherit;
+  min-height: 48px;
+  border-radius: 10px;
+  margin-top: 8px;
+  padding: 12px;
+}
+input,
+select,
+textarea {
+  border: 1px solid #999;
+  background: #fffdf9;
+  color: #222;
+  font-size: 16px;
+}
+button {
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 20px;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+:focus-visible {
+  outline: 3px solid #666;
+  outline-offset: 3px;
+}
+#logout {
+  background: transparent;
+  color: #222;
+}
+#status {
+  padding: 12px;
+  background: #e9e5de;
+  border-radius: 10px;
+}
+#qr,
+#reserve-qr {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: white;
+  margin: 16px auto;
+}
+code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+  user-select: all;
+}
+.note {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 28px;
+}
+[hidden] {
+  display: none !important;
+}
+fieldset {
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+#patient-list {
+  list-style: none;
+  padding: 0;
+}
+#patient-list button {
+  text-align: left;
+  background: transparent;
+  color: #222;
+}
+#status {
+  position: sticky;
+  top: 8px;
+  z-index: 2;
+}
+
+#agenda-list {
+  list-style: none;
+  padding: 0;
+}
+#agenda-list button {
+  text-align: left;
+  background: transparent;
+  color: #222;
+}
+.agenda-navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+#agenda-panel {
+  margin: 32px 0;
+  border-top: 1px solid #bbb;
+  padding-top: 12px;
+}
+#appointment-patient-lock {
+  padding: 8px;
+}
+
+#exercise-picker {
+  margin: 20px 0;
+}
+#exercise-picker summary {
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid #999;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#exercise-results {
+  list-style: none;
+  padding: 0;
+  max-height: 380px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#exercise-results button {
+  text-align: left;
+  margin-top: 8px;
+  background: transparent;
+  color: #222;
+  overflow-wrap: anywhere;
+}
+#exercise-results button[aria-pressed="true"] {
+  background: #e9e5de;
+}
+#exercise-results small {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.5;
+  color: #555;
+}
+
+#custom-exercise-regions label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  min-height: 48px;
+}
+#custom-exercise-regions input {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin: 0;
+}
+#exercise-own-list {
+  padding-left: 24px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.archive-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+.archive-choice input {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  margin: 0;
+}
+#exercise-own-list button {
+  margin: 8px 0;
+  text-align: left;
+  background: transparent;
+  color: #222;
+}
+#exercise-own-list li {
+  margin-bottom: 20px;
+}
+
+/* Private application workspace; authentication remains a compact entry screen. */
+:root {
+  --background: #f1ebe2;
+  --surface: #faf6ef;
+  --surface-soft: #f5eee4;
+  --border: #d9cfc1;
+  --ink: #171a1e;
+  --sidebar: #191d22;
+  background: var(--background);
+  color: var(--ink);
+}
+body {
+  padding: 28px 18px;
+}
+main {
+  max-width: 480px;
+  margin: 5vh auto;
+}
+.access-heading {
+  margin-bottom: 24px;
+}
+.access-heading .brand {
+  color: #5b5a56;
+  font-weight: 650;
+}
+.access-heading h1 {
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+.access-heading p {
+  color: #60605b;
+}
+main > form,
+main > #enrollment,
+main > #reserve,
+main > #closed {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+button {
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+button:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+button,
+input,
+select,
+textarea {
+  border-radius: 9px;
+}
+button,
+input,
+select,
+textarea,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  touch-action: manipulation;
+}
+input,
+select,
+textarea {
+  background: #fffdf9;
+  border-color: var(--border);
+}
+fieldset {
+  border-color: var(--border);
+}
+#status {
+  position: static;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  font-size: 0.9375rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+body.is-authorized {
+  padding: 0;
+}
+body.is-authorized > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+body.is-authorized #access-heading,
+body.is-authorized #auth-feedback,
+body.is-authorized #auth-logout {
+  display: none;
+}
+.app-shell {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.app-sidebar {
+  background: var(--sidebar);
+  color: #fff;
+  padding: 30px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  gap: 32px;
+}
+.app-logo {
+  padding: 4px 12px;
+}
+.app-logo strong {
+  display: block;
+  font-size: 1.5rem;
+  letter-spacing: -0.05em;
+  line-height: 1.2;
+}
+.app-logo strong span {
+  font-weight: 400;
+  color: #d8dadc;
+}
+.app-logo small {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.21em;
+  margin-top: 6px;
+  color: #c1c4c7;
+}
+.app-navigation {
+  display: grid;
+  gap: 7px;
+}
+.app-nav-item,
+.app-access-button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  margin: 0;
+  color: #c6c9cc;
+  background: transparent;
+  border-color: transparent;
+  font-size: 0.9375rem;
+  text-align: left;
+  font-weight: 550;
+}
+.app-nav-item svg,
+.app-access-button svg {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+}
+.app-nav-item[aria-current="page"],
+.app-access-button[aria-current="page"] {
+  color: #fff;
+  background: #34393e;
+  border-color: #44494f;
+}
+.app-nav-item:hover:not(:disabled),
+.app-access-button:hover:not(:disabled) {
+  color: #fff;
+  background: #2b3035;
+  filter: none;
+}
+.sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+}
+.sidebar-footer #logout {
+  margin: 0;
+  color: #d4d6d8;
+  border-color: #44494f;
+  font-size: 0.9375rem;
+}
+.app-stage {
+  min-width: 0;
+}
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 23px 32px 21px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.eyebrow {
+  margin: 0 0 7px;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  color: #73716a;
+}
+.workspace-header h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  letter-spacing: -0.035em;
+  font-weight: 650;
+}
+.workspace-context {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+.mode-badge,
+#app-recovery-label {
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 0.875rem;
+  background: var(--surface-soft);
+}
+.session-label {
+  color: #686761;
+}
+.workspace-content {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 24px 32px 100px;
+}
+#environment-notice {
+  margin: 0 0 22px;
+  padding: 10px 14px;
+  border-left: 2px solid #a49b8d;
+  color: #68635c;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.workspace-page > h2 {
+  font-size: 1.35rem;
+  margin: 0 0 10px;
+  letter-spacing: -0.025em;
+}
+.workspace-page > p {
+  color: #66635c;
+  margin: 0 0 20px;
+}
+.welcome {
+  margin: 8px 0 28px;
+}
+.welcome h2 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.045em;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.welcome > p:last-child {
+  color: #6e695f;
+  margin: 0;
+}
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 26px;
+}
+.overview-card {
+  padding: 22px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.overview-card > span {
+  font-size: 0.875rem;
+  color: #69675f;
+}
+.overview-card > strong {
+  display: block;
+  font-size: 1.8rem;
+  margin: 15px 0 10px;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+.overview-card p {
+  font-size: 0.875rem;
+  color: #777166;
+  margin: 0;
+}
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.quick-card {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 0;
+  padding: 22px;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+  text-align: left;
+}
+.quick-card svg {
+  width: 24px;
+  height: 24px;
+  grid-row: 1 / 3;
+}
+.quick-card strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.quick-card > span {
+  font-size: 0.875rem;
+  color: #777166;
+  line-height: 1.5;
+}
+.view-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 18px 0 24px;
+}
+.view-toolbar button {
+  width: auto;
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+  font-size: 0.9375rem;
+}
+.view-toolbar .primary {
+  margin-left: auto;
+  background: var(--sidebar);
+  color: #fff;
+  border-color: var(--sidebar);
+}
+.exercise-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.85fr) minmax(0, 1.65fr);
+  gap: 20px;
+  align-items: start;
+}
+.list-card,
+.editor-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.list-card > label:first-child {
+  margin-top: 0;
+}
+.editor-card > h3 {
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+.editor-card > form,
+.editor-card > form > fieldset {
+  margin-top: 0;
+}
+#patient-list {
+  margin-bottom: 0;
+}
+#patient-list button,
+#agenda-list button,
+#exercise-own-list button {
+  border-color: var(--border);
+  background: #fffdf9;
+}
+#patient-list button {
+  margin-top: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+#patient-count {
+  font-size: 0.875rem;
+  color: #6b675f;
+}
+.patient-page {
+  max-width: 100%;
+}
+.patient-page > h2 {
+  overflow-wrap: anywhere;
+  margin-bottom: 6px;
+}
+#patient-back {
+  width: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+#patient-save-status {
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+.patient-finish-bar {
+  position: sticky;
+  bottom: 8px;
+  padding: 10px 0;
+  background: var(--surface);
+  z-index: 1;
+}
+#patient-finish {
+  margin: 0;
+  font-weight: 600;
+}
+#patient-leave-dialog {
+  width: min(480px, calc(100% - 32px));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 24px;
+}
+#patient-leave-dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+body.is-patient-tab .app-shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+body.is-patient-tab .app-sidebar,
+body.is-patient-tab #patient-directory,
+body.is-patient-tab #app-logout,
+body.is-patient-tab .session-label,
+body.is-patient-tab #login,
+body.is-patient-tab #enrollment,
+body.is-patient-tab #verify,
+body.is-patient-tab #enroll,
+body.is-patient-tab #auth-logout {
+  display: none !important;
+}
+body.is-patient-tab .workspace-main {
+  margin-left: 0;
+}
+body.is-patient-tab .workspace-content {
+  padding-bottom: 32px;
+}
+body.is-patient-tab .patient-finish-bar {
+  bottom: 8px;
+}
+.patient-tab-notice {
+  color: #6b675f;
+  font-size: 0.875rem;
+  margin-top: 0;
+}
+body.is-appointment-tab #agenda-toolbar,
+body.is-appointment-tab #agenda-meta,
+body.is-appointment-tab #agenda-week,
+body.is-appointment-tab #agenda-saved-list,
+body.is-appointment-tab #agenda-outside-note,
+body.is-appointment-tab #agenda-title,
+body.is-appointment-tab #agenda-title + p {
+  display: none !important;
+}
+#patient-leave-continue,
+#patient-leave-discard {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+@media (max-width: 760px) {
+  .patient-finish-bar {
+    bottom: 68px;
+  }
+}
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.fields-grid > legend {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0 5px;
+}
+.field {
+  min-width: 0;
+}
+.field > label {
+  margin-top: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.field-full,
+.fields-grid > fieldset,
+.fields-grid > p,
+.fields-grid > button {
+  grid-column: 1 / -1;
+}
+#patient-create-form {
+  margin-bottom: 24px;
+}
+#patient-create-identity {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+#agenda-panel > label {
+  font-size: 0.875rem;
+}
+#agenda-date {
+  max-width: 260px;
+}
+.agenda-navigation {
+  max-width: 420px;
+  gap: 12px;
+  margin-top: 12px;
+}
+.agenda-navigation button {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+  font-size: 0.9375rem;
+  margin-top: 0;
+}
+#agenda-list {
+  display: grid;
+  gap: 10px;
+}
+#agenda-list button {
+  margin: 0;
+  min-height: 72px;
+  padding: 18px 20px;
+  line-height: 1.6;
+}
+#agenda-loaded-day {
+  font-size: 0.9375rem;
+  color: #5c5953;
+}
+#agenda-editor {
+  margin-top: 24px;
+}
+#session-form {
+  margin-top: 24px;
+}
+#session-fields > label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+#exercise-own-list {
+  padding: 0;
+  list-style: none;
+}
+#exercise-own-list li {
+  margin-bottom: 12px;
+}
+#exercise-catalog-load {
+  margin-top: 0;
+}
+#custom-exercise-form {
+  margin-top: 0;
+  min-width: 0;
+}
+#custom-exercise-fields {
+  margin: 0;
+  padding: 20px;
+  background: var(--surface);
+}
+#custom-exercise-regions {
+  padding: 14px;
+}
+.backup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.backup-grid form > label:first-child {
+  margin-top: 0;
+}
+#access-panel {
+  max-width: 820px;
+}
+#access-panel > p,
+#reserve-options > p {
+  color: #6d675e;
+}
+#reserve-options {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  background: var(--surface);
+  margin-bottom: 24px;
+}
+#reserve-options h2 {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+#access-panel button {
+  max-width: 420px;
+}
+#app-feedback #status {
+  position: fixed;
+  right: 24px;
+  bottom: 22px;
+  width: min(560px, calc(100vw - 264px));
+  z-index: 30;
+  margin: 0;
+  padding: 14px 18px;
+  background: var(--surface);
+  box-shadow: 0 5px 20px #191d2210;
+}
+@media (max-width: 1150px) {
+  .app-shell {
+    grid-template-columns: 176px minmax(0, 1fr);
+  }
+  .app-sidebar {
+    padding: 24px 10px 16px;
+  }
+  .app-logo {
+    padding: 4px 10px;
+  }
+  .app-logo strong {
+    font-size: 1.25rem;
+  }
+  .workspace-content {
+    padding: 22px 24px 100px;
+  }
+  .workspace-header {
+    padding: 22px 24px;
+  }
+  .patient-layout,
+  .exercise-layout {
+    grid-template-columns: 1fr;
+  }
+  #app-feedback #status {
+    width: min(520px, calc(100vw - 224px));
+  }
+  .session-label {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  body {
+    padding: 20px 16px;
+  }
+  main {
+    margin-top: 3vh;
+  }
+  .app-shell {
+    display: block;
+  }
+  .app-sidebar {
+    position: sticky;
+    height: auto;
+    top: 0;
+    z-index: 35;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+    min-height: 72px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .app-logo {
+    padding: 0;
+  }
+  .app-logo strong {
+    font-size: 1.1rem;
+  }
+  .app-logo small {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    margin-top: 3px;
+  }
+  .app-navigation {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: var(--sidebar);
+    border-top: 1px solid #44494f;
+  }
+  .app-nav-item {
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    padding: 9px 2px;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    min-height: 62px;
+  }
+  .app-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+  .sidebar-footer {
+    margin: 0 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-access-button {
+    min-height: 48px;
+    padding: 8px;
+    font-size: 0.875rem;
+    gap: 6px;
+  }
+  .app-access-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  .sidebar-footer #logout {
+    min-height: 48px;
+    width: auto;
+    padding: 10px;
+    font-size: 0.875rem;
+  }
+  .workspace-header {
+    padding: 20px;
+  }
+  .workspace-header h1 {
+    font-size: 1.5rem;
+  }
+  .workspace-context {
+    gap: 6px;
+  }
+  .mode-badge,
+  #app-recovery-label {
+    font-size: 0.875rem;
+    padding: 6px 8px;
+  }
+  .workspace-content {
+    padding: 18px 16px calc(160px + env(safe-area-inset-bottom));
+  }
+  #environment-notice {
+    font-size: 0.875rem;
+    margin-bottom: 20px;
+  }
+  .overview-grid,
+  .quick-actions,
+  .backup-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .overview-card {
+    padding: 20px;
+  }
+  .overview-card > strong {
+    margin: 10px 0 8px;
+  }
+  .view-toolbar .primary {
+    margin-left: 0;
+  }
+  .view-toolbar button {
+    width: 100%;
+  }
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+  .list-card,
+  .editor-card {
+    padding: 16px;
+  }
+  #app-feedback #status {
+    left: 16px;
+    right: 16px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
+/* Keep feedback in the document flow so it cannot cover form actions. */
+#app-feedback {
+  padding: 0 36px;
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+}
+#app-feedback #status {
+  position: static;
+  width: auto;
+  max-width: none;
+  margin: 18px 0 0;
+  box-shadow: none;
+}
+@media (max-width: 720px) {
+  #app-feedback {
+    padding: 0 16px;
+  }
+}
+.backup-operations {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  background: var(--surface-soft);
+  margin: 24px 0;
+}
+.backup-operations li {
+  line-height: 1.6;
+  margin: 12px 0;
+}
+.backup-operations button {
+  width: auto;
+}
+#backup-custody {
+  margin-top: 24px;
+}
+#backup-last-check {
+  white-space: pre-line;
+}
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.6;
+}
+.check-row input {
+  flex: 0 0 24px;
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+.inline-code {
+  display: inline;
+  margin: 0;
+  font-size: 1em;
+}
+
+/* Weekly clinic agenda: five columns, with its own scroll area on small screens. */
+#agenda-week {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 72dvh;
+  overflow: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overscroll-behavior: contain;
+}
+#agenda-calendar {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+#agenda-calendar th,
+#agenda-calendar td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 5px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+#agenda-calendar tr > :last-child {
+  border-right: 0;
+}
+#agenda-calendar tbody tr:last-child > * {
+  border-bottom: 0;
+}
+#agenda-calendar thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--surface-soft);
+  text-align: center;
+  padding: 14px 4px;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+#agenda-calendar thead strong,
+#agenda-calendar thead span {
+  display: block;
+}
+#agenda-calendar thead span {
+  margin-top: 5px;
+  font-weight: 400;
+}
+#agenda-calendar tr > :first-child {
+  width: 54px;
+}
+#agenda-calendar thead th:first-child {
+  left: 0;
+  z-index: 4;
+}
+#agenda-calendar tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--surface-soft);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 20px 4px;
+}
+#agenda-calendar tbody td {
+  height: 96px;
+}
+#agenda-week .agenda-slot-add {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 84px;
+  margin: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #5c5953;
+  font-size: 1.6rem;
+  padding: 10px 4px;
+}
+#agenda-week .agenda-slot-add:hover,
+#agenda-week .agenda-slot-add:focus-visible {
+  background: #e9e0d4;
+  border-color: #b5a897;
+}
+#agenda-week .agenda-event {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-height: 84px;
+  margin: 0 0 4px;
+  padding: 10px 7px;
+  border: 1px solid var(--sidebar);
+  border-radius: 8px;
+  background: var(--sidebar);
+  color: #faf6ef;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+#agenda-week .agenda-event span,
+#agenda-week .agenda-event small {
+  font-size: 0.875rem;
+}
+#agenda-week .agenda-event.is-cancelled {
+  background: transparent;
+  color: #5c5953;
+  border-color: var(--border);
+}
+#agenda-week td:has(.agenda-event) .agenda-slot-add {
+  height: auto;
+  min-height: 48px;
+}
+#agenda-view-state,
+#agenda-outside-note {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+#agenda-outside-note {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+#agenda-saved-list {
+  margin-top: 20px;
+}
+#agenda-saved-list summary {
+  min-height: 48px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+#agenda-editor {
+  scroll-margin-top: 20px;
+}
+.agenda-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 560px;
+}
+.agenda-navigation button {
+  width: auto;
+  flex: 1 1 135px;
+}
+
+/* Calendar overview uses the available viewport; notes remain in the editor below. */
+body.is-authorized[data-view="agenda"] .workspace-header {
+  padding: 8px 16px;
+  min-height: 48px;
+}
+body.is-authorized[data-view="agenda"] .workspace-header h1 {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  margin: 0;
+}
+body.is-authorized[data-view="agenda"] .workspace-header .eyebrow,
+body.is-authorized[data-view="agenda"] .session-label {
+  display: none;
+}
+body.is-authorized[data-view="agenda"] .mode-badge {
+  padding: 4px 8px;
+}
+body.is-authorized[data-view="agenda"] #app-feedback {
+  padding: 0 16px;
+}
+body.is-authorized[data-view="agenda"] #app-feedback #status {
+  margin: 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+body.is-authorized[data-view="agenda"] .workspace-content {
+  padding: 8px 16px 32px;
+}
+body.is-authorized[data-view="agenda"] #environment-notice,
+body.is-authorized[data-view="agenda"] #agenda-title,
+body.is-authorized[data-view="agenda"] #agenda-panel > p:not([id]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.agenda-toolbar,
+.agenda-actions,
+.agenda-toolbar .agenda-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.agenda-toolbar {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.agenda-toolbar .agenda-navigation {
+  max-width: none;
+  margin: 0;
+}
+.agenda-toolbar button,
+.agenda-toolbar #agenda-date {
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  width: auto;
+  font-size: 0.875rem;
+  padding: 8px 10px;
+}
+.agenda-toolbar .agenda-navigation button {
+  flex: none;
+}
+.agenda-toolbar #agenda-date {
+  width: 154px;
+  font-size: 1rem;
+}
+.agenda-actions {
+  margin-left: auto;
+}
+.agenda-actions #agenda-new {
+  background: var(--sidebar);
+  color: var(--surface);
+}
+.agenda-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 6px;
+}
+#agenda-loaded-day {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+#agenda-loaded-day:empty {
+  display: none;
+}
+#agenda-availability {
+  font-size: 0.875rem;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.agenda-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.agenda-legend li {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.agenda-legend li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--visit-bg);
+  border: 1px solid var(--visit-border);
+}
+.type-first_visit {
+  --visit-bg: #e5eef9;
+  --visit-border: #a9bfdc;
+  --visit-ink: #244a78;
+}
+.type-follow_up {
+  --visit-bg: #e3efe7;
+  --visit-border: #a8c6b2;
+  --visit-ink: #28553d;
+}
+.type-gym {
+  --visit-bg: #eee8f5;
+  --visit-border: #c5b4d8;
+  --visit-ink: #63477e;
+}
+.type-unclassified {
+  --visit-bg: #ece8e0;
+  --visit-border: #cfc5b7;
+  --visit-ink: #575147;
+}
+#agenda-week {
+  margin-top: 0;
+  max-height: none;
+  height: var(--agenda-fit-height, 660px);
+  overflow-x: auto;
+  overflow-y: auto;
+}
+#agenda-calendar {
+  height: var(--agenda-fit-height, 660px);
+}
+#agenda-calendar thead th {
+  height: 36px;
+  padding: 5px 4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+#agenda-calendar thead strong,
+#agenda-calendar thead span {
+  display: inline;
+  margin: 0;
+}
+#agenda-calendar thead strong {
+  margin-right: 6px;
+}
+#agenda-calendar tr > :first-child {
+  width: 48px;
+}
+#agenda-calendar tbody tr {
+  height: var(--agenda-row-height, 56px);
+}
+#agenda-calendar tbody td {
+  position: relative;
+  height: var(--agenda-row-height, 56px);
+  padding: 0;
+}
+#agenda-calendar tbody th {
+  padding: 0 2px;
+  height: var(--agenda-row-height, 56px);
+  vertical-align: middle;
+}
+.agenda-cell-content {
+  position: absolute;
+  inset: 2px;
+}
+#agenda-week .agenda-slot-add {
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  font-size: 1.35rem;
+  border-radius: 6px;
+}
+#agenda-week .agenda-event {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 3px 6px;
+  gap: 0;
+  align-content: center;
+  border-color: var(--visit-border);
+  border-radius: 6px;
+  background: var(--visit-bg);
+  color: var(--visit-ink);
+  line-height: 1.2;
+}
+#agenda-week .agenda-event > strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week .agenda-event .agenda-event-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week .agenda-event small,
+#agenda-week .agenda-event span {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+#agenda-week td:has(.agenda-event) .agenda-slot-add {
+  min-height: 0;
+}
+#agenda-group-picker {
+  width: min(480px, calc(100% - 32px));
+  max-height: 80dvh;
+  overflow: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+#agenda-group-picker::backdrop {
+  background: #171a1e66;
+}
+#agenda-group-list button {
+  text-align: left;
+  line-height: 1.5;
+}
+#agenda-close {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border);
+}
+@media (max-width: 720px) {
+  .agenda-toolbar {
+    justify-content: flex-start;
+  }
+  .agenda-actions {
+    margin-left: 0;
+  }
+  .agenda-legend {
+    gap: 4px 10px;
+  }
+}
+body.is-authorized[data-view="agenda"] #agenda-panel {
+  margin: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+#agenda-calendar {
+  height: calc(var(--agenda-fit-height, 660px) - 2px);
+}
+#agenda-group-list .agenda-choice {
+  background: var(--visit-bg);
+  color: var(--visit-ink);
+  border-color: var(--visit-border);
+}
+.storage-review {
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  padding: 20px;
+  border-radius: 14px;
+  margin: 20px 0;
+}

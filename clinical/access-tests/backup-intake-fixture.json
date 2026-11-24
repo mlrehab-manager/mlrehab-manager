@@ -1,0 +1,168 @@
+{
+  "format": "mlrehab-clinical-test-snapshot",
+  "version": 5,
+  "patients": [
+    {
+      "id": "53a2b0fe-798f-4e75-9476-e57c539a3831",
+      "revision": 1,
+      "created_at": "2026-11-22T09:06:24.448000Z",
+      "updated_at": "2026-11-22T09:06:24.448000Z",
+      "archived_at": null,
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"exam\": \"\", \"name\": \"FICTICIO · Caso ficticio sin campos opcionales\", \"alias\": \"Caso ficticio sin campos opcionales\", \"goals\": \"\", \"fixture\": \"patient-workflow-v1\", \"history\": \"\", \"testOnly\": true, \"diagnosis\": \"\"}"
+    },
+    {
+      "id": "710186b0-5e02-4662-ab70-e75472bc07ef",
+      "revision": 2,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "updated_at": "2026-11-22T09:06:24.401000Z",
+      "archived_at": "2026-11-22T09:06:24.401000Z",
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "revision": 3,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "updated_at": "2026-11-22T09:06:24.444000Z",
+      "archived_at": null,
+      "clinician_id": "11111111-1111-4111-8111-111111111111",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"reason\": \"Motivo ficticio en copia\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}, \"precautions\": \"Precaución ficticia en copia\"}"
+    }
+  ],
+  "sessions": [],
+  "test_only": true,
+  "created_at": "2026-11-22T09:06:24.459000Z",
+  "appointments": [],
+  "audit_events": [
+    {
+      "id": "1",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "entity_type": null
+    },
+    {
+      "id": "2",
+      "action": "patient.update",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "entity_type": null
+    },
+    {
+      "id": "3",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "710186b0-5e02-4662-ab70-e75472bc07ef",
+      "entity_type": null
+    },
+    {
+      "id": "4",
+      "action": "patient.archive",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "710186b0-5e02-4662-ab70-e75472bc07ef",
+      "entity_type": null
+    },
+    {
+      "id": "5",
+      "action": "patient.list",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": null,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.440000Z",
+      "patient_id": null,
+      "entity_type": null
+    },
+    {
+      "id": "6",
+      "action": "patient.update",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 3,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.444000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "entity_type": null
+    },
+    {
+      "id": "7",
+      "action": "patient.create",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.448000Z",
+      "patient_id": "53a2b0fe-798f-4e75-9476-e57c539a3831",
+      "entity_type": null
+    },
+    {
+      "id": "8",
+      "action": "backup.export",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "revision": null,
+      "entity_id": null,
+      "created_at": "2026-11-22T09:06:24.453000Z",
+      "patient_id": null,
+      "entity_type": null
+    }
+  ],
+  "clinician_id": "11111111-1111-4111-8111-111111111111",
+  "custom_exercises": [],
+  "patient_versions": [
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-22T09:06:24.448000Z",
+      "patient_id": "53a2b0fe-798f-4e75-9476-e57c539a3831",
+      "payload_json": "{\"exam\": \"\", \"name\": \"FICTICIO · Caso ficticio sin campos opcionales\", \"alias\": \"Caso ficticio sin campos opcionales\", \"goals\": \"\", \"fixture\": \"patient-workflow-v1\", \"history\": \"\", \"testOnly\": true, \"diagnosis\": \"\"}"
+    },
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "710186b0-5e02-4662-ab70-e75472bc07ef",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "archived": true,
+      "revision": 2,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "710186b0-5e02-4662-ab70-e75472bc07ef",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia B archivado\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Ejemplo ficticio archivado\", \"testOnly\": true}"
+    },
+    {
+      "archived": false,
+      "revision": 1,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia inicial\", \"testOnly\": true}"
+    },
+    {
+      "archived": false,
+      "revision": 2,
+      "created_at": "2026-11-22T09:06:24.401000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}}"
+    },
+    {
+      "archived": false,
+      "revision": 3,
+      "created_at": "2026-11-22T09:06:24.444000Z",
+      "patient_id": "a8c1eb62-da8b-44dc-a4c4-50f1ee3544a9",
+      "payload_json": "{\"name\": \"FICTICIO · Prueba de copia A\", \"reason\": \"Motivo ficticio en copia\", \"fixture\": \"backup-roundtrip-v1\", \"history\": \"Historia ficticia revisada · recuperación 🧪\", \"testOnly\": true, \"treatment\": {\"passive\": \"Movilización ficticia\", \"exercises\": [\"Isométrico de cuádriceps\"]}, \"precautions\": \"Precaución ficticia en copia\"}"
+    }
+  ],
+  "session_versions": [],
+  "exercise_versions": [],
+  "appointment_versions": []
+}

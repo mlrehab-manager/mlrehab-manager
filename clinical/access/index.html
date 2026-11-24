@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy" content="__CSP__" />
+    <title>MLREHAB Manager · Consulta</title>
+    <link rel="stylesheet" href="./access.css" />
+    <script type="module" src="./access.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="theme-color" content="#191d22" />
+    <meta name="application-name" content="MLREHAB Manager" />
+    <link rel="manifest" href="./private.webmanifest" />
+    <link rel="apple-touch-icon" href="./app-icon.png" />
+    <link rel="icon" href="./app-icon.png" type="image/png" />
+  </head>
+  <body>
+    <main id="application">
+      <header id="access-heading" class="access-heading">
+        <p class="brand">MLREHAB MANAGER</p>
+        <h1 id="access-title">Accede a tu consulta</h1>
+        <p data-test-only>
+          Entra con tu cuenta y tu autenticador. Utiliza datos ficticios
+          mientras sigamos en pruebas.
+        </p>
+      </header>
+      <div id="auth-feedback">
+        <p id="status" role="status" aria-live="polite">Preparando acceso…</p>
+      </div>
+      <form id="login" hidden>
+        <label for="email">Correo de tu cuenta de la aplicación</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          required
+          maxlength="254"
+        />
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Entrar</button>
+      </form>
+      <section id="enrollment" hidden>
+        <h2>Configura el segundo factor</h2>
+        <p>
+          Necesitarás una aplicación de autenticación. Este factor es distinto
+          del que protege el panel de Supabase.
+        </p>
+        <button id="enroll" type="button">Preparar autenticador</button>
+        <div id="setup" hidden>
+          <p>
+            Escanea el código con tu autenticador. Mantén este código y la clave
+            en privado.
+          </p>
+          <img
+            id="qr"
+            alt="Código QR para configurar tu autenticador"
+            width="240"
+            height="240"
+          />
+          <details>
+            <summary>Introducir la clave manualmente</summary>
+            <code id="secret"></code>
+          </details>
+        </div>
+      </section>
+      <form id="verify" hidden>
+        <label id="factor-label" for="factor-select" hidden
+          >Autenticador que vas a utilizar</label
+        >
+        <select id="factor-select" hidden></select>
+        <label for="code">Código de 6 dígitos del autenticador</label>
+        <input
+          id="code"
+          type="text"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern="[0-9]{6}"
+          maxlength="6"
+          required
+        />
+        <button type="submit">Verificar segundo factor</button>
+      </form>
+      <section id="complete" hidden class="app-shell">
+        <aside class="app-sidebar" aria-label="MLREHAB Manager">
+          <div class="app-logo">
+            <strong>ML<span>REHAB</span></strong
+            ><small>MANAGER</small>
+          </div>
+          <nav class="app-navigation" aria-label="Secciones de la consulta">
+            <button
+              type="button"
+              data-app-page="home"
+              aria-controls="home-panel"
+              class="app-nav-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m3 10 9-7 9 7v10H3z"></path>
+                <path d="M9 20v-7h6v7"></path></svg
+              ><span>Inicio</span></button
+            ><button
+              type="button"
+              data-app-page="agenda"
+              aria-controls="agenda-panel"
+              class="app-nav-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                <path d="M7 3v4m10-4v4M3 11h18"></path></svg
+              ><span>Agenda</span></button
+            ><button
+              type="button"
+              data-app-page="patients"
+              aria-controls="patients-panel"
+              class="app-nav-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="8" r="4"></circle>
+                <path d="M4 21v-2a8 8 0 0 1 16 0v2"></path></svg
+              ><span>Pacientes</span></button
+            ><button
+              type="button"
+              data-app-page="exercises"
+              aria-controls="custom-exercises-panel"
+              class="app-nav-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="m6 5-2 2m4-4 2 2M4 7l6 6m-2-8 12 12M3 8l2 2m14 4 2 2m-5 3 2 2m-4-2 6-6"
+                ></path></svg
+              ><span>Ejercicios</span></button
+            ><button
+              type="button"
+              data-app-page="backups"
+              aria-controls="backups-panel"
+              class="app-nav-item"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 7h18v14H3zM5 3h14v4M9 11h6m-3 0v6m-2-2 2 2 2-2"
+                ></path></svg
+              ><span>Copias</span>
+            </button>
+          </nav>
+          <div class="sidebar-footer">
+            <button
+              type="button"
+              class="app-access-button"
+              data-app-page="access"
+              aria-controls="access-panel"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"></path>
+                <path d="m8 12 3 3 5-6"></path></svg
+              ><span>Acceso</span>
+            </button>
+            <div id="app-logout"></div>
+          </div>
+        </aside>
+        <div class="app-stage">
+          <header class="workspace-header">
+            <div>
+              <p class="eyebrow">TU CONSULTA</p>
+              <h1 id="workspace-title" tabindex="-1">Inicio</h1>
+            </div>
+            <div class="workspace-context">
+              <span id="app-recovery-label" hidden>Recuperación</span
+              ><span id="app-mode" class="mode-badge">Datos ficticios</span
+              ><span class="session-label">Sesión privada</span>
+            </div>
+          </header>
+          <div id="app-feedback"></div>
+          <div class="workspace-content">
+            <h2 class="sr-only" id="access-authorized-title">
+              Acceso de pruebas autorizado
+            </h2>
+            <p id="environment-notice">
+              Modo de prueba: utiliza únicamente datos inventados.
+            </p>
+            <section
+              id="home-panel"
+              data-app-view="home"
+              class="workspace-page home-page"
+              aria-labelledby="home-title"
+            >
+              <div class="welcome">
+                <p class="eyebrow">MLREHAB MANAGER</p>
+                <h2 id="home-title">Tu consulta, organizada.</h2>
+                <p>Agenda, historias y sesiones en un mismo lugar.</p>
+              </div>
+              <div class="overview-grid">
+                <article class="overview-card">
+                  <span>Pacientes cargados</span
+                  ><strong id="home-patients">Sin cargar</strong>
+                  <p>Las fichas que has consultado en esta sesión.</p>
+                </article>
+                <article class="overview-card">
+                  <span>Citas de la semana consultada</span
+                  ><strong id="home-appointments">Sin cargar</strong>
+                  <p id="home-agenda-day">Abre la agenda y elige una semana.</p>
+                </article>
+              </div>
+              <div class="quick-actions">
+                <button type="button" class="quick-card" data-app-page="agenda">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                    <path d="M7 3v4m10-4v4M3 11h18"></path></svg
+                  ><strong>Abrir agenda</strong
+                  ><span
+                    >Consulta las citas y registra cada sesión.</span
+                  ></button
+                ><button
+                  type="button"
+                  class="quick-card"
+                  data-app-page="patients"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M4 21v-2a8 8 0 0 1 16 0v2"></path></svg
+                  ><strong>Ver pacientes</strong
+                  ><span>Abre una historia o prepara una ficha.</span></button
+                ><button
+                  type="button"
+                  class="quick-card"
+                  data-app-page="exercises"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m6 5-2 2m4-4 2 2M4 7l6 6m-2-8 12 12M3 8l2 2m14 4 2 2m-5 3 2 2m-4-2 6-6"
+                    ></path></svg
+                  ><strong>Tus ejercicios</strong
+                  ><span>Organiza los nombres de tu catálogo.</span></button
+                ><button
+                  type="button"
+                  class="quick-card"
+                  data-app-page="backups"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 7h18v14H3zM5 3h14v4M9 11h6m-3 0v6m-2-2 2 2 2-2"
+                    ></path></svg
+                  ><strong>Revisar copias</strong
+                  ><span>Cifra, comprueba y conserva tus archivos.</span>
+                </button>
+              </div>
+            </section>
+            <section
+              id="agenda-panel"
+              aria-labelledby="agenda-title"
+              data-app-view="agenda"
+              class="workspace-page"
+            >
+              <h2 id="agenda-title">Agenda semanal y sesiones ficticias</h2>
+              <p>
+                Horario de la clínica: Europe/Madrid. Solo puedes citar a los
+                pacientes ficticios activos de esta base privada. Toca una cita
+                para abrir su tratamiento en una pestaña nueva.
+              </p>
+              <div id="agenda-toolbar" class="agenda-toolbar">
+                <div class="agenda-navigation">
+                  <button
+                    id="agenda-prev"
+                    type="button"
+                    aria-label="Semana anterior"
+                  >
+                    Anterior</button
+                  ><button
+                    id="agenda-today"
+                    type="button"
+                    aria-label="Esta semana"
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    id="agenda-next"
+                    type="button"
+                    aria-label="Semana siguiente"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+                <div class="agenda-date-control">
+                  <label for="agenda-date" class="sr-only"
+                    >Fecha de la semana</label
+                  >
+                  <input
+                    id="agenda-date"
+                    type="date"
+                    min="2020-01-01"
+                    max="2100-12-31"
+                    required
+                  />
+                </div>
+                <div class="agenda-actions">
+                  <button id="agenda-load" type="button">Actualizar</button>
+                  <button id="agenda-new" type="button" class="primary">
+                    Nueva cita
+                  </button>
+                </div>
+              </div>
+              <p id="agenda-view-state" class="sr-only"></p>
+              <div id="agenda-meta" class="agenda-meta">
+                <p id="agenda-loaded-day"></p>
+                <span id="agenda-availability">Sin cargar</span>
+                <ul
+                  id="agenda-legend"
+                  class="agenda-legend"
+                  aria-label="Tipos de visita"
+                >
+                  <li class="type-first_visit">Primera visita</li>
+                  <li class="type-follow_up">Seguimiento</li>
+                  <li class="type-gym">Gimnasio</li>
+                  <li class="type-unclassified">Sin clasificar</li>
+                </ul>
+              </div>
+              <div
+                id="agenda-week"
+                role="region"
+                tabindex="0"
+                aria-label="Calendario semanal de lunes a viernes"
+              ></div>
+              <p id="agenda-outside-note" hidden></p>
+              <details id="agenda-saved-list">
+                <summary>Listado de citas guardadas</summary>
+                <ul
+                  id="agenda-list"
+                  aria-label="Citas guardadas de la semana"
+                ></ul>
+              </details>
+              <section id="agenda-editor" hidden class="editor-card">
+                <button id="agenda-close" type="button" class="secondary">
+                  Cerrar edición y volver a la semana
+                </button>
+                <h3 id="agenda-editor-title"></h3>
+                <form id="appointment-form" autocomplete="off">
+                  <fieldset id="appointment-fields" class="fields-grid">
+                    <legend>Cita ficticia</legend>
+                    <fieldset id="appointment-patient-lock">
+                      <legend>Paciente</legend>
+                      <label for="appointment-patient">Paciente ficticio</label
+                      ><select id="appointment-patient" required></select>
+                    </fieldset>
+                    <div class="field">
+                      <label for="appointment-visit-type">Tipo de visita</label
+                      ><select id="appointment-visit-type" required>
+                        <option value="first_visit">Primera visita</option>
+                        <option value="follow_up">Seguimiento</option>
+                        <option value="gym">Gimnasio</option>
+                        <option value="unclassified" disabled>
+                          Sin clasificar (cita anterior)
+                        </option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="appointment-start"
+                        >Fecha y hora en la clínica</label
+                      ><input
+                        id="appointment-start"
+                        type="datetime-local"
+                        min="2020-01-01T00:00"
+                        max="2100-12-31T23:59"
+                        step="60"
+                        required
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="appointment-minutes"
+                        >Duración en minutos</label
+                      ><input
+                        id="appointment-minutes"
+                        type="number"
+                        min="5"
+                        max="240"
+                        step="5"
+                        required
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="appointment-status">Estado de la cita</label
+                      ><select id="appointment-status">
+                        <option value="scheduled">Programada</option>
+                        <option value="cancelled">Cancelada</option>
+                        <option value="completed" disabled>Realizada</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="field-full">
+                      Guardar cita ficticia
+                    </button>
+                  </fieldset>
+                </form>
+                <form id="session-form" autocomplete="off" hidden>
+                  <p id="session-state"></p>
+                  <fieldset id="session-fields">
+                    <legend>Sesión ficticia</legend>
+                    <label for="session-evolution">Evolución de la sesión</label
+                    ><textarea
+                      id="session-evolution"
+                      rows="4"
+                      maxlength="8000"
+                    ></textarea>
+                    <label for="session-passive">Tratamiento pasivo</label
+                    ><textarea
+                      id="session-passive"
+                      rows="4"
+                      maxlength="4000"
+                    ></textarea>
+                    <label for="session-exercise">Ejercicio terapéutico</label
+                    ><textarea
+                      id="session-exercise"
+                      rows="4"
+                      maxlength="4000"
+                    ></textarea>
+                    <p>
+                      Escribe los nombres manualmente o añádelos desde el
+                      catálogo. Puedes editar el texto antes de guardar.
+                    </p>
+                    <details id="exercise-picker">
+                      <summary>Buscar ejercicios del catálogo</summary>
+                      <p>
+                        Nombres por zona y modalidad. La clasificación organiza
+                        el catálogo; no establece fases ni pautas de
+                        tratamiento.
+                      </p>
+                      <label for="exercise-search">Buscar por nombre</label
+                      ><input
+                        id="exercise-search"
+                        type="search"
+                        maxlength="120"
+                        autocomplete="off"
+                      />
+                      <label for="exercise-category"
+                        >Modalidad del ejercicio</label
+                      ><select id="exercise-category"></select>
+                      <label for="exercise-region"
+                        >Zona corporal del ejercicio</label
+                      ><select id="exercise-region"></select>
+                      <p
+                        id="exercise-count"
+                        role="status"
+                        aria-live="polite"
+                      ></p>
+                      <ul
+                        id="exercise-results"
+                        aria-label="Ejercicios del catálogo"
+                      ></ul>
+                    </details>
+                    <button type="submit">Guardar sesión ficticia</button>
+                  </fieldset>
+                </form>
+                <button id="agenda-refresh" type="button">
+                  Cargar cita y sesión guardadas
+                </button>
+              </section>
+              <dialog
+                id="agenda-group-picker"
+                aria-labelledby="agenda-group-title"
+              >
+                <h2 id="agenda-group-title">Elige una cita</h2>
+                <div id="agenda-group-list"></div>
+                <button id="agenda-group-close" type="button">Cerrar</button>
+              </dialog>
+            </section>
+            <section
+              id="patients-panel"
+              aria-labelledby="patients-title"
+              data-app-view="patients"
+              class="workspace-page"
+            >
+              <div id="patient-directory">
+                <h2 id="patients-title">Pacientes ficticios · base privada</h2>
+                <p>
+                  Cada ficha se abre en una pestaña nueva. Mantén esta pestaña
+                  principal abierta mientras trabajas con los pacientes.
+                </p>
+                <p>
+                  Prueba el alta, la lectura, la edición y el archivo de fichas
+                  ficticias. Los cambios confirmados quedan en la base y se
+                  incluyen en las copias. Las fichas archivadas se consultan sin
+                  editarlas.
+                </p>
+                <div class="view-toolbar">
+                  <button id="patient-load" type="button">
+                    Cargar pacientes de prueba
+                  </button>
+                  <button id="patient-prepare" type="button">
+                    Preparar los dos pacientes ficticios
+                  </button>
+                  <button id="patient-new" type="button" class="primary">
+                    Nueva ficha ficticia
+                  </button>
+                </div>
+                <form id="patient-create-form" autocomplete="off" hidden>
+                  <fieldset id="patient-create-fields">
+                    <legend>Alta ficticia</legend>
+                    <div data-test-only>
+                      <label for="patient-create-alias"
+                        >Alias para la nueva ficha ficticia</label
+                      ><input
+                        id="patient-create-alias"
+                        type="text"
+                        maxlength="80"
+                        required
+                      />
+                      <p>
+                        Usa un alias de prueba, por ejemplo Caso 3. El servidor
+                        añade FICTICIO al nombre. No introduzcas nombres,
+                        teléfonos ni otros datos reales de pacientes.
+                      </p>
+                    </div>
+                    <div
+                      id="patient-create-identity"
+                      hidden
+                      class="fields-grid"
+                    >
+                      <div class="field">
+                        <label for="patient-create-given_name"
+                          >Nombre ficticio</label
+                        ><input
+                          id="patient-create-given_name"
+                          type="text"
+                          maxlength="80"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-family_name"
+                          >Apellidos ficticios</label
+                        ><input
+                          id="patient-create-family_name"
+                          type="text"
+                          maxlength="80"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-birth_date"
+                          >Fecha de nacimiento ficticia (opcional)</label
+                        ><input
+                          id="patient-create-birth_date"
+                          type="date"
+                          maxlength="10"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-phone"
+                          >Teléfono ficticio (opcional)</label
+                        ><input
+                          id="patient-create-phone"
+                          type="tel"
+                          maxlength="32"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <div class="field">
+                        <label for="patient-create-email"
+                          >Correo ficticio de contacto (opcional)</label
+                        ><input
+                          id="patient-create-email"
+                          type="email"
+                          maxlength="254"
+                          autocomplete="off"
+                        />
+                      </div>
+                    </div>
+                    <button type="submit">Crear ficha ficticia</button>
+                  </fieldset>
+                  <button id="patient-create-cancel" type="button">
+                    Cerrar alta
+                  </button>
+                </form>
+                <div class="list-card">
+                  <label for="patient-search"
+                    >Buscar ficha ficticia por alias o identificador</label
+                  ><input
+                    id="patient-search"
+                    type="search"
+                    maxlength="150"
+                    autocomplete="off"
+                  />
+                  <p id="patient-count"></p>
+                  <ul id="patient-list" aria-label="Pacientes de prueba"></ul>
+                </div>
+              </div>
+              <section
+                id="patient-editor"
+                hidden
+                class="editor-card patient-page"
+              >
+                <button id="patient-back" type="button">
+                  Volver a pacientes
+                </button>
+                <h2 id="patient-name" tabindex="-1"></h2>
+                <p id="patient-revision"></p>
+                <p
+                  id="patient-save-status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                ></p>
+                <p id="patient-treatment"></p>
+                <form id="patient-form" autocomplete="off">
+                  <fieldset id="patient-fields" class="fields-grid">
+                    <legend>Ficha ficticia</legend>
+                    <div class="field field-full">
+                      <label id="patient-alias-label" for="patient-alias" hidden
+                        >Alias de la ficha ficticia</label
+                      ><input
+                        id="patient-alias"
+                        type="text"
+                        maxlength="80"
+                        hidden
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-given_name">Nombre ficticio</label
+                      ><input
+                        id="patient-given_name"
+                        type="text"
+                        maxlength="80"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-family_name"
+                        >Apellidos ficticios</label
+                      ><input
+                        id="patient-family_name"
+                        type="text"
+                        maxlength="80"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-birth_date"
+                        >Fecha de nacimiento ficticia (opcional)</label
+                      ><input
+                        id="patient-birth_date"
+                        type="date"
+                        maxlength="10"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-phone"
+                        >Teléfono ficticio (opcional)</label
+                      ><input
+                        id="patient-phone"
+                        type="tel"
+                        maxlength="32"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="patient-email"
+                        >Correo ficticio de contacto (opcional)</label
+                      ><input
+                        id="patient-email"
+                        type="email"
+                        maxlength="254"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-reason"
+                        >Motivo de consulta ficticio</label
+                      >
+                      <textarea
+                        id="patient-reason"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-precautions"
+                        >Antecedentes y precauciones ficticios</label
+                      >
+                      <textarea
+                        id="patient-precautions"
+                        rows="4"
+                        maxlength="4000"
+                      ></textarea>
+                    </div>
+                    <p data-test-only>
+                      Texto libre opcional. Usa solo ejemplos inventados durante
+                      las pruebas.
+                    </p>
+                    <div class="field field-full">
+                      <label for="patient-history"
+                        >Historia clínica ficticia</label
+                      >
+                      <textarea
+                        id="patient-history"
+                        rows="5"
+                        maxlength="8000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-exam">Exploración ficticia</label>
+                      <textarea
+                        id="patient-exam"
+                        rows="4"
+                        maxlength="8000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-diagnosis"
+                        >Diagnóstico ficticio</label
+                      >
+                      <textarea
+                        id="patient-diagnosis"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <div class="field field-full">
+                      <label for="patient-goals">Objetivos ficticios</label>
+                      <textarea
+                        id="patient-goals"
+                        rows="3"
+                        maxlength="2000"
+                      ></textarea>
+                    </div>
+                    <button type="submit" class="field-full">
+                      Guardar ficha ficticia
+                    </button>
+                  </fieldset>
+                </form>
+                <div class="patient-finish-bar">
+                  <button id="patient-finish" type="submit" form="patient-form">
+                    Guardar y volver a pacientes
+                  </button>
+                </div>
+                <button id="patient-archive" type="button" hidden>
+                  Archivar ficha ficticia
+                </button>
+                <button id="patient-refresh" type="button">
+                  Cargar versión guardada
+                </button>
+              </section>
+              <dialog
+                id="patient-leave-dialog"
+                aria-labelledby="patient-leave-title"
+              >
+                <h2 id="patient-leave-title">Hay cambios sin guardar</h2>
+                <p>
+                  Guarda la ficha antes de volver a la lista o continúa
+                  editándola.
+                </p>
+                <button id="patient-leave-save" type="button">
+                  Guardar y volver
+                </button>
+                <button id="patient-leave-continue" type="button">
+                  Seguir editando
+                </button>
+                <button id="patient-leave-discard" type="button">
+                  Descartar cambios y volver
+                </button>
+              </dialog>
+            </section>
+            <section
+              id="custom-exercises-panel"
+              aria-labelledby="custom-exercises-title"
+              data-app-view="exercises"
+              class="workspace-page"
+            >
+              <h2 id="custom-exercises-title">
+                Ejercicios propios · base privada
+              </h2>
+              <p>
+                Añade nombres y clasifícalos para reutilizarlos en tus sesiones
+                ficticias desde otro dispositivo. No escribas datos de
+                pacientes. Al guardar aquí, el ejercicio se incorpora a tu
+                catálogo personal.
+              </p>
+              <div class="exercise-layout">
+                <div class="list-card">
+                  <button id="exercise-catalog-load" type="button">
+                    Cargar ejercicios propios
+                  </button>
+                  <p id="exercise-catalog-state"></p>
+                  <label for="exercise-own-search"
+                    >Buscar un ejercicio propio para gestionarlo</label
+                  ><input
+                    id="exercise-own-search"
+                    type="search"
+                    maxlength="120"
+                    autocomplete="off"
+                  />
+                  <label class="archive-choice"
+                    ><input
+                      id="exercise-show-archived"
+                      type="checkbox"
+                    />Mostrar también archivados</label
+                  >
+                  <ul id="exercise-own-list"></ul>
+                </div>
+                <form id="custom-exercise-form" autocomplete="off">
+                  <fieldset id="custom-exercise-fields" class="fields-grid">
+                    <legend id="custom-exercise-editor-title">
+                      Nuevo ejercicio propio
+                    </legend>
+                    <div class="field">
+                      <label for="custom-exercise-name"
+                        >Nombre del ejercicio propio</label
+                      ><input
+                        id="custom-exercise-name"
+                        maxlength="120"
+                        required
+                      />
+                    </div>
+                    <div class="field">
+                      <label for="custom-exercise-category"
+                        >Modalidad del ejercicio propio</label
+                      ><select id="custom-exercise-category"></select>
+                    </div>
+                    <fieldset id="custom-exercise-regions">
+                      <legend>Zonas corporales del ejercicio propio</legend>
+                    </fieldset>
+                    <p>
+                      Sin zonas marcadas, queda sin zona asignada. Se guarda
+                      como nombre reutilizable, sin dosis ni pautas automáticas.
+                    </p>
+                    <button
+                      id="custom-exercise-submit"
+                      type="submit"
+                      class="field-full"
+                    >
+                      Guardar ejercicio propio
+                    </button>
+                    <button
+                      id="custom-exercise-cancel"
+                      type="button"
+                      hidden
+                      class="field-full"
+                    >
+                      Cerrar edición
+                    </button>
+                  </fieldset>
+                </form>
+              </div>
+            </section>
+            <section
+              id="backups-panel"
+              data-app-view="backups"
+              class="workspace-page"
+              aria-labelledby="backups-title"
+            >
+              <h2 id="backups-title">Copias cifradas · prueba</h2>
+              <p id="backup-scope">
+                La copia recoge las fichas ficticias actuales, incluidas las
+                archivadas. Preparar los dos ejemplos iniciales es opcional.
+                Incluye fichas, citas, sesiones y ejercicios propios de esta
+                base privada con sus versiones y auditoría. No copia datos de la
+                demo pública.
+              </p>
+              <section
+                class="backup-operations"
+                aria-labelledby="backup-routine-title"
+              >
+                <h3 id="backup-routine-title">
+                  Conservar y recuperar tus copias
+                </h3>
+                <p>
+                  Al terminar una jornada con cambios: crea una copia, comprueba
+                  el archivo guardado y conserva otra fuera de la sincronización
+                  habitual.
+                </p>
+                <button id="backup-status-load" type="button">
+                  Consultar última comprobación
+                </button>
+                <p id="backup-last-check">
+                  Todavía no has consultado el registro de comprobaciones.
+                </p>
+                <p>
+                  <a
+                    href="./backup-guide.txt"
+                    download="MLREHAB-instrucciones-de-copias.txt"
+                    >Guardar instrucciones de recuperación</a
+                  >
+                </p>
+                <details>
+                  <summary>Rutina de guardado y recuperación</summary>
+                  <ol>
+                    <li>
+                      Guarda los cambios de las fichas y sesiones antes de crear
+                      la copia.
+                    </li>
+                    <li>
+                      Guarda el archivo cifrado en el destino elegido. Ábrelo
+                      desde ese destino y usa «Comprobar archivo» con su frase.
+                    </li>
+                    <li>
+                      Conserva otra copia fuera de la misma cuenta de
+                      sincronización, por ejemplo en una carpeta local del
+                      ordenador o un soporte desconectado, protegido y bajo tu
+                      custodia.
+                    </li>
+                    <li>
+                      Guarda la frase separada de los archivos, con una forma de
+                      recuperarla si pierdes el iPad. No la compartas por chat.
+                    </li>
+                    <li>
+                      Conserva dos copias recientes comprobadas y una anterior
+                      que haya superado un ensayo de restauración. Sustituye la
+                      antigua después de comprobar la nueva; nunca borres la
+                      única copia válida.
+                    </li>
+                    <li>
+                      Una vez al mes y tras cambios importantes, ensaya la
+                      recuperación en un destino aislado y vacío. Si falla la
+                      app, conserva los archivos, registra el último guardado
+                      confirmado y sigue ese procedimiento de recuperación.
+                      Nunca uses la base habitual como ensayo.
+                    </li>
+                  </ol>
+                  <p>
+                    La comprobación local no restaura el servicio. La
+                    recuperación del servidor requiere un destino autorizado,
+                    reconstruir el acceso y verificar los datos antes de
+                    habilitarlo. Las cuentas y los autenticadores no están en
+                    este archivo.
+                  </p>
+                  <p>
+                    El guardado es manual: la app no crea copias automáticas ni
+                    borra archivos. Esta rotación no autoriza eliminar historias
+                    clínicas. Para datos reales, el destino y la conservación
+                    deberán quedar revisados junto con los proveedores.
+                  </p>
+                  <p>
+                    En Windows: pulsa Windows + R, escribe
+                    <code class="inline-code">%USERPROFILE%</code> y crea una
+                    carpeta «MLREHAB-Copias» fuera de OneDrive e iCloud. Guarda
+                    ahí otra copia cifrada y compruébala desde MLREHAB en el
+                    ordenador antes de marcar ese paso como realizado.
+                  </p>
+                </details>
+              </section>
+              <div class="backup-grid">
+                <form id="backup-export" autocomplete="off" class="editor-card">
+                  <label for="backup-phrase"
+                    >Frase para cifrar esta copia</label
+                  >
+                  <input
+                    id="backup-phrase"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="16"
+                    maxlength="1024"
+                    required
+                  />
+                  <label for="backup-confirm"
+                    >Repite la frase de la copia</label
+                  >
+                  <input
+                    id="backup-confirm"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="16"
+                    maxlength="1024"
+                    required
+                  />
+                  <p>
+                    Guarda esta frase separada del archivo. Sirve para abrir la
+                    copia; no cambia la contraseña de acceso a MLREHAB. Si la
+                    pierdes, el archivo no se podrá abrir.
+                  </p>
+                  <button type="submit">Crear copia cifrada de prueba</button>
+                </form>
+                <form id="backup-inspect" class="editor-card">
+                  <label for="backup-file">Archivo cifrado de prueba</label>
+                  <input
+                    id="backup-file"
+                    type="file"
+                    accept=".mlrehab,.json,application/octet-stream,application/json"
+                    required
+                  />
+                  <label for="restore-phrase">Frase para abrir la copia</label>
+                  <input
+                    id="restore-phrase"
+                    type="password"
+                    autocomplete="off"
+                    minlength="16"
+                    maxlength="1024"
+                    required
+                  />
+                  <button type="submit">Comprobar archivo</button>
+                  <p>
+                    Comprueba el archivo en este dispositivo. No restaura ni
+                    sobrescribe la base.
+                  </p>
+                </form>
+              </div>
+              <form
+                id="backup-custody"
+                class="editor-card"
+                hidden
+                autocomplete="off"
+              >
+                <h3>Registrar esta comprobación</h3>
+                <p id="backup-checked-file"></p>
+                <p>
+                  Indica lo que ya has hecho con este archivo. El registro
+                  guarda la fecha, una huella del archivo cifrado y tus
+                  declaraciones. No guarda el archivo ni su frase.
+                </p>
+                <label for="backup-location"
+                  >Dónde conservas el archivo comprobado</label
+                >
+                <select id="backup-location">
+                  <option value="this_device">En este dispositivo</option>
+                  <option value="icloud_drive">iCloud Drive</option>
+                  <option value="computer">Carpeta local del ordenador</option>
+                  <option value="disconnected_drive">
+                    Soporte desconectado
+                  </option>
+                </select>
+                <label class="check-row"
+                  ><input id="backup-independent" type="checkbox" /> Conservo
+                  también una copia fuera de la misma cuenta de
+                  sincronización.</label
+                >
+                <label class="check-row"
+                  ><input id="backup-phrase-separate" type="checkbox" /> Tengo
+                  la frase guardada por separado y sé recuperarla sin este
+                  dispositivo.</label
+                >
+                <label class="check-row"
+                  ><input id="backup-other-device" type="checkbox" /> He
+                  comprobado este mismo archivo y su frase desde otro
+                  dispositivo.</label
+                >
+                <button type="submit">Guardar comprobación</button>
+                <p>
+                  Marca solo los pasos realizados. Este registro no certifica la
+                  custodia ni una restauración del servidor.
+                </p>
+              </form>
+            </section>
+            <section
+              id="access-panel"
+              data-app-view="access"
+              class="workspace-page"
+              aria-labelledby="security-title"
+            >
+              <h2 id="security-title">Acceso y seguridad</h2>
+              <p>
+                Gestiona la sesión y consulta las opciones de recuperación de tu
+                cuenta.
+              </p>
+              <section
+                class="storage-review"
+                aria-labelledby="storage-review-title"
+              >
+                <h3 id="storage-review-title">Almacenamiento y custodia</h3>
+                <p>
+                  Base y acceso en Supabase, Frankfurt. La revisión de
+                  condiciones y la comprobación de una copia independiente
+                  forman parte de la puesta en marcha.
+                </p>
+                <p>
+                  Guarda los pasos y enlaces para revisarlos desde el iPad. El
+                  documento distingue lo comprobado de lo pendiente y explica
+                  cómo terminar la prueba en Windows.
+                </p>
+                <p>
+                  <a
+                    href="./storage-guide.txt"
+                    download="MLREHAB-almacenamiento-y-copias.txt"
+                    >Guardar guía de almacenamiento y copias</a
+                  >
+                </p>
+              </section>
+              <div id="reserve-options">
+                <h2>Recuperación de acceso</h2>
+                <p>
+                  Autenticador de reserva: pendiente; puedes continuar con el
+                  acceso actual.
+                </p>
+                <p id="factor-count"></p>
+                <button id="add-reserve" type="button">
+                  Añadir autenticador de reserva
+                </button>
+                <p>
+                  Configúralo en tu otro dispositivo protegido. Podrás elegirlo
+                  al entrar si pierdes el principal. Al confirmarlo se cerrarán
+                  las otras sesiones de la aplicación.
+                </p>
+              </div>
+              <button id="test-revoke" type="button">
+                Probar cierre seguro
+              </button>
+              <p>
+                Esta prueba cerrará tu sesión y comprobará que ya no permite
+                acceder.
+              </p>
+              <p class="note">
+                La sesión se mantiene en memoria y se cierra en esta pantalla
+                tras 5 minutos de inactividad. Al recargar tendrás que volver a
+                entrar.
+              </p>
+            </section>
+          </div>
+        </div>
+      </section>
+      <section id="reserve" hidden>
+        <h2>Autenticador de reserva</h2>
+        <p>
+          Escanea este QR con el autenticador de tu segundo dispositivo. Mantén
+          la clave en privado y confirma el código generado allí.
+        </p>
+        <img
+          id="reserve-qr"
+          alt="Código QR del autenticador de reserva"
+          width="240"
+          height="240"
+        />
+        <details>
+          <summary>Introducir la clave de reserva manualmente</summary>
+          <code id="reserve-secret"></code>
+        </details>
+        <form id="verify-reserve">
+          <label for="reserve-code"
+            >Código de 6 dígitos del dispositivo de reserva</label
+          >
+          <input
+            id="reserve-code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            required
+          />
+          <button type="submit">Verificar autenticador de reserva</button>
+        </form>
+      </section>
+      <section id="closed" hidden>
+        <h2>Comprobación de cierre</h2>
+        <button id="restart" type="button" hidden>Volver al acceso</button>
+      </section>
+      <div id="auth-logout">
+        <button id="logout" type="button" hidden>Salir</button>
+      </div>
+    </main>
+  </body>
+</html>

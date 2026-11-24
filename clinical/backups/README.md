@@ -1,0 +1,46 @@
+# Copias cifradas y restauración aislada · solo datos ficticios
+
+`crypto.mjs` cifra y descifra JSON mediante Web Crypto (sin dependencias ni peticiones de red): AES-GCM de 256 bits, etiqueta de autenticación de 128 bits, nonce aleatorio de 96 bits, sal aleatoria de 128 bits y PBKDF2-SHA256 con 600 000 iteraciones. La clave derivada no es exportable. El archivo tiene versión y parámetros cerrados; no admite algoritmos ni costes elegidos por un archivo importado. No incluye la frase, nombres ni índices sin cifrar.
+
+La frase tiene un mínimo técnico de 16 caracteres; eso no garantiza entropía. Se deberá usar una frase larga aleatoria y custodiarla separada de la copia y del autenticador. Si se pierde, este módulo no permite recuperar el archivo. No compartir frases por chat, no incluirlas en logs, código, argumentos de shell o en la propia copia. JavaScript no garantiza borrar de memoria todas las representaciones de una cadena; no se afirma borrado seguro de memoria.
+
+Se limita el contenido a 4 MiB y el tamaño del archivo cifrado antes de procesarlo. La validación rechaza campos/algoritmos/versiones desconocidos y valores no canónicos. Un fallo de autenticidad o frase incorrecta no devuelve datos parciales. `snapshot.mjs` valida propiedad, continuidad de versiones, coincidencia de registro e historial, referencias y auditoría antes de restaurar; no mezcla el archivo con el estado actual.
+
+La pantalla exporta todas las fichas ficticias del propietario, incluidas archivadas, de una sola colección vacía o de hasta 500 fichas. La preparación opcional de los dos ejemplos es independiente e idempotente: exportar no crea pacientes. La copia v5 admite tanto los ejemplos iniciales como las altas nuevas `patient-workflow-v1`. Las entradas son SECURITY INVOKER y exigen admisión, MFA AAL2 y sesión actual mediante implementaciones privadas; no hay permisos de tablas ni un endpoint de restauración.
+
+La migración `20261115164119_clinical_test_backups.sql` y su ampliación `20261118190042_clinical_agenda_sessions_test.sql` registran `backup.export` y obtienen pacientes, citas, sesiones, sus historiales y auditoría mediante una sola sentencia SELECT, con una misma instantánea MVCC e incluyendo el evento de exportación. Si falla la auditoría, no se confirma la operación. Ese evento acredita la exportación del servidor, no que el usuario haya guardado el archivo. Se rechazan más de 5 000 versiones, 10 000 eventos o exceso de tamaño, sin truncar. Los payloads se transportan como texto JSONB y los IDs bigint como cadenas para evitar el redondeo de JavaScript; los tiempos conservan seis decimales en UTC.
+
+La descarga solo contiene el archivo cifrado, con nombre genérico. «Comprobar archivo» lo descifra y valida en el dispositivo: ni el archivo ni la frase se suben a Supabase. Comprueba también que pertenece a la cuenta actual. No restaura ni sobrescribe la base. La frase de la copia no cambia la contraseña de MLREHAB y debe custodiarse separada del archivo.
+
+`restore-sandbox.mjs` es una herramienta Node que siempre crea una base PostgreSQL/PGlite nueva en memoria. No acepta URL ni conexión de destino. Restaura con parámetros SQL y una transacción, conserva registros, versiones, archivo, auditoría y la secuencia, vuelve a leer las nueve colecciones (ocho para versión 3, siete para versión 2 y tres para versión 1) y compara hashes SHA-256. Si algo falla, cierra y descarta la base; los errores no contienen parámetros con historias.
+
+```sh
+npm run test:backup-crypto
+npm run verify:backup-restore
+```
+
+El ensayo reproducible crea un origen con las migraciones de la aplicación e identidades Auth simuladas, genera el conjunto ficticio, exporta y cifra, escribe el archivo cifrado, **cierra el origen** y lee ese archivo desde disco para restaurarlo en una base distinta. Su frase aleatoria solo vive en el proceso. El [informe](../verification/BACKUP_RESTORE_REPORT.json) guarda recuentos y hashes coincidentes, sin secretos. El archivo desechable queda en `work/`, ignorado por Git; no es una copia operativa del proyecto alojado.
+
+Las doce pruebas cubren cifrado, manipulación, propiedad, AAL1/sesiones inválidas, idempotencia, versiones o auditoría incompletas, números grandes, precisión temporal, fallo de auditoría y rechazo del límite sin truncado. La interfaz se comprueba con exportaciones ficticias versión 1 y 2 generadas mediante ese mismo SQL. Nueve pruebas SQL adicionales cubren agenda, sesiones, relaciones, auditoría y compatibilidad antigua.
+
+**La copia se limita al conjunto de prueba, no es una recuperación completa del servicio clínico.** No incluye calendario ni otros recursos de la demo local, cuentas/Auth, sesiones de acceso, archivos, secretos o configuración/políticas del proveedor. La restauración aislada prueba datos y relaciones; no reconstruye Supabase ni su autenticación. No se restaura sobre el proyecto conectado. El ensayo alojado independiente de datos/acceso se documenta por separado en [recuperación](../recovery/README.md); no acredita recuperación operativa completa. Antes de uso real faltan todos los recursos clínicos, custodia externa y recuperación de claves, prueba en otro dispositivo, automatización/avisos, retención y objetivos RPO/RTO. No se crea almacenamiento externo, se activan pagos ni se habilitan pacientes reales.
+
+Fuente: [copias y límites de Supabase](https://supabase.com/docs/guides/platform/backups), incluida la recomendación de exportaciones externas en Free y la ausencia de objetos de Storage en una copia de la base.
+
+La versión 2 añade `appointments`, `appointment_versions`, `sessions` y `session_versions`. Se comprueba propietario, paciente, cita/sesión, continuidad de revisiones, última versión y auditoría de cada cambio. Límite de 500 citas, 500 sesiones y 2 000 versiones de cada recurso, sin truncar. El ensayo actual crea una cita y registra y revisa una sesión antes de cerrar el origen; la restauración comprueba también esas cuatro colecciones. Los archivos versión 1 siguen descifrándose y restaurándose con su esquema anterior. La agenda de la demo pública permanece fuera de estas copias.
+
+La versión 3 añade `custom_exercises`: nombres personales inmutables desde esta API con propietario, modalidad, zonas, fecha e identificador. Se validan unicidad de nombre, pertenencia y auditoría de creación, con límite de 500 registros. El ensayo recupera un nombre personal y su texto en una sesión tras cerrar el origen. Se conservan pruebas de lectura/restauración de versiones 1 y 2. No se incluye la lista de admisión ni Auth en la copia de datos.
+
+La versión 4 incorpora el historial `exercise_versions`, revisión y estado de archivo. Valida revisiones continuas, última versión y auditoría de creación/cambio/archivo. Límite de 2 000 versiones del catálogo, sin truncar; se conservan ejercicios archivados. El ensayo recupera tres versiones de un nombre y el texto original que quedó en una sesión. Se siguen aceptando las versiones 1, 2 y 3.
+
+La versión 5 elimina la restricción de dos fichas, con un máximo de 500 incluidas las archivadas, sin truncar. Valida también los alias, nombres ficticios derivados y campos de las altas nuevas en sus versiones históricas. Las nueve colecciones no cambian y se siguen admitiendo los archivos v1–v4. El ensayo actual crea y edita una tercera ficha, registra una sesión vinculada a ella y recupera todo después de cerrar el origen. El reporte local vigente es v5; el primer ensayo alojado usó una copia v4 y sus recuentos/hash históricos se conservan por separado.
+
+Los campos opcionales de la ficha `reason` y `precautions` se incluyen en los payloads actuales y sus versiones históricas. La validación v5 comprueba texto y límites (2 000/4 000) cuando existen; no exige añadirlos a archivos previos. No cambian las nueve colecciones, el cifrado ni la versión del archivo. Los ensayos actualizados verifican ambos valores después de restaurar.
+
+## Copia clínica v6
+
+El formato `mlrehab-clinical-snapshot`, versión 6, declara `data_mode: clinical` y valida el modelo de identidad/notas sin `testOnly` o `fixture`. Las nueve colecciones y el cifrado no cambian; v1–v5 siguen admitidas. Se conservan los límites, sin truncamiento, y la propiedad de la cuenta. El entorno actual continúa exportando v5 porque sus perfiles siguen en prueba.
+
+El [ensayo clínico de servicios](../verification/CLINICAL_SERVICE_RECOVERY_REPORT.json) restaura v6 con datos sintéticos y verifica su lectura tras reconstruir Auth/MFA. El generador administrativo exige `allowClinical: true` exactamente, no valores por coerción, y restaura la admisión suspendida/deshabilitada. La aprobación y los eventos de modo se reconstruyen aparte y no forman parte de las nueve colecciones. No se han restaurado historias reales ni se ha habilitado producción por estas pruebas.
+
+El tipo de visita es una extensión opcional de citas y versiones en v5/v6: `first_visit`, `follow_up` o `gym`. Los registros desconocidos omiten el campo y se restauran como sin clasificar. No se cambian versiones anteriores ni se asigna una clase retrospectiva. Los lectores y restauradores validan el enum y conservan igualdad/hash de representaciones antiguas y nuevas, incluidas mezclas de registros clasificados y anteriores.
