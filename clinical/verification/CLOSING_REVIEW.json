@@ -3,14 +3,14 @@
   "purpose": "Read-only closing review; not clinical authorization, a file-custody receipt or a certification",
   "reviewed_application_commit": "e9db7dc4dd80b23921f48f43f006ee3ea7152566",
   "live_site": {
-    "version": 22,
+    "version": 23,
     "url": "https://mlrehab-acceso-pruebas.mauvegem514.chatgpt.site",
     "audience": "owner_only",
     "owners": 1,
     "editors": 0,
     "groups": 0,
-    "private_source_commit": "da1f2ba02e02383642719d201063b01f3e406c68",
-    "deployment_id": "appgdep_6b0481d30c20819188c621bbe4a517ee"
+    "private_source_commit": "c3396b340ddeda6fa92089379a4591d78c372a1c",
+    "deployment_id": "appgprj_6af467bd2ea48191b8f375cccd1d7195~appgdep_13c5c9228004819187a25e2788349310"
   },
   "providers": {
     "supabase": {
@@ -273,7 +273,7 @@
     "latest_export_at": "2026-11-22T16:09:27.114386+00:00",
     "recorded_check_count": 2
   },
-  "updated_on": "2026-11-23",
+  "updated_on": "2026-11-24",
   "resolved_findings": [
     {
       "id": "physical_custody",
@@ -284,16 +284,16 @@
     }
   ],
   "patient_page_verification": {
-    "checked_on": "2026-11-23",
-    "private_source_commit": "da1f2ba02e02383642719d201063b01f3e406c68",
-    "automated_ui_cases_passed": 98,
+    "checked_on": "2026-11-24",
+    "private_source_commit": "c3396b340ddeda6fa92089379a4591d78c372a1c",
+    "automated_ui_cases_passed": 108,
     "recovery_build_cases_passed": 6,
     "https_assets_matching": 14,
     "draft_loss_and_uncertain_save_cases_verified": true,
     "detail_names_in_urls_or_document_titles": false,
     "real_safari_or_windows_browser_qa": false,
     "holder_acceptance": "pending",
-    "full_ui_suite_cases_passed": 97,
+    "full_ui_suite_cases_passed": 105,
     "additional_history_cleanup_regression_passed": true,
     "affected_lifecycle_cases_rechecked": 6,
     "actual_browser_tabs": true,
@@ -302,6 +302,12 @@
     "client_session_coordination_changed": true,
     "backend_schema_or_provider_auth_configuration_changed": false,
     "child_pagehide_clears_fields": true,
-    "cross_tab_pending_changes_and_writes_guarded": true
+    "cross_tab_pending_changes_and_writes_guarded": true,
+    "calendar_appointments_open_browser_tabs": true,
+    "calendar_treatment_and_schedule_save_before_close": true,
+    "calendar_port_filtered_to_bound_appointment_and_patient": true,
+    "calendar_pending_session_writes_block_backups_after_tab_close": true,
+    "calendar_new_ui_cases_passed": 10,
+    "calendar_existing_catalogue_cases_rechecked_after_tab_test_adaptation": 3
   }
 }

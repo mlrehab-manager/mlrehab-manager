@@ -677,6 +677,15 @@ body.is-patient-tab .patient-finish-bar {
   font-size: 0.875rem;
   margin-top: 0;
 }
+body.is-appointment-tab #agenda-toolbar,
+body.is-appointment-tab #agenda-meta,
+body.is-appointment-tab #agenda-week,
+body.is-appointment-tab #agenda-saved-list,
+body.is-appointment-tab #agenda-outside-note,
+body.is-appointment-tab #agenda-title,
+body.is-appointment-tab #agenda-title + p {
+  display: none !important;
+}
 #patient-leave-continue,
 #patient-leave-discard {
   background: var(--surface);

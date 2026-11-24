@@ -91,7 +91,14 @@ const validDay = (day) =>
   day >= "2020-01-01" &&
   day <= "2100-12-31" &&
   Number.isFinite(Date.parse(day));
-export function installAgendaTools({ client, run, isAuthorized, message }) {
+export function installAgendaTools({
+  client,
+  run,
+  isAuthorized,
+  message,
+  openAppointmentInTab,
+  onFinish,
+}) {
   installCalendarLayout();
   $("agenda-date").value = clinicToday();
   installExercisePicker({
@@ -148,10 +155,21 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
       appointments,
       loaded: loadedWeek === mondayOf(day),
       onSlot: (date, hour) => prepareNew(date, hour),
-      onAppointment: (id) =>
-        run(async (current) => {
-          if (isAuthorized() && confirmDiscard()) await open(id, current);
-        }),
+      onAppointment: selectAppointment,
+    });
+  }
+  function selectAppointment(id) {
+    if (!isAuthorized()) return;
+    if (openAppointmentInTab) {
+      const row = appointments.find((entry) => entry.id === id);
+      if (row) {
+        if (!hasAgendaChanges()) resetEditor();
+        openAppointmentInTab(row);
+      }
+      return;
+    }
+    run(async (current) => {
+      if (confirmDiscard()) await open(id, current);
     });
   }
   repaintCalendar = () => renderWeek($("agenda-date").value || clinicToday());
@@ -212,11 +230,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
           button = document.createElement("button");
         button.type = "button";
         button.textContent = appointmentLabel(row, true);
-        button.addEventListener("click", () =>
-          run(async (current) => {
-            if (isAuthorized() && confirmDiscard()) await open(row.id, current);
-          }),
-        );
+        button.addEventListener("click", () => selectAppointment(row.id));
         item.append(button);
         fragment.append(item);
       }
@@ -344,6 +358,7 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
             : "Puedes registrar la sesión de esta cita. Al guardarla quedará realizada.";
       restoreLocks();
       message("Cita y sesión ficticias cargadas desde la base privada.");
+      return true;
     } finally {
       if (isCurrent()) restoreLocks();
     }
@@ -388,6 +403,12 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
             (row) => row.status !== "cancelled",
           );
         if (occupied) {
+          if (openAppointmentInTab) {
+            message(
+              "Ese hueco ya tiene una cita. Pulsa la cita actualizada para abrirla en una pestaña nueva.",
+            );
+            return;
+          }
           await open(occupied.id, isCurrent, false);
           if (isCurrent())
             message(
@@ -440,99 +461,35 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
       monday = mondayOf(day);
     prepareNew(day > dayShift(monday, 4) ? monday : day, 9, false);
   });
-  $("appointment-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    run(async (isCurrent) => {
-      if (!isAuthorized() || (!newMode && !appointment)) return;
-      if (sessionDirty()) {
-        message(
-          "Guarda o descarta el borrador de sesión antes de cambiar la cita.",
-        );
-        return;
-      }
-      if (
-        appointment &&
-        (appointment.status === "completed" || appointment.patient_archived)
-      )
-        return;
-      const sent = appointmentValues(),
-        previous = appointment;
-      lockEditors();
-      try {
-        const { data, error } = await client.rpc(
-          "clinical_appointment_save_typed",
-          {
-            p_id: previous?.id ?? null,
-            p_expected_revision: previous?.revision ?? null,
-            p_patient_id: sent.patient_id,
-            p_start_local: sent.start,
-            p_minutes: Number(sent.minutes),
-            p_status: sent.status,
-            p_visit_type: sent.visit_type,
-          },
-        );
-        if (!isCurrent()) return;
-        if (error) {
-          fail(error, true);
-          return;
-        }
-        if (
-          !data?.id ||
-          data.revision !== (previous ? previous.revision + 1 : 1)
-        ) {
-          fail(null, true);
-          return;
-        }
-        fillAppointment({
-          ...data,
-          patient_name:
-            patients.find((p) => p.id === data.patient_id)?.name ??
-            previous?.patient_name,
-          patient_archived: false,
-          session_id: null,
-        });
-        session = null;
-        sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
-        clearExercisePicker();
-        sessionBaseline = sessionValues();
-        $("session-form").hidden = false;
-        $("session-state").textContent =
-          data.status === "cancelled"
-            ? "Cita cancelada: no admite registrar sesión."
-            : "Cita preparada para registrar una sesión ficticia.";
-        if (await loadWeek(localInput(data.starts_at).slice(0, 10), isCurrent))
-          message("Cita ficticia guardada en la agenda privada.");
-      } finally {
-        if (isCurrent()) restoreLocks();
-      }
-    });
-  });
-  $("session-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    run(async (isCurrent) => {
-      if (
-        !isAuthorized() ||
-        !appointment ||
-        appointment.status === "cancelled" ||
-        appointment.patient_archived
-      )
-        return;
-      if (appointmentDirty()) {
-        message(
-          "Guarda o descarta los cambios de la cita antes de registrar la sesión.",
-        );
-        return;
-      }
-      const sent = sessionValues(),
-        previous = session;
-      const { data, error } = await client.rpc("clinical_session_save_test", {
-        p_id: previous?.id ?? null,
-        p_expected_revision: previous?.revision ?? null,
-        p_appointment_id: appointment.id,
-        p_evolution: sent.evolution,
-        p_passive: sent.passive,
-        p_exercise: sent.exercise,
-      });
+  async function saveAppointment(isCurrent, preserveSessionDraft = false) {
+    if (!isAuthorized() || (!newMode && !appointment)) return;
+    if (sessionDirty() && !preserveSessionDraft) {
+      message(
+        "Guarda o descarta el borrador de sesión antes de cambiar la cita.",
+      );
+      return;
+    }
+    if (
+      appointment &&
+      (appointment.status === "completed" || appointment.patient_archived)
+    )
+      return;
+    const sent = appointmentValues(),
+      previous = appointment;
+    lockEditors();
+    try {
+      const { data, error } = await client.rpc(
+        "clinical_appointment_save_typed",
+        {
+          p_id: previous?.id ?? null,
+          p_expected_revision: previous?.revision ?? null,
+          p_patient_id: sent.patient_id,
+          p_start_local: sent.start,
+          p_minutes: Number(sent.minutes),
+          p_status: sent.status,
+          p_visit_type: sent.visit_type,
+        },
+      );
       if (!isCurrent()) return;
       if (error) {
         fail(error, true);
@@ -540,42 +497,115 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
       }
       if (
         !data?.id ||
-        data.appointment_id !== appointment.id ||
         data.revision !== (previous ? previous.revision + 1 : 1)
       ) {
         fail(null, true);
         return;
       }
-      session = data;
-      sessionBaseline = sent;
-      appointment = {
-        ...appointment,
-        status: "completed",
-        revision: appointment.revision + (previous ? 0 : 1),
-        session_id: data.id,
-      };
-      appointmentBaseline = appointmentValues();
-      $("appointment-status").value = "completed";
-      appointmentBaseline = appointmentValues();
+      fillAppointment({
+        ...data,
+        patient_name:
+          patients.find((p) => p.id === data.patient_id)?.name ??
+          previous?.patient_name,
+        patient_archived: false,
+        session_id: null,
+      });
+      if (!preserveSessionDraft) {
+        session = null;
+        sessionFields.forEach((f) => ($(`session-${f}`).value = ""));
+        clearExercisePicker();
+        sessionBaseline = sessionValues();
+      }
+      $("session-form").hidden = false;
       $("session-state").textContent =
-        `Sesión guardada · versión ${data.revision}`;
-      restoreLocks();
-      if (
-        await loadWeek(
-          localInput(appointment.starts_at).slice(0, 10),
-          isCurrent,
-        )
-      )
-        message(
-          sessionDirty()
-            ? "Sesión guardada. Hay texto posterior sin guardar."
-            : "Sesión ficticia guardada; la cita queda realizada.",
-        );
+        data.status === "cancelled"
+          ? "Cita cancelada: no admite registrar sesión."
+          : "Cita preparada para registrar una sesión ficticia.";
+      if (await loadWeek(localInput(data.starts_at).slice(0, 10), isCurrent)) {
+        message("Cita ficticia guardada en la agenda privada.");
+        return true;
+      }
+    } finally {
+      if (isCurrent()) restoreLocks();
+    }
+  }
+  $("appointment-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    run(saveAppointment);
+  });
+  async function saveSession(isCurrent) {
+    if (
+      !isAuthorized() ||
+      !appointment ||
+      appointment.status === "cancelled" ||
+      appointment.patient_archived
+    )
+      return;
+    if (appointmentDirty()) {
+      message(
+        "Guarda o descarta los cambios de la cita antes de registrar la sesión.",
+      );
+      return;
+    }
+    const sent = sessionValues(),
+      previous = session;
+    const { data, error } = await client.rpc("clinical_session_save_test", {
+      p_id: previous?.id ?? null,
+      p_expected_revision: previous?.revision ?? null,
+      p_appointment_id: appointment.id,
+      p_evolution: sent.evolution,
+      p_passive: sent.passive,
+      p_exercise: sent.exercise,
     });
+    if (!isCurrent()) return;
+    if (error) {
+      fail(error, true);
+      return;
+    }
+    if (
+      !data?.id ||
+      data.appointment_id !== appointment.id ||
+      data.revision !== (previous ? previous.revision + 1 : 1)
+    ) {
+      fail(null, true);
+      return;
+    }
+    session = data;
+    sessionBaseline = sent;
+    appointment = {
+      ...appointment,
+      status: "completed",
+      revision: appointment.revision + (previous ? 0 : 1),
+      session_id: data.id,
+    };
+    appointmentBaseline = appointmentValues();
+    $("appointment-status").value = "completed";
+    appointmentBaseline = appointmentValues();
+    $("session-state").textContent =
+      `Sesión guardada · versión ${data.revision}`;
+    restoreLocks();
+    if (
+      await loadWeek(localInput(appointment.starts_at).slice(0, 10), isCurrent)
+    ) {
+      message(
+        sessionDirty()
+          ? "Sesión guardada. Hay texto posterior sin guardar."
+          : "Sesión ficticia guardada; la cita queda realizada.",
+      );
+      return true;
+    }
+  }
+  $("session-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    run(saveSession);
   });
   $("agenda-close").addEventListener("click", () => {
     if (!confirmDiscard()) return;
     resetEditor();
+    if (onFinish) {
+      onFinish();
+      return;
+    }
     window.scrollTo({ top: 0, behavior: "instant" });
     fitCalendar();
   });
@@ -585,10 +615,46 @@ export function installAgendaTools({ client, run, isAuthorized, message }) {
         await open(appointment.id, isCurrent);
     }),
   );
+  async function saveAndFinish(isCurrent) {
+    if (!isAuthorized() || !appointment) return false;
+    if (appointmentDirty()) {
+      if (!$("appointment-form").reportValidity()) return false;
+      if (sessionDirty() && $("appointment-status").value === "cancelled") {
+        message(
+          "La cita tiene un borrador de sesión. Guarda la sesión o descártala antes de cancelar la cita.",
+        );
+        return false;
+      }
+      if (!(await saveAppointment(isCurrent, true)) || !isCurrent())
+        return false;
+    }
+    if (sessionDirty() && !$("session-form").reportValidity()) return false;
+    if (sessionDirty() && (!(await saveSession(isCurrent)) || !isCurrent()))
+      return false;
+    if (hasAgendaChanges()) {
+      message(
+        "Hay texto posterior sin guardar. Revísalo y vuelve a pulsar Guardar y cerrar pestaña.",
+      );
+      return false;
+    }
+    return isCurrent();
+  }
   window.addEventListener("beforeunload", (event) => {
     if (hasAgendaChanges()) {
       event.preventDefault();
       event.returnValue = "";
     }
   });
+  return {
+    openAppointment: (id, day) =>
+      run(async (isCurrent) => {
+        $("agenda-date").value = day;
+        await open(id, isCurrent);
+      }),
+    refreshWeek: () =>
+      loadedAnchor
+        ? run((isCurrent) => loadWeek(loadedAnchor, isCurrent))
+        : undefined,
+    saveAndFinish,
+  };
 }

@@ -2,6 +2,7 @@ import { setDataMode, modeText } from "./data-mode.js";
 import { installAppShell } from "./app-shell.js";
 import { installPatientTabs } from "./patient-tabs.js";
 import { installPatientTabPage } from "./patient-tab-page.js";
+import { installAppointmentTabPage } from "./appointment-tab-page.js";
 import {
   clearCustomExerciseData,
   installCustomExercises,
@@ -22,7 +23,9 @@ import {
 } from "./agenda-tools.js";
 let patientTabs = null,
   patientTools = null,
-  patientRefreshPending = false;
+  agendaTools = null,
+  patientRefreshPending = false,
+  agendaRefreshPending = false;
 const hasAnyChanges = () =>
   hasPatientChanges() ||
   hasAgendaChanges() ||
@@ -56,6 +59,7 @@ function reset() {
   active = false;
   patientTabs?.closeAll();
   patientRefreshPending = false;
+  agendaRefreshPending = false;
   setDataMode("test");
   factorId = null;
   clearSetup();
@@ -97,6 +101,8 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   );
 } else if (location.hash === "#ficha") {
   void installPatientTabPage();
+} else if (location.hash === "#cita") {
+  void installAppointmentTabPage();
 } else {
   const service = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
@@ -159,9 +165,14 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
   }
 
   function flushPatientRefresh() {
-    if (!patientRefreshPending || busy || !active || !patientTools) return;
-    patientRefreshPending = false;
-    void patientTools.refreshList();
+    if (busy || !active) return;
+    if (patientRefreshPending && patientTools) {
+      patientRefreshPending = false;
+      void patientTools.refreshList();
+    } else if (agendaRefreshPending && agendaTools && !hasAgendaChanges()) {
+      agendaRefreshPending = false;
+      void agendaTools.refreshWeek();
+    }
   }
 
   patientTabs = installPatientTabs({
@@ -173,8 +184,9 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
       checkIdle();
       if (active) lastActivity = Date.now();
     },
-    onSaved: () => {
-      patientRefreshPending = true;
+    onSaved: (kind) => {
+      if (kind === "appointment") agendaRefreshPending = true;
+      else patientRefreshPending = true;
       flushPatientRefresh();
     },
   });
@@ -214,11 +226,12 @@ if (location.origin !== ACCESS_ORIGIN || window.self !== window.top) {
     isAuthorized: () => active && !$("complete").hidden,
     message,
   });
-  installAgendaTools({
+  agendaTools = installAgendaTools({
     client,
     run,
     isAuthorized: () => active && !$("complete").hidden,
     message,
+    openAppointmentInTab: (row) => patientTabs.openAppointment(row),
   });
 
   async function showMfa(isCurrent) {

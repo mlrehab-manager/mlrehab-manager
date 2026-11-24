@@ -1,12 +1,88 @@
 // Only the main tab owns the authenticated client. Each port is bound to one
-// window opened by a patient-list click and one patient. No tokens cross tabs.
+// window opened by a patient/agenda click and its record. No tokens cross tabs.
+import { localInput, mondayOf } from "./weekly-calendar.js";
 const protocol = "mlrehab-patient-v1";
 const read = "clinical_patient_get";
 const write = new Set([
   "clinical_patient_save_fields_test",
   "clinical_patient_archive_test",
+  "clinical_appointment_save_typed",
+  "clinical_session_save_test",
 ]);
 const denied = () => ({ data: null, error: { code: "42501" } });
+
+function allowed(record, name, args) {
+  if (name === "clinical_access_check") return args == null;
+  if (!record.appointmentId)
+    return (
+      [
+        read,
+        "clinical_patient_save_fields_test",
+        "clinical_patient_archive_test",
+      ].includes(name) && args?.p_id === record.patientId
+    );
+  if (name === "clinical_exercise_list_test") return args == null;
+  if (name === "clinical_agenda_week")
+    return (
+      typeof args?.p_day === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(args.p_day) &&
+      Number.isFinite(Date.parse(args.p_day)) &&
+      mondayOf(args.p_day) === mondayOf(record.day)
+    );
+  if (name === "clinical_appointment_save_typed")
+    return (
+      args?.p_id === record.appointmentId &&
+      args.p_patient_id === record.patientId
+    );
+  if (name === "clinical_session_get_test")
+    return args?.p_appointment_id === record.appointmentId;
+  if (name === "clinical_session_save_test")
+    return (
+      args?.p_appointment_id === record.appointmentId &&
+      args.p_id === record.sessionId
+    );
+  return false;
+}
+
+function scopedResult(record, name, result) {
+  if (result.error || !record.appointmentId) return result;
+  const data = result.data;
+  if (name === "clinical_agenda_week" && data) {
+    const rows = (data.appointments ?? []).filter(
+      (row) =>
+        row.id === record.appointmentId && row.patient_id === record.patientId,
+    );
+    if (rows.length) record.sessionId = rows[0].session_id ?? null;
+    return {
+      ...result,
+      data: {
+        ...data,
+        appointments: rows,
+        patients: (data.patients ?? []).filter(
+          (row) => row.id === record.patientId,
+        ),
+      },
+    };
+  }
+  if (
+    name === "clinical_appointment_save_typed" &&
+    data?.id === record.appointmentId &&
+    data.patient_id === record.patientId
+  )
+    record.day = localInput(data.starts_at).slice(0, 10);
+  if (
+    ["clinical_session_get_test", "clinical_session_save_test"].includes(name)
+  ) {
+    if (
+      data &&
+      (data.appointment_id !== record.appointmentId ||
+        data.patient_id !== record.patientId)
+    )
+      return { data: null, error: { code: "NETWORK_ERROR" } };
+    record.sessionId = data?.id ?? null;
+  }
+  return result;
+}
 
 export function installPatientTabs({
   client,
@@ -71,16 +147,7 @@ export function installPatientTabs({
       }
       if (data.type !== "rpc") return;
       const { name, args } = data;
-      if (
-        name !== "clinical_access_check" &&
-        (!(name === read || write.has(name)) ||
-          !args ||
-          args.p_id !== record.patientId)
-      ) {
-        reply(denied());
-        return;
-      }
-      if (name === "clinical_access_check" && args != null) {
+      if (!allowed(record, name, args)) {
         reply(denied());
         return;
       }
@@ -89,10 +156,12 @@ export function installPatientTabs({
       const writeKey = {};
       if (writing) writes.add(writeKey);
       try {
-        const result = await client.rpc(name, args);
+        let result = await client.rpc(name, args);
         if (epoch !== generation || !isAuthorized()) return;
+        result = scopedResult(record, name, result);
         reply(result);
-        if (writing && !result.error) onSaved();
+        if (writing && !result.error)
+          onSaved(record.appointmentId ? "appointment" : "patient");
       } catch {
         reply({ data: null, error: { code: "NETWORK_ERROR" } });
       } finally {
@@ -108,6 +177,9 @@ export function installPatientTabs({
       protocol,
       type: "context",
       patientId: record.patientId,
+      ...(record.appointmentId
+        ? { appointmentId: record.appointmentId, day: record.day }
+        : {}),
     });
   });
   function closeAll(
@@ -137,27 +209,40 @@ export function installPatientTabs({
     for (const record of records.values())
       if (record.window.closed) remove(record);
   }, 1000);
+  function open(patientId, row) {
+    if (!isAuthorized()) return false;
+    const url = new URL(location.pathname, location.origin);
+    url.hash = row ? "cita" : "ficha";
+    const child = window.open(url.href, "_blank");
+    if (!child) {
+      message(
+        "El navegador ha bloqueado la pestaña nueva. Permite ventanas emergentes para MLREHAB y vuelve a pulsar el paciente.",
+      );
+      return false;
+    }
+    records.set(child, {
+      window: child,
+      patientId,
+      dirty: false,
+      port: null,
+      ...(row
+        ? {
+            appointmentId: row.id,
+            day: localInput(row.starts_at).slice(0, 10),
+            sessionId: row.session_id ?? null,
+          }
+        : {}),
+    });
+    message(
+      row
+        ? "Cita y tratamiento abiertos en una pestaña nueva. La agenda permanece aquí."
+        : "Ficha abierta en una pestaña nueva. La lista permanece aquí.",
+    );
+    return true;
+  }
   return {
-    open(patientId) {
-      if (!isAuthorized()) return false;
-      const url = new URL(location.pathname, location.origin);
-      url.hash = "ficha";
-      const child = window.open(url.href, "_blank");
-      if (!child) {
-        message(
-          "El navegador ha bloqueado la pestaña nueva. Permite ventanas emergentes para MLREHAB y vuelve a pulsar el paciente.",
-        );
-        return false;
-      }
-      records.set(child, {
-        window: child,
-        patientId,
-        dirty: false,
-        port: null,
-      });
-      message("Ficha abierta en una pestaña nueva. La lista permanece aquí.");
-      return true;
-    },
+    open,
+    openAppointment: (row) => open(row.patient_id, row),
     closeAll,
     hasPendingChanges,
   };
@@ -167,7 +252,8 @@ export function connectPatientTab(onLock) {
   const parent = window.opener;
   const pending = new Map();
   let port,
-    stopped = false;
+    stopped = false,
+    context = null;
   const challenge = crypto.randomUUID();
   let resolveReady;
   const ready = new Promise((resolve) => {
@@ -231,6 +317,11 @@ export function connectPatientTab(onLock) {
         return;
       }
       if (data.type === "context" && typeof data.patientId === "string") {
+        context = {
+          patientId: data.patientId,
+          appointmentId: data.appointmentId,
+          day: data.day,
+        };
         clearTimeout(startupTimer);
         resolveReady(data.patientId);
       }
@@ -293,6 +384,7 @@ export function connectPatientTab(onLock) {
     );
   return {
     ready,
+    context: () => context,
     isOpen: () => !stopped,
     rpc: (name, args) => request("rpc", { name, args }),
     draft: (dirty) => {
